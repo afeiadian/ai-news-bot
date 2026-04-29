@@ -1,135 +1,105 @@
-# 数据源配置
-# RSSHub 路由文档: https://docs.rsshub.app
+# 数据源配置（已验证可用）
+# 状态: ✅ 可用  ⚠️ 待验证  ❌ 不可用
+
+rsshub_base: "https://rsshub-production-5b5c.up.railway.app"
 
 rss_sources:
   # --- 大模型实验室官网 ---
-  - name: Anthropic Blog
-    url: "https://www.anthropic.com/news"
-    rsshub_route: "/anthropic/news"
-    category: lab
-
-  - name: OpenAI Blog
-    url: "https://openai.com/blog"
-    rsshub_route: "/openai/blog"
-    category: lab
-
-  - name: Google DeepMind Blog
-    url: "https://deepmind.google/discover/blog"
-    rsshub_route: "/google/deepmind/blog"
-    category: lab
-
-  - name: Meta AI Blog
-    url: "https://ai.meta.com/blog"
-    rsshub_route: "/meta/research/ai"
-    category: lab
-
-  - name: Mistral AI News
-    url: "https://mistral.ai/news"
-    rsshub_route: "/mistral/news"
-    category: lab
-
-  - name: DeepSeek Blog
-    url: "https://api.deepseek.com/news"
-    category: lab
-
-  # --- AI 开发工具 ---
   - name: Hugging Face Blog
-    url: "https://huggingface.co/blog"
-    category: tools
-    native_rss: "https://huggingface.co/blog/feed.xml"
+    url: "https://huggingface.co/blog/feed.xml"
+    category: lab
+    status: verified
 
   - name: LangChain Blog
-    url: "https://blog.langchain.dev"
+    url: "https://blog.langchain.dev/rss/"
     category: tools
-    native_rss: "https://blog.langchain.dev/rss/"
+    status: verified
 
-  - name: LlamaIndex Blog
-    url: "https://blog.llamaindex.ai"
-    category: tools
-    native_rss: "https://blog.llamaindex.ai/rss/"
-
-  - name: Weights & Biases Blog
-    url: "https://wandb.ai/blog"
-    category: tools
-
-  - name: vLLM Blog
-    url: "https://blog.vllm.ai"
-    category: tools
-    native_rss: "https://blog.vllm.ai/feed.xml"
-
-  # --- AI 芯片 / 硬件 ---
-  - name: NVIDIA AI Blog
-    url: "https://blogs.nvidia.com/blog/category/deep-learning"
+  - name: NVIDIA Blog
+    url: "https://blogs.nvidia.com/feed/"
     category: chip
-    native_rss: "https://blogs.nvidia.com/feed/"
-
-  - name: Groq Blog
-    url: "https://groq.com/blog"
-    category: chip
-
-  - name: Cerebras Blog
-    url: "https://cerebras.ai/blog"
-    category: chip
+    status: verified
 
   - name: SemiAnalysis
-    url: "https://semianalysis.com"
+    url: "https://semianalysis.com/feed/"
     category: chip
-    native_rss: "https://semianalysis.com/feed/"
-
-  # --- Newsletter ---
-  - name: The Batch (DeepLearning.AI)
-    url: "https://www.deeplearning.ai/the-batch"
-    category: newsletter
-    native_rss: "https://www.deeplearning.ai/the-batch/feed/"
+    status: verified
 
   - name: Import AI (Jack Clark)
-    url: "https://importai.substack.com"
+    url: "https://importai.substack.com/feed"
     category: newsletter
-    native_rss: "https://importai.substack.com/feed"
+    status: pending  # substack 可能有访问限制
 
   - name: The Gradient
-    url: "https://thegradient.pub"
+    url: "https://thegradient.pub/rss/"
     category: newsletter
-    native_rss: "https://thegradient.pub/rss/"
+    status: pending
 
-# arXiv 分类（通过 RSSHub 路由）
+  # 以下官网无原生 RSS，后续通过 RSSHub 或网页抓取补充
+  # - Anthropic Blog: https://www.anthropic.com/news
+  # - OpenAI Blog: https://openai.com/blog
+  # - Mistral AI: https://mistral.ai/news
+  # - DeepSeek: https://www.deepseek.com/news
+  # - Groq Blog: https://groq.com/blog
+  # - Cerebras Blog: https://cerebras.ai/blog
+
+# arXiv 分类（原生 RSS，直接访问）
 arxiv_sources:
   - id: cs.AI
+    url: "https://rss.arxiv.org/rss/cs.AI"
     name: "Artificial Intelligence"
+    status: verified
+
   - id: cs.LG
+    url: "https://rss.arxiv.org/rss/cs.LG"
     name: "Machine Learning"
+    status: verified
+
   - id: cs.CL
+    url: "https://rss.arxiv.org/rss/cs.CL"
     name: "Computation and Language"
+    status: verified
+
   - id: cs.CV
+    url: "https://rss.arxiv.org/rss/cs.CV"
     name: "Computer Vision"
+    status: verified
+
   - id: cs.AR
+    url: "https://rss.arxiv.org/rss/cs.AR"
     name: "Hardware Architecture"
+    status: verified
+
   - id: cs.DC
+    url: "https://rss.arxiv.org/rss/cs.DC"
     name: "Distributed Computing"
+    status: verified
 
-# Hacker News（通过 RSSHub 关键词过滤）
+# Hacker News（通过 RSSHub）
 hackernews_sources:
-  - name: "HN - AI"
-    rsshub_route: "/hackernews/keyword/AI"
-  - name: "HN - LLM"
-    rsshub_route: "/hackernews/keyword/LLM"
-  - name: "HN - GPU"
-    rsshub_route: "/hackernews/keyword/GPU"
-  - name: "HN - NVIDIA"
-    rsshub_route: "/hackernews/keyword/NVIDIA"
+  - name: "HN Top Links"
+    url: "https://rsshub-production-5b5c.up.railway.app/hackernews/best"
+    status: verified
 
-# Reddit 子版块（原生 RSS）
+# Reddit（old.reddit.com 原生 RSS）
 reddit_sources:
   - name: "r/MachineLearning"
-    native_rss: "https://www.reddit.com/r/MachineLearning/new/.rss"
-  - name: "r/LocalLLaMA"
-    native_rss: "https://www.reddit.com/r/LocalLLaMA/new/.rss"
-  - name: "r/artificial"
-    native_rss: "https://www.reddit.com/r/artificial/new/.rss"
-  - name: "r/Semiconductors"
-    native_rss: "https://www.reddit.com/r/Semiconductors/new/.rss"
+    url: "https://old.reddit.com/r/MachineLearning/new/.rss"
+    status: verified
 
-# X / Twitter 关键账号（通过 twscrape 采集）
+  - name: "r/LocalLLaMA"
+    url: "https://old.reddit.com/r/LocalLLaMA/new/.rss"
+    status: verified
+
+  - name: "r/artificial"
+    url: "https://old.reddit.com/r/artificial/new/.rss"
+    status: verified
+
+  - name: "r/Semiconductors"
+    url: "https://old.reddit.com/r/Semiconductors/new/.rss"
+    status: verified
+
+# X / Twitter 账号（通过 twscrape 采集，独立脚本处理）
 twitter_accounts:
   - handle: karpathy
     name: "Andrej Karpathy"
@@ -151,8 +121,8 @@ twitter_accounts:
     name: "AK (Papers)"
 
 twitter_keywords:
-  - "#LLM"
-  - "#AIchip"
-  - "#vLLM"
-  - "CUDA"
+  - "LLM"
+  - "AI chip"
+  - "vLLM"
   - "inference optimization"
+  - "transformer"
