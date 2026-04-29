@@ -10,10 +10,7 @@ rss_sources:
     category: lab
     status: verified
 
-  - name: LangChain Blog
-    url: "https://blog.langchain.dev/rss/"
-    category: tools
-    status: verified
+  # LangChain 博客已迁移至 www.langchain.com/blog，暂无 RSS，后续通过网页抓取补充
 
   - name: NVIDIA Blog
     url: "https://blogs.nvidia.com/feed/"
