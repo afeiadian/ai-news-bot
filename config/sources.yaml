@@ -1,0 +1,158 @@
+# 数据源配置
+# RSSHub 路由文档: https://docs.rsshub.app
+
+rss_sources:
+  # --- 大模型实验室官网 ---
+  - name: Anthropic Blog
+    url: "https://www.anthropic.com/news"
+    rsshub_route: "/anthropic/news"
+    category: lab
+
+  - name: OpenAI Blog
+    url: "https://openai.com/blog"
+    rsshub_route: "/openai/blog"
+    category: lab
+
+  - name: Google DeepMind Blog
+    url: "https://deepmind.google/discover/blog"
+    rsshub_route: "/google/deepmind/blog"
+    category: lab
+
+  - name: Meta AI Blog
+    url: "https://ai.meta.com/blog"
+    rsshub_route: "/meta/research/ai"
+    category: lab
+
+  - name: Mistral AI News
+    url: "https://mistral.ai/news"
+    rsshub_route: "/mistral/news"
+    category: lab
+
+  - name: DeepSeek Blog
+    url: "https://api.deepseek.com/news"
+    category: lab
+
+  # --- AI 开发工具 ---
+  - name: Hugging Face Blog
+    url: "https://huggingface.co/blog"
+    category: tools
+    native_rss: "https://huggingface.co/blog/feed.xml"
+
+  - name: LangChain Blog
+    url: "https://blog.langchain.dev"
+    category: tools
+    native_rss: "https://blog.langchain.dev/rss/"
+
+  - name: LlamaIndex Blog
+    url: "https://blog.llamaindex.ai"
+    category: tools
+    native_rss: "https://blog.llamaindex.ai/rss/"
+
+  - name: Weights & Biases Blog
+    url: "https://wandb.ai/blog"
+    category: tools
+
+  - name: vLLM Blog
+    url: "https://blog.vllm.ai"
+    category: tools
+    native_rss: "https://blog.vllm.ai/feed.xml"
+
+  # --- AI 芯片 / 硬件 ---
+  - name: NVIDIA AI Blog
+    url: "https://blogs.nvidia.com/blog/category/deep-learning"
+    category: chip
+    native_rss: "https://blogs.nvidia.com/feed/"
+
+  - name: Groq Blog
+    url: "https://groq.com/blog"
+    category: chip
+
+  - name: Cerebras Blog
+    url: "https://cerebras.ai/blog"
+    category: chip
+
+  - name: SemiAnalysis
+    url: "https://semianalysis.com"
+    category: chip
+    native_rss: "https://semianalysis.com/feed/"
+
+  # --- Newsletter ---
+  - name: The Batch (DeepLearning.AI)
+    url: "https://www.deeplearning.ai/the-batch"
+    category: newsletter
+    native_rss: "https://www.deeplearning.ai/the-batch/feed/"
+
+  - name: Import AI (Jack Clark)
+    url: "https://importai.substack.com"
+    category: newsletter
+    native_rss: "https://importai.substack.com/feed"
+
+  - name: The Gradient
+    url: "https://thegradient.pub"
+    category: newsletter
+    native_rss: "https://thegradient.pub/rss/"
+
+# arXiv 分类（通过 RSSHub 路由）
+arxiv_sources:
+  - id: cs.AI
+    name: "Artificial Intelligence"
+  - id: cs.LG
+    name: "Machine Learning"
+  - id: cs.CL
+    name: "Computation and Language"
+  - id: cs.CV
+    name: "Computer Vision"
+  - id: cs.AR
+    name: "Hardware Architecture"
+  - id: cs.DC
+    name: "Distributed Computing"
+
+# Hacker News（通过 RSSHub 关键词过滤）
+hackernews_sources:
+  - name: "HN - AI"
+    rsshub_route: "/hackernews/keyword/AI"
+  - name: "HN - LLM"
+    rsshub_route: "/hackernews/keyword/LLM"
+  - name: "HN - GPU"
+    rsshub_route: "/hackernews/keyword/GPU"
+  - name: "HN - NVIDIA"
+    rsshub_route: "/hackernews/keyword/NVIDIA"
+
+# Reddit 子版块（原生 RSS）
+reddit_sources:
+  - name: "r/MachineLearning"
+    native_rss: "https://www.reddit.com/r/MachineLearning/new/.rss"
+  - name: "r/LocalLLaMA"
+    native_rss: "https://www.reddit.com/r/LocalLLaMA/new/.rss"
+  - name: "r/artificial"
+    native_rss: "https://www.reddit.com/r/artificial/new/.rss"
+  - name: "r/Semiconductors"
+    native_rss: "https://www.reddit.com/r/Semiconductors/new/.rss"
+
+# X / Twitter 关键账号（通过 twscrape 采集）
+twitter_accounts:
+  - handle: karpathy
+    name: "Andrej Karpathy"
+  - handle: ylecun
+    name: "Yann LeCun"
+  - handle: sama
+    name: "Sam Altman"
+  - handle: AnthropicAI
+    name: "Anthropic"
+  - handle: OpenAI
+    name: "OpenAI"
+  - handle: GoogleDeepMind
+    name: "Google DeepMind"
+  - handle: huggingface
+    name: "Hugging Face"
+  - handle: nvidia
+    name: "NVIDIA"
+  - handle: _akhaliq
+    name: "AK (Papers)"
+
+twitter_keywords:
+  - "#LLM"
+  - "#AIchip"
+  - "#vLLM"
+  - "CUDA"
+  - "inference optimization"
