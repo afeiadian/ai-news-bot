@@ -1,0 +1,60 @@
+import sys
+import time
+from fetch import fetch_unread_entries, get_feeds, normalize_entry, mark_as_read
+from process import analyze_article
+from storage import init_db, article_exists, save_article
+
+def main():
+    init_db()
+    feeds = get_feeds()
+    entries = fetch_unread_entries(limit=100)
+
+    if not entries:
+        print('没有新文章')
+        return
+
+    processed, saved, skipped = 0, 0, 0
+    read_ids = []
+
+    for entry in entries:
+        article = normalize_entry(entry, feeds)
+        url = article['url']
+
+        if article_exists(url):
+            read_ids.append(int(article['source_id']))
+            skipped += 1
+            continue
+
+        print(f'[{processed+1}/{len(entries)}] {article["title"][:60]}')
+
+        try:
+            result = analyze_article(
+                title=article['title'],
+                content=article['content'],
+                source=article['source_name'],
+            )
+        except Exception as e:
+            print(f'  ⚠️  AI 处理失败: {e}')
+            continue
+
+        print(f'  评分: {result["score"]} | {"✅ 收录" if result["relevant"] else "❌ 过滤"}')
+
+        article['summary'] = result['summary']
+        article['score'] = result['score']
+        del article['content']
+
+        save_article(article)
+        read_ids.append(int(article['source_id']))
+        processed += 1
+        if result['relevant']:
+            saved += 1
+
+        time.sleep(0.5)
+
+    mark_as_read(read_ids)
+    print(f'\n完成：处理 {processed} 篇，收录 {saved} 篇，跳过已存在 {skipped} 篇')
+
+
+if __name__ == '__main__':
+    sys.path.insert(0, '.')
+    main()

@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI 资讯日报</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: Verdana, Geneva, sans-serif;
+      font-size: 14px;
+      background: #f6f6ef;
+      color: #000;
+    }
+
+    /* 顶部导航栏 */
+    #header {
+      background: #ff6600;
+      padding: 4px 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    #header .logo {
+      background: #fff;
+      color: #ff6600;
+      font-weight: bold;
+      font-size: 16px;
+      padding: 2px 6px;
+      border-radius: 2px;
+      text-decoration: none;
+    }
+    #header .site-title {
+      color: #fff;
+      font-weight: bold;
+      font-size: 14px;
+    }
+    #header .nav-links {
+      margin-left: auto;
+      color: #fff;
+      font-size: 12px;
+      opacity: 0.85;
+    }
+
+    /* 主内容区 */
+    #main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 8px 4px;
+    }
+
+    /* 文章列表 */
+    .item-list {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .item-row td {
+      padding: 4px 4px 0 4px;
+      vertical-align: top;
+    }
+
+    .rank {
+      color: #828282;
+      font-size: 13px;
+      text-align: right;
+      padding-right: 6px !important;
+      width: 30px;
+      padding-top: 6px !important;
+    }
+
+    .title-line {
+      line-height: 1.4;
+    }
+
+    .title-link {
+      font-size: 14px;
+      color: #000;
+      text-decoration: none;
+    }
+    .title-link:hover { text-decoration: underline; }
+    .title-link:visited { color: #828282; }
+
+    .summary {
+      font-size: 12px;
+      color: #444;
+      margin-top: 4px;
+      line-height: 1.5;
+      max-width: 800px;
+      padding: 4px 8px;
+      background: #fffbf0;
+      border-left: 3px solid #ff6600;
+      border-radius: 0 2px 2px 0;
+    }
+
+    .meta {
+      font-size: 11px;
+      color: #828282;
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+
+    .tag {
+      color: #fff;
+      font-size: 10px;
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-weight: bold;
+      letter-spacing: 0.3px;
+    }
+
+    .source { color: #828282; }
+    .dot { color: #ccc; }
+    .time { color: #828282; }
+    .score { color: #b45309; font-weight: bold; }
+
+    .spacer td {
+      height: 8px;
+    }
+
+    /* 过滤栏 */
+    #filter-bar {
+      padding: 6px 4px 8px 4px;
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    #filter-bar span {
+      font-size: 12px;
+      color: #828282;
+    }
+    .filter-btn {
+      font-size: 11px;
+      padding: 2px 8px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      background: #fff;
+      cursor: pointer;
+      color: #333;
+    }
+    .filter-btn:hover, .filter-btn.active {
+      background: #ff6600;
+      color: #fff;
+      border-color: #ff6600;
+    }
+
+    /* 底部 */
+    #footer {
+      text-align: center;
+      padding: 16px;
+      font-size: 11px;
+      color: #828282;
+      border-top: 1px solid #e0e0e0;
+      margin-top: 16px;
+    }
+
+    /* 响应式 */
+    @media (max-width: 600px) {
+      .title-link { font-size: 13px; }
+      #main { padding: 4px 2px; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="header">
+  <span class="logo">AI</span>
+  <span class="site-title">AI 资讯日报</span>
+  <span class="nav-links">大模型 · AI工具 · AI芯片</span>
+</div>
+
+<div id="main">
+  <div id="filter-bar">
+    <span>筛选：</span>
+    <button class="filter-btn active" onclick="filterBy('all')">全部 ({{COUNT}})</button>
+    <button class="filter-btn" onclick="filterBy('arXiv')">arXiv</button>
+    <button class="filter-btn" onclick="filterBy('AI Lab')">AI Lab</button>
+    <button class="filter-btn" onclick="filterBy('AI Tools')">AI Tools</button>
+    <button class="filter-btn" onclick="filterBy('AI Chip')">AI Chip</button>
+    <button class="filter-btn" onclick="filterBy('Hacker News')">Hacker News</button>
+    <button class="filter-btn" onclick="filterBy('Reddit')">Reddit</button>
+  </div>
+
+  <table class="item-list" id="item-list">
+    {{ITEMS}}
+  </table>
+
+  <div id="footer">
+    共 {{COUNT}} 条资讯 · 更新于 {{UPDATED}} · 数据来源：arXiv / HN / Reddit / RSS
+  </div>
+</div>
+
+<script>
+  function filterBy(cat) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+
+    document.querySelectorAll('.item-row').forEach(row => {
+      if (cat === 'all') {
+        row.style.display = '';
+        row.nextElementSibling.style.display = '';
+      } else {
+        const tag = row.querySelector('.tag');
+        const match = tag && tag.textContent.trim() === cat;
+        row.style.display = match ? '' : 'none';
+        row.nextElementSibling.style.display = match ? '' : 'none';
+      }
+    });
+
+    // 重新编号
+    let n = 1;
+    document.querySelectorAll('.item-row').forEach(row => {
+      if (row.style.display !== 'none') {
+        row.querySelector('.rank').textContent = n++;
+      }
+    });
+  }
+</script>
+
+</body>
+</html>
