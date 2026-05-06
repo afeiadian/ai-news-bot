@@ -17,6 +17,23 @@ CATEGORY_MAP = {
     'reddit': 'Reddit',
 }
 
+import re as _re
+
+def clean_source_name(name: str) -> str:
+    """将 RSS feed 标题转为简洁的网站名"""
+    # Reddit: "newest submissions : MachineLearning" → "r/MachineLearning"
+    m = _re.match(r'newest submissions\s*:\s*(.+)', name)
+    if m:
+        return f'r/{m.group(1).strip()}'
+    # HN: "Top Links | Hacker News" → "Hacker News"
+    if 'Hacker News' in name:
+        return 'Hacker News'
+    # arXiv: "cs.AI updates on arXiv.org" → "arXiv cs.AI"
+    m = _re.match(r'(cs\.\w+)\s+updates on arXiv', name)
+    if m:
+        return f'arXiv {m.group(1)}'
+    return name
+
 
 def get_feeds():
     resp = requests.get(f'{MINIFLUX_URL}/v1/feeds', headers=HEADERS)
@@ -54,7 +71,7 @@ def normalize_entry(entry: dict, feeds: dict) -> dict:
         'source_id': str(entry['id']),
         'title': entry.get('title', '').strip(),
         'url': entry.get('url', ''),
-        'source_name': feed.get('title', ''),
+        'source_name': clean_source_name(feed.get('title', '')),
         'category': CATEGORY_MAP.get(cat_title, cat_title),
         'published_at': entry.get('published_at', ''),
         'content': (entry.get('content') or '')[:2000],

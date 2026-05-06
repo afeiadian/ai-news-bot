@@ -129,8 +129,7 @@ def build_html(articles):
                 {f'<div class="topic-tags">{topic_html}</div>' if topic_html else ''}
                 {summary_html}
                 <div class="meta">
-                    <span class="source-cat" style="color:{color}">{a["category"]}</span>
-                    <span class="source">{a["source_name"]}</span>
+                    <span class="source-cat" style="color:{color}">{a["source_name"]}</span>
                     <span class="dot">·</span>
                     <span class="time">{time_ago(a["published_at"])}</span>
                     <span class="dot">·</span>
