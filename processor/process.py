@@ -53,14 +53,14 @@ def analyze_article(title: str, content: str, source: str) -> dict:
 
 来源: {source}
 标题: {title}
-内容摘要: {content[:800]}
+内容摘要: {content[:2000]}
 
 请以 JSON 格式回复（不要加 markdown 代码块）：
 {{
   "score": <0-100的整数，表示与AI技术领域的相关度>,
   "title_zh": "<将英文标题翻译成中文，保持简洁准确；如果标题已是中文则原样返回>",
   "topics": "<从以下选项中选1-3个最匹配的话题，用英文逗号分隔，如：基础大模型,推理部署；若不相关则填空字符串>，可选值：{topic_names}",
-  "summary": "<如果相关(score>={min_score})，用2-3句中文概括核心内容；否则留空>",
+  "summary": "<如果相关(score>={min_score})，用3-5句中文概括核心内容，包含关键技术细节；否则留空>",
   "reason": "<判断依据，一句话>"
 }}"""
 
