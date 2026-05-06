@@ -40,16 +40,47 @@ def get_feeds():
     return {f['id']: f for f in resp.json()}
 
 
-def fetch_unread_entries(limit=200):
+def fetch_unread_entries(limit=200, days_back=1):
+    """只取最近 days_back 天内发布的未读文章，防止历史积压"""
+    from datetime import datetime, timezone, timedelta
+    after_ts = int((datetime.now(timezone.utc) - timedelta(days=days_back)).timestamp())
+
     resp = requests.get(
         f'{MINIFLUX_URL}/v1/entries',
         headers=HEADERS,
-        params={'status': 'unread', 'limit': limit, 'order': 'published_at', 'direction': 'desc'}
+        params={
+            'status': 'unread',
+            'limit': limit,
+            'order': 'published_at',
+            'direction': 'desc',
+            'after': after_ts,
+        }
     )
     data = resp.json()
     entries = data.get('entries') or []
-    print(f'获取到 {len(entries)} 条未读文章')
+    print(f'获取到 {len(entries)} 条未读文章（最近 {days_back} 天）')
     return entries
+
+
+def mark_old_as_read(days_back=2):
+    """将超过 days_back 天的未读文章批量标记为已读，避免积压"""
+    from datetime import datetime, timezone, timedelta
+    cutoff = int((datetime.now(timezone.utc) - timedelta(days=days_back)).timestamp())
+    total = 0
+    while True:
+        r = requests.get(f'{MINIFLUX_URL}/v1/entries', headers=HEADERS,
+                         params={'status': 'unread', 'before': cutoff, 'limit': 500}).json()
+        entries = r.get('entries') or []
+        if not entries:
+            break
+        ids = [e['id'] for e in entries]
+        requests.put(f'{MINIFLUX_URL}/v1/entries', headers=HEADERS,
+                     json={'entry_ids': ids, 'status': 'read'})
+        total += len(ids)
+        if len(ids) < 500:
+            break
+    if total:
+        print(f'清理积压：已标记 {total} 篇旧文章为已读')
 
 
 def mark_as_read(entry_ids: list):

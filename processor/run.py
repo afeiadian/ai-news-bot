@@ -1,14 +1,15 @@
 import sys
 import time
-from fetch import fetch_unread_entries, get_feeds, normalize_entry, mark_as_read
+from fetch import fetch_unread_entries, get_feeds, normalize_entry, mark_as_read, mark_old_as_read
 from process import analyze_article
 from hotness import calc_hotness
 from storage import init_db, article_exists, save_article
 
 def main():
     init_db()
+    mark_old_as_read(days_back=2)   # 清理2天前的积压
     feeds = get_feeds()
-    entries = fetch_unread_entries(limit=100)
+    entries = fetch_unread_entries(limit=200, days_back=2)
 
     if not entries:
         print('没有新文章')
