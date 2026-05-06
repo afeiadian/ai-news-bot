@@ -24,7 +24,7 @@ def classify(title, title_zh, summary):
         messages=[{'role': 'user', 'content':
             f'从以下选项中为这篇AI资讯选择1-3个最匹配的话题分类，用英文逗号分隔输出，不加其他内容：\n'
             f'选项：{"、".join(TOPICS)}\n\n{text}'}],
-        max_tokens=40,
+        max_tokens=500,
         temperature=0.1,
     )
     result = resp.choices[0].message.content.strip()
