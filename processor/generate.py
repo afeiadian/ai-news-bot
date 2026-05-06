@@ -109,7 +109,7 @@ def build_html(articles):
             summary_html = f'<p class="summary">{a["summary"]}</p>'
 
         items_html += f'''
-        <tr class="item-row" data-category="{a["category"]}" data-topic="{topic}" data-date="{date_str}">
+        <tr class="item-row" data-category="{a["category"]}" data-topic="{topic}" data-date="{date_str}" data-score="{a["score"]}">
             <td class="rank">{i}</td>
             <td class="main">
                 <div class="title-line">
@@ -128,7 +128,7 @@ def build_html(articles):
                 </div>
             </td>
         </tr>
-        <tr class="spacer" data-category="{a["category"]}" data-topic="{topic}" data-date="{date_str}"><td colspan="2"></td></tr>'''
+        <tr class="spacer" data-category="{a["category"]}" data-topic="{topic}" data-date="{date_str}" data-score="{a["score"]}"><td colspan="2"></td></tr>'''
 
     # 来源分类按钮（全显示）
     cat_buttons = ''

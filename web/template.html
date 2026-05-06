@@ -251,6 +251,14 @@
       <button class="filter-btn active" data-topic="all" onclick="filterTopic(this)">全部</button>
       {{TOPIC_BUTTONS}}
     </div>
+    <!-- 相关度 -->
+    <div class="filter-row">
+      <span class="filter-label">相关度：</span>
+      <button class="filter-btn active" data-score="0"  onclick="filterScore(this)">全部</button>
+      <button class="filter-btn"        data-score="70" onclick="filterScore(this)">70+</button>
+      <button class="filter-btn"        data-score="80" onclick="filterScore(this)">80+</button>
+      <button class="filter-btn"        data-score="90" onclick="filterScore(this)">90+</button>
+    </div>
   </div>
 
   <div id="result-bar">
@@ -274,6 +282,7 @@
   let activeCat    = 'all';
   let activeTopic  = 'all';
   let activeDays   = 'all';
+  let activeScore  = 0;
   let currentPage  = 1;
 
   const allRows = Array.from(document.querySelectorAll('.item-row'));
@@ -288,12 +297,13 @@
     return allRows.filter(row => {
       const catOk   = activeCat   === 'all' || row.dataset.category === activeCat;
       const topicOk = activeTopic === 'all' || row.dataset.topic    === activeTopic;
+      const scoreOk = parseInt(row.dataset.score || 0) >= activeScore;
       let   dateOk  = true;
       if (activeDays !== 'all') {
         const cutoff = getLocalDateStr(parseInt(activeDays));
         dateOk = row.dataset.date >= cutoff;
       }
-      return catOk && topicOk && dateOk;
+      return catOk && topicOk && scoreOk && dateOk;
     });
   }
 
@@ -379,6 +389,13 @@
     document.querySelectorAll('[data-date]').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     activeDays = btn.dataset.date;
+    currentPage = 1; render();
+  }
+
+  function filterScore(btn) {
+    document.querySelectorAll('.filter-row [data-score]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeScore = parseInt(btn.dataset.score);
     currentPage = 1; render();
   }
 
