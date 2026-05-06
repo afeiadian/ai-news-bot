@@ -238,15 +238,20 @@
 
 <div id="main">
   <div id="filter-bar">
-    <!-- 日期 -->
+    <!-- 日期范围 -->
     <div class="filter-row">
       <span class="filter-label">日期：</span>
-      <button class="filter-btn active" data-date="all"  onclick="filterDate(this)">全部</button>
-      <button class="filter-btn"        data-date="0"    onclick="filterDate(this)">今天</button>
-      <button class="filter-btn"        data-date="1"    onclick="filterDate(this)">昨天</button>
-      <button class="filter-btn"        data-date="3"    onclick="filterDate(this)">近3天</button>
-      <button class="filter-btn"        data-date="7"    onclick="filterDate(this)">近7天</button>
-      <button class="filter-btn"        data-date="30"   onclick="filterDate(this)">近30天</button>
+      <button class="filter-btn range-btn active" data-date="all" onclick="filterDate(this)">全部</button>
+      <button class="filter-btn range-btn" data-date="0"  onclick="filterDate(this)">今天</button>
+      <button class="filter-btn range-btn" data-date="1"  onclick="filterDate(this)">昨天</button>
+      <button class="filter-btn range-btn" data-date="3"  onclick="filterDate(this)">近3天</button>
+      <button class="filter-btn range-btn" data-date="7"  onclick="filterDate(this)">近7天</button>
+      <button class="filter-btn range-btn" data-date="30" onclick="filterDate(this)">近30天</button>
+    </div>
+    <!-- 具体日期 -->
+    <div class="filter-row">
+      <span class="filter-label"></span>
+      {{DATE_BUTTONS}}
     </div>
     <!-- 来源分类 -->
     <div class="filter-row">
@@ -287,12 +292,13 @@
 </div>
 
 <script>
-  const PAGE_SIZE  = 30;
-  let activeCat    = 'all';
-  let activeTopic  = 'all';
-  let activeDays   = 'all';
-  let activeScore  = 0;
-  let currentPage  = 1;
+  const PAGE_SIZE   = 30;
+  let activeCat     = 'all';
+  let activeTopic   = 'all';
+  let activeDays    = 'all';
+  let activeExact   = '';     // 具体日期 YYYY-MM-DD，优先级高于 activeDays
+  let activeScore   = 0;
+  let currentPage   = 1;
 
   const allRows = Array.from(document.querySelectorAll('.item-row'));
 
@@ -307,10 +313,11 @@
       const catOk   = activeCat   === 'all' || row.dataset.category === activeCat;
       const topicOk = activeTopic === 'all' || row.dataset.topic.split(',').map(t=>t.trim()).includes(activeTopic);
       const scoreOk = parseInt(row.dataset.score || 0) >= activeScore;
-      let   dateOk  = true;
-      if (activeDays !== 'all') {
-        const cutoff = getLocalDateStr(parseInt(activeDays));
-        dateOk = row.dataset.date >= cutoff;
+      let dateOk = true;
+      if (activeExact) {
+        dateOk = row.dataset.date === activeExact;
+      } else if (activeDays !== 'all') {
+        dateOk = row.dataset.date >= getLocalDateStr(parseInt(activeDays));
       }
       return catOk && topicOk && scoreOk && dateOk;
     });
@@ -395,9 +402,19 @@
   }
 
   function filterDate(btn) {
-    document.querySelectorAll('[data-date]').forEach(b => b.classList.remove('active'));
+    // 清除所有日期相关按钮的激活状态
+    document.querySelectorAll('.range-btn, [data-exact]').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    activeDays = btn.dataset.date;
+    activeDays  = btn.dataset.date;
+    activeExact = '';
+    currentPage = 1; render();
+  }
+
+  function filterExactDate(btn) {
+    document.querySelectorAll('.range-btn, [data-exact]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeExact = btn.dataset.exact;
+    activeDays  = 'all';
     currentPage = 1; render();
   }
 

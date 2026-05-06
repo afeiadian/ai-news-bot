@@ -82,6 +82,7 @@ def build_html(articles):
     # 统计数量
     cat_counts   = {c: 0 for c in ALL_CATS}
     topic_counts = {t: 0 for t in ALL_TOPICS}
+    date_counts  = {}
     for a in articles:
         if a['category'] in cat_counts:
             cat_counts[a['category']] += 1
@@ -89,6 +90,9 @@ def build_html(articles):
             t = t.strip()
             if t in topic_counts:
                 topic_counts[t] += 1
+        d = get_date(a['published_at'])
+        if d:
+            date_counts[d] = date_counts.get(d, 0) + 1
 
     # 文章列表 HTML
     items_html = ''
@@ -155,12 +159,23 @@ def build_html(articles):
             f'{t} <span class="btn-count">{count}</span></button>\n'
         )
 
+    # 具体日期按钮（有文章的日期，降序，最近 30 天）
+    date_buttons = ''
+    for d in sorted(date_counts.keys(), reverse=True)[:30]:
+        label = d[5:]  # MM-DD
+        count = date_counts[d]
+        date_buttons += (
+            f'<button class="filter-btn" data-exact="{d}" onclick="filterExactDate(this)">'
+            f'{label} <span class="btn-count">{count}</span></button>\n'
+        )
+
     updated = datetime.now().strftime('%Y-%m-%d %H:%M UTC')
     html = template.replace('{{ITEMS}}', items_html)
     html = html.replace('{{COUNT}}', str(len(articles)))
     html = html.replace('{{UPDATED}}', updated)
     html = html.replace('{{CAT_BUTTONS}}', cat_buttons)
     html = html.replace('{{TOPIC_BUTTONS}}', topic_buttons)
+    html = html.replace('{{DATE_BUTTONS}}', date_buttons)
     return html
 
 
