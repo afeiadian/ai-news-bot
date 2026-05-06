@@ -40,6 +40,8 @@ def main():
         print(f'  评分: {result["score"]} | {"✅ 收录" if result["relevant"] else "❌ 过滤"}')
 
         article['summary'] = result['summary']
+        article['title_zh'] = result['title_zh']
+        article['topic'] = result['topic']
         article['score'] = result['score']
         del article['content']
 

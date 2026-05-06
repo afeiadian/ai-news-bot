@@ -30,7 +30,7 @@
       border-radius: 2px;
     }
     #header .site-title { color: #fff; font-weight: bold; font-size: 14px; }
-    #header .nav-links { margin-left: auto; color: #fff; font-size: 12px; opacity: 0.85; }
+    #header .nav-links  { margin-left: auto; color: #fff; font-size: 12px; opacity: 0.85; }
 
     #main {
       max-width: 960px;
@@ -38,22 +38,23 @@
       padding: 8px 4px;
     }
 
+    /* 筛选栏 */
     #filter-bar {
       padding: 6px 4px 10px 4px;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 5px;
     }
 
     .filter-row {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
       flex-wrap: wrap;
     }
 
     .filter-label {
-      font-size: 12px;
+      font-size: 11px;
       color: #828282;
       width: 36px;
       flex-shrink: 0;
@@ -61,7 +62,7 @@
 
     .filter-btn {
       font-size: 11px;
-      padding: 2px 8px;
+      padding: 2px 7px;
       border: 1px solid #ccc;
       border-radius: 3px;
       background: #fff;
@@ -70,6 +71,7 @@
       display: inline-flex;
       align-items: center;
       gap: 3px;
+      transition: background 0.1s;
     }
     .filter-btn:hover { background: #f0f0f0; }
     .filter-btn.active {
@@ -77,7 +79,22 @@
       color: #fff;
       border-color: #ff6600;
     }
-    .filter-btn.active .btn-count { background: rgba(255,255,255,0.3); color: #fff; }
+    .filter-btn.active .btn-count { background: rgba(255,255,255,0.25); color: #fff; }
+
+    /* 话题按钮激活时用各自颜色 */
+    .filter-btn.topic-active {
+      background: var(--topic-color, #374151);
+      color: #fff;
+      border-color: var(--topic-color, #374151);
+    }
+    .filter-btn.topic-active .btn-count { background: rgba(255,255,255,0.25); color: #fff; }
+
+    /* 0篇时变灰 */
+    .btn-empty {
+      opacity: 0.45;
+      cursor: default;
+    }
+    .btn-empty:hover { background: #fff; }
 
     .btn-count {
       font-size: 10px;
@@ -85,12 +102,12 @@
       color: #555;
       padding: 0 4px;
       border-radius: 8px;
-      min-width: 18px;
+      min-width: 16px;
       text-align: center;
     }
 
+    /* 文章列表 */
     .item-list { width: 100%; border-collapse: collapse; }
-
     .item-row td { padding: 4px 4px 0 4px; vertical-align: top; }
 
     .rank {
@@ -108,8 +125,15 @@
       text-decoration: none;
       line-height: 1.4;
     }
-    .title-link:hover { text-decoration: underline; }
+    .title-link:hover   { text-decoration: underline; }
     .title-link:visited { color: #828282; }
+
+    .title-zh {
+      font-size: 13px;
+      color: #333;
+      margin-top: 2px;
+      line-height: 1.4;
+    }
 
     .summary {
       font-size: 12px;
@@ -141,16 +165,16 @@
       font-weight: bold;
     }
 
-    .dot { color: #ccc; }
+    .dot   { color: #ccc; }
     .score { color: #b45309; font-weight: bold; }
     .spacer td { height: 8px; }
 
-    /* 结果统计栏 */
+    /* 结果统计 */
     #result-bar {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 4px 8px 4px;
+      padding: 0 4px 6px 4px;
       font-size: 12px;
       color: #828282;
     }
@@ -164,7 +188,6 @@
       padding: 16px 4px 8px 4px;
       flex-wrap: wrap;
     }
-
     .page-btn {
       font-size: 12px;
       padding: 3px 9px;
@@ -176,22 +199,10 @@
       min-width: 30px;
       text-align: center;
     }
-    .page-btn:hover { background: #f0f0f0; }
-    .page-btn.active {
-      background: #ff6600;
-      color: #fff;
-      border-color: #ff6600;
-      font-weight: bold;
-    }
-    .page-btn:disabled {
-      opacity: 0.4;
-      cursor: default;
-    }
-    .page-ellipsis {
-      font-size: 12px;
-      color: #828282;
-      padding: 3px 4px;
-    }
+    .page-btn:hover  { background: #f0f0f0; }
+    .page-btn.active { background: #ff6600; color: #fff; border-color: #ff6600; font-weight: bold; }
+    .page-btn:disabled { opacity: 0.4; cursor: default; }
+    .page-ellipsis { font-size: 12px; color: #828282; padding: 3px 4px; }
 
     #footer {
       text-align: center;
@@ -218,19 +229,27 @@
 
 <div id="main">
   <div id="filter-bar">
+    <!-- 日期 -->
     <div class="filter-row">
       <span class="filter-label">日期：</span>
-      <button class="filter-btn active" data-date="all" onclick="filterDate(this)">全部</button>
-      <button class="filter-btn" data-date="0" onclick="filterDate(this)">今天</button>
-      <button class="filter-btn" data-date="1" onclick="filterDate(this)">昨天</button>
-      <button class="filter-btn" data-date="3" onclick="filterDate(this)">近3天</button>
-      <button class="filter-btn" data-date="7" onclick="filterDate(this)">近7天</button>
-      <button class="filter-btn" data-date="30" onclick="filterDate(this)">近30天</button>
+      <button class="filter-btn active" data-date="all"  onclick="filterDate(this)">全部</button>
+      <button class="filter-btn"        data-date="0"    onclick="filterDate(this)">今天</button>
+      <button class="filter-btn"        data-date="1"    onclick="filterDate(this)">昨天</button>
+      <button class="filter-btn"        data-date="3"    onclick="filterDate(this)">近3天</button>
+      <button class="filter-btn"        data-date="7"    onclick="filterDate(this)">近7天</button>
+      <button class="filter-btn"        data-date="30"   onclick="filterDate(this)">近30天</button>
     </div>
+    <!-- 来源分类 -->
     <div class="filter-row">
-      <span class="filter-label">分类：</span>
+      <span class="filter-label">来源：</span>
       <button class="filter-btn active" data-cat="all" onclick="filterCat(this)">全部 <span class="btn-count">{{COUNT}}</span></button>
       {{CAT_BUTTONS}}
+    </div>
+    <!-- 话题分类 -->
+    <div class="filter-row">
+      <span class="filter-label">话题：</span>
+      <button class="filter-btn active" data-topic="all" onclick="filterTopic(this)">全部</button>
+      {{TOPIC_BUTTONS}}
     </div>
   </div>
 
@@ -251,12 +270,12 @@
 </div>
 
 <script>
-  const PAGE_SIZE = 30;
-  let activeCat  = 'all';
-  let activeDays = 'all';
-  let currentPage = 1;
+  const PAGE_SIZE  = 30;
+  let activeCat    = 'all';
+  let activeTopic  = 'all';
+  let activeDays   = 'all';
+  let currentPage  = 1;
 
-  // 所有文章行（item-row 和对应的 spacer）
   const allRows = Array.from(document.querySelectorAll('.item-row'));
 
   function getLocalDateStr(daysAgo) {
@@ -265,16 +284,16 @@
     return d.toISOString().slice(0, 10);
   }
 
-  // 计算哪些行通过筛选
   function getVisibleRows() {
     return allRows.filter(row => {
-      const catOk = activeCat === 'all' || row.dataset.category === activeCat;
-      let dateOk = true;
+      const catOk   = activeCat   === 'all' || row.dataset.category === activeCat;
+      const topicOk = activeTopic === 'all' || row.dataset.topic    === activeTopic;
+      let   dateOk  = true;
       if (activeDays !== 'all') {
         const cutoff = getLocalDateStr(parseInt(activeDays));
         dateOk = row.dataset.date >= cutoff;
       }
-      return catOk && dateOk;
+      return catOk && topicOk && dateOk;
     });
   }
 
@@ -284,33 +303,23 @@
     const pages   = Math.max(1, Math.ceil(total / PAGE_SIZE));
     if (currentPage > pages) currentPage = pages;
 
-    const start = (currentPage - 1) * PAGE_SIZE;
-    const end   = start + PAGE_SIZE;
-    const pageRows = new Set(visible.slice(start, end));
+    const start    = (currentPage - 1) * PAGE_SIZE;
+    const pageRows = new Set(visible.slice(start, start + PAGE_SIZE));
 
-    // 显示/隐藏每一行及其 spacer
     allRows.forEach(row => {
-      const show = pageRows.has(row);
-      row.style.display = show ? '' : 'none';
+      const show   = pageRows.has(row);
       const spacer = row.nextElementSibling;
+      row.style.display              = show ? '' : 'none';
       if (spacer) spacer.style.display = show ? '' : 'none';
     });
 
-    // 重新编号（全局序号，跨页连续）
-    visible.forEach((row, idx) => {
-      row.querySelector('.rank').textContent = idx + 1;
-    });
+    // 全局连续编号
+    visible.forEach((row, idx) => { row.querySelector('.rank').textContent = idx + 1; });
 
-    // 更新统计文字
-    const countEl = document.getElementById('result-count');
-    const pageInfoEl = document.getElementById('page-info');
-    if (total === 0) {
-      countEl.textContent = '暂无符合条件的资讯';
-      pageInfoEl.textContent = '';
-    } else {
-      countEl.textContent = `共 ${total} 条`;
-      pageInfoEl.textContent = `第 ${currentPage} / ${pages} 页`;
-    }
+    document.getElementById('result-count').textContent =
+      total === 0 ? '暂无符合条件的资讯' : `共 ${total} 条`;
+    document.getElementById('page-info').textContent =
+      total === 0 ? '' : `第 ${currentPage} / ${pages} 页`;
 
     renderPagination(pages);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -319,63 +328,60 @@
   function renderPagination(pages) {
     const el = document.getElementById('pagination');
     if (pages <= 1) { el.innerHTML = ''; return; }
-
     let html = '';
-
-    // 上一页
-    html += `<button class="page-btn" onclick="goPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>‹ 上一页</button>`;
-
-    // 页码按钮（带省略号）
+    html += `<button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>‹ 上一页</button>`;
     const range = getPageRange(currentPage, pages);
     let prev = null;
     range.forEach(p => {
-      if (prev !== null && p - prev > 1) {
-        html += `<span class="page-ellipsis">…</span>`;
-      }
-      html += `<button class="page-btn ${p === currentPage ? 'active' : ''}" onclick="goPage(${p})">${p}</button>`;
+      if (prev !== null && p - prev > 1) html += `<span class="page-ellipsis">…</span>`;
+      html += `<button class="page-btn ${p===currentPage?'active':''}" onclick="goPage(${p})">${p}</button>`;
       prev = p;
     });
-
-    // 下一页
-    html += `<button class="page-btn" onclick="goPage(${currentPage + 1})" ${currentPage === pages ? 'disabled' : ''}>下一页 ›</button>`;
-
+    html += `<button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage===pages?'disabled':''}>下一页 ›</button>`;
     el.innerHTML = html;
   }
 
-  // 生成要显示的页码列表（首、尾、当前附近各显示）
   function getPageRange(cur, total) {
-    const delta = 2;
-    const range = new Set([1, total]);
-    for (let i = Math.max(2, cur - delta); i <= Math.min(total - 1, cur + delta); i++) {
-      range.add(i);
-    }
-    return Array.from(range).sort((a, b) => a - b);
+    const delta = 2, range = new Set([1, total]);
+    for (let i = Math.max(2, cur-delta); i <= Math.min(total-1, cur+delta); i++) range.add(i);
+    return Array.from(range).sort((a,b) => a-b);
   }
 
   function goPage(p) {
     const pages = Math.max(1, Math.ceil(getVisibleRows().length / PAGE_SIZE));
     if (p < 1 || p > pages) return;
-    currentPage = p;
-    render();
+    currentPage = p; render();
   }
 
   function filterCat(btn) {
+    if (btn.classList.contains('btn-empty')) return;
     document.querySelectorAll('[data-cat]').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     activeCat = btn.dataset.cat;
-    currentPage = 1;
-    render();
+    currentPage = 1; render();
+  }
+
+  function filterTopic(btn) {
+    if (btn.classList.contains('btn-empty')) return;
+    document.querySelectorAll('[data-topic]').forEach(b => {
+      b.classList.remove('active', 'topic-active');
+    });
+    if (btn.dataset.topic === 'all') {
+      btn.classList.add('active');
+    } else {
+      btn.classList.add('topic-active');
+    }
+    activeTopic = btn.dataset.topic;
+    currentPage = 1; render();
   }
 
   function filterDate(btn) {
     document.querySelectorAll('[data-date]').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     activeDays = btn.dataset.date;
-    currentPage = 1;
-    render();
+    currentPage = 1; render();
   }
 
-  // 初始化
   render();
 </script>
 
