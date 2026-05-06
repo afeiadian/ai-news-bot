@@ -134,7 +134,7 @@ def build_html(articles):
                     <span class="dot">·</span>
                     <span class="time">{time_ago(a["published_at"])}</span>
                     <span class="dot">·</span>
-                    <span class="score">相关度 {a["score"]}</span>
+                    <span class="score">相关度 {a["score"]}%</span>
                     {stars_html}
                 </div>
             </td>
