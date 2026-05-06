@@ -129,7 +129,7 @@ def build_html(articles):
                 </div>
                 {summary_html}
                 <div class="meta">
-                    <span class="tag" style="background:{color}">{a["category"]}</span>
+                    <span class="source-cat" style="color:{color}">{a["category"]}</span>
                     <span class="source">{a["source_name"]}</span>
                     <span class="dot">·</span>
                     <span class="time">{time_ago(a["published_at"])}</span>
