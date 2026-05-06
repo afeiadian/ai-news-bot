@@ -38,7 +38,7 @@ def get_date(iso_str):
 def get_articles(limit=500, min_score=60):
     conn = get_conn()
     rows = conn.execute('''
-        SELECT title, title_zh, url, source_name, category, topic, published_at, summary, score
+        SELECT title, title_zh, url, source_name, category, topic, published_at, summary, score, hotness
         FROM articles
         WHERE score >= ?
         ORDER BY published_at DESC
@@ -111,12 +111,15 @@ def build_html(articles):
             tc = topic_color(t)
             topic_html += f'<span class="tag topic-tag" style="background:{tc}">{t}</span>'
 
+        hotness = a.get('hotness') or 0
+        stars_html = f'<span class="stars">{"★" * hotness}{"☆" * (5 - hotness)}</span>' if hotness else ''
+
         summary_html = ''
         if a.get('summary'):
             summary_html = f'<p class="summary">{a["summary"]}</p>'
 
         items_html += f'''
-        <tr class="item-row" data-category="{a["category"]}" data-topic="{topic_raw}" data-date="{date_str}" data-score="{a["score"]}">
+        <tr class="item-row" data-category="{a["category"]}" data-topic="{topic_raw}" data-date="{date_str}" data-score="{a["score"]}" data-hotness="{hotness}">
             <td class="rank">{i}</td>
             <td class="main">
                 <div class="title-block">
@@ -132,10 +135,11 @@ def build_html(articles):
                     <span class="time">{time_ago(a["published_at"])}</span>
                     <span class="dot">·</span>
                     <span class="score">相关度 {a["score"]}</span>
+                    {stars_html}
                 </div>
             </td>
         </tr>
-        <tr class="spacer" data-category="{a["category"]}" data-topic="{topic_raw}" data-date="{date_str}" data-score="{a["score"]}"><td colspan="2"></td></tr>'''
+        <tr class="spacer" data-category="{a["category"]}" data-topic="{topic_raw}" data-date="{date_str}" data-score="{a["score"]}" data-hotness="{hotness}"><td colspan="2"></td></tr>'''
 
     # 来源分类按钮（全显示）
     cat_buttons = ''

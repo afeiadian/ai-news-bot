@@ -31,7 +31,7 @@ def init_db():
         CREATE INDEX IF NOT EXISTS idx_score ON articles(score DESC);
     ''')
     # 兼容旧数据库：按需添加新列
-    for col, typedef in [('title_zh', 'TEXT'), ('topic', 'TEXT')]:
+    for col, typedef in [('title_zh', 'TEXT'), ('topic', 'TEXT'), ('hotness', 'INTEGER DEFAULT 0')]:
         try:
             conn.execute(f'ALTER TABLE articles ADD COLUMN {col} {typedef}')
             conn.commit()
@@ -52,10 +52,29 @@ def save_article(data: dict):
     try:
         conn.execute('''
             INSERT OR IGNORE INTO articles
-                (source_id, title, title_zh, url, source_name, category, topic, published_at, summary, score)
+                (source_id, title, title_zh, url, source_name, category, topic, published_at, summary, score, hotness)
             VALUES
-                (:source_id, :title, :title_zh, :url, :source_name, :category, :topic, :published_at, :summary, :score)
+                (:source_id, :title, :title_zh, :url, :source_name, :category, :topic, :published_at, :summary, :score, :hotness)
         ''', data)
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def get_articles_without_hotness(limit=500):
+    conn = get_conn()
+    rows = conn.execute(
+        'SELECT url, title, title_zh, summary, source_name, category FROM articles WHERE hotness=0 OR hotness IS NULL LIMIT ?',
+        (limit,)
+    ).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
+def update_hotness(url: str, hotness: int):
+    conn = get_conn()
+    try:
+        conn.execute('UPDATE articles SET hotness=? WHERE url=?', (hotness, url))
         conn.commit()
     finally:
         conn.close()

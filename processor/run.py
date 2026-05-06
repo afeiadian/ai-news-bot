@@ -2,6 +2,7 @@ import sys
 import time
 from fetch import fetch_unread_entries, get_feeds, normalize_entry, mark_as_read
 from process import analyze_article
+from hotness import calc_hotness
 from storage import init_db, article_exists, save_article
 
 def main():
@@ -43,6 +44,7 @@ def main():
         article['title_zh'] = result['title_zh']
         article['topic'] = result['topic']
         article['score'] = result['score']
+        article['hotness'] = calc_hotness(article['category'], article['url'], article['title'])
         del article['content']
 
         save_article(article)

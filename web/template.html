@@ -188,6 +188,7 @@
 
     .dot   { color: #ccc; }
     .score { color: #b45309; font-weight: bold; }
+    .stars { color: #f59e0b; font-size: 12px; letter-spacing: 1px; }
     .spacer td { height: 24px; }
 
     /* 结果统计 */
@@ -283,6 +284,14 @@
       <button class="filter-btn"        data-score="80" onclick="filterScore(this)">80+</button>
       <button class="filter-btn"        data-score="90" onclick="filterScore(this)">90+</button>
     </div>
+    <!-- 热度 -->
+    <div class="filter-row">
+      <span class="filter-label">热度：</span>
+      <button class="filter-btn active" data-hotness="0" onclick="filterHotness(this)">全部</button>
+      <button class="filter-btn" data-hotness="3" onclick="filterHotness(this)">★★★+</button>
+      <button class="filter-btn" data-hotness="4" onclick="filterHotness(this)">★★★★+</button>
+      <button class="filter-btn" data-hotness="5" onclick="filterHotness(this)">★★★★★</button>
+    </div>
   </div>
 
   <div id="result-bar">
@@ -308,6 +317,7 @@
   let activeDays    = 'all';
   let activeExact   = '';     // 具体日期 YYYY-MM-DD，优先级高于 activeDays
   let activeScore   = 0;
+  let activeHotness = 0;
   let currentPage   = 1;
 
   const allRows = Array.from(document.querySelectorAll('.item-row'));
@@ -322,14 +332,15 @@
     return allRows.filter(row => {
       const catOk   = activeCat   === 'all' || row.dataset.category === activeCat;
       const topicOk = activeTopic === 'all' || row.dataset.topic.split(',').map(t=>t.trim()).includes(activeTopic);
-      const scoreOk = parseInt(row.dataset.score || 0) >= activeScore;
+      const scoreOk   = parseInt(row.dataset.score   || 0) >= activeScore;
+      const hotnessOk = parseInt(row.dataset.hotness || 0) >= activeHotness;
       let dateOk = true;
       if (activeExact) {
         dateOk = row.dataset.date === activeExact;
       } else if (activeDays !== 'all') {
         dateOk = row.dataset.date >= getLocalDateStr(parseInt(activeDays));
       }
-      return catOk && topicOk && scoreOk && dateOk;
+      return catOk && topicOk && scoreOk && hotnessOk && dateOk;
     });
   }
 
@@ -437,6 +448,13 @@
     document.querySelectorAll('.filter-row [data-score]').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     activeScore = parseInt(btn.dataset.score);
+    currentPage = 1; render();
+  }
+
+  function filterHotness(btn) {
+    document.querySelectorAll('[data-hotness]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeHotness = parseInt(btn.dataset.hotness);
     currentPage = 1; render();
   }
 
