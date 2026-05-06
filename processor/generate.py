@@ -41,7 +41,7 @@ def get_articles(limit=500, min_score=60):
         SELECT title, title_zh, url, source_name, category, topic, published_at, summary, score, hotness
         FROM articles
         WHERE score >= ?
-        ORDER BY published_at DESC
+        ORDER BY hotness DESC, published_at DESC
         LIMIT ?
     ''', (min_score, limit)).fetchall()
     conn.close()
