@@ -125,11 +125,11 @@ def build_html(articles):
                 <div class="title-block">
                     <a class="title-link" href="{a["url"]}" target="_blank" rel="noopener">{a["title"]}</a>
                     {title_zh_html}
+                    {f'<div class="topic-tags">{topic_html}</div>' if topic_html else ''}
                 </div>
                 {summary_html}
                 <div class="meta">
                     <span class="tag" style="background:{color}">{a["category"]}</span>
-                    {topic_html}
                     <span class="source">{a["source_name"]}</span>
                     <span class="dot">·</span>
                     <span class="time">{time_ago(a["published_at"])}</span>
