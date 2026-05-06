@@ -34,6 +34,9 @@ topics:
   - name: 推理部署
     description: 推理加速、量化、vLLM/ollama/TensorRT、serving、边缘部署
 
+  - name: 性能优化
+    description: 推理或训练的性能优化技术，包括算子优化、内存优化、并行策略、吞吐量提升、延迟降低、CUDA优化等
+
   - name: 训练微调
     description: 预训练、SFT、RLHF、数据集、对齐技术
 

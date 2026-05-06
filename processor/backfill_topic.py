@@ -14,7 +14,7 @@ client = OpenAI(
 )
 MODEL = os.getenv('DEEPSEEK_MODEL', 'deepseek-v4-pro')
 
-TOPICS = ['基础大模型', '推理部署', '训练微调', '开发工具', 'AI芯片硬件', '学术论文', '行业资讯']
+TOPICS = ['基础大模型', '推理部署', '性能优化', '训练微调', '开发工具', 'AI芯片硬件', '学术论文', '行业资讯']
 
 
 def classify(title, title_zh, summary):

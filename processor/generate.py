@@ -7,7 +7,7 @@ OUTPUT_DIR = os.path.join(os.path.dirname(__file__), '..', 'web', 'output')
 TEMPLATE_PATH = os.path.join(os.path.dirname(__file__), '..', 'web', 'template.html')
 
 ALL_CATS   = ['arXiv', 'AI Lab', 'AI Tools', 'AI Chip', 'Hacker News', 'Reddit', 'Newsletter']
-ALL_TOPICS = ['基础大模型', '推理部署', '训练微调', '开发工具', 'AI芯片硬件', '学术论文', '行业资讯']
+ALL_TOPICS = ['基础大模型', '推理部署', '性能优化', '训练微调', '开发工具', 'AI芯片硬件', '学术论文', '行业资讯']
 
 
 def time_ago(iso_str):
@@ -65,6 +65,7 @@ def topic_color(topic):
     colors = {
         '基础大模型': '#1d4ed8',
         '推理部署':   '#0f766e',
+        '性能优化':   '#065f46',
         '训练微调':   '#7c3aed',
         '开发工具':   '#0369a1',
         'AI芯片硬件': '#b45309',
