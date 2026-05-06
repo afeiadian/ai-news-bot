@@ -1,0 +1,50 @@
+# 相关度评分配置
+# 修改此文件即可调整评分标准，无需改动代码
+
+# 收录阈值：score >= 此值的文章才会被收录
+min_score: 60
+
+# 关注的技术领域（用于告知 AI 如何评分）
+# 可以自由增减或修改描述
+domains:
+  - name: 大语言模型
+    description: LLM 相关技术、研究、产品发布，包括 GPT、Claude、Gemini、Llama、Qwen 等模型
+
+  - name: AI 开发工具与框架
+    description: AI 应用开发框架、SDK、API，如 LangChain、LlamaIndex、vLLM、Ollama、SGLang 等
+
+  - name: 推理优化与部署
+    description: 模型推理加速、量化、蒸馏、边缘部署、serving 架构、TensorRT 等
+
+  - name: 训练与微调技术
+    description: 预训练、SFT、RLHF、DPO、数据集构建、对齐技术、分布式训练
+
+  - name: AI 芯片与硬件
+    description: GPU、NPU、TPU 等 AI 芯片，数据中心，互联技术，NVIDIA、AMD、Intel、自研芯片
+
+  - name: 多模态与 AI Agent
+    description: 多模态模型（视觉/语音/视频）、AI Agent 框架、工具调用、自主系统
+
+# 话题分类（用于文章自动打标签）
+# name 必须与 generate.py 中 ALL_TOPICS 保持一致
+topics:
+  - name: 基础大模型
+    description: 新模型发布、模型能力评测、多模态模型、模型架构创新
+
+  - name: 推理部署
+    description: 推理加速、量化、vLLM/ollama/TensorRT、serving、边缘部署
+
+  - name: 训练微调
+    description: 预训练、SFT、RLHF、数据集、对齐技术
+
+  - name: 开发工具
+    description: SDK、框架、API、Agent框架、RAG、工作流
+
+  - name: AI芯片硬件
+    description: GPU、NPU、TPU、芯片架构、数据中心、互联技术
+
+  - name: 学术论文
+    description: arXiv论文、研究成果、Benchmark测评
+
+  - name: 行业资讯
+    description: 公司动态、融资、产品发布、政策法规、市场分析
