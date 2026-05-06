@@ -22,17 +22,14 @@ def classify(title, title_zh, summary):
     resp = client.chat.completions.create(
         model=MODEL,
         messages=[{'role': 'user', 'content':
-            f'从以下选项中为这篇AI资讯选择最匹配的话题分类，只输出分类名称：\n'
+            f'从以下选项中为这篇AI资讯选择1-3个最匹配的话题分类，用英文逗号分隔输出，不加其他内容：\n'
             f'选项：{"、".join(TOPICS)}\n\n{text}'}],
-        max_tokens=20,
+        max_tokens=40,
         temperature=0.1,
     )
     result = resp.choices[0].message.content.strip()
-    # 确保返回值在有效选项内
-    for t in TOPICS:
-        if t in result:
-            return t
-    return '行业资讯'
+    matched = [t for t in TOPICS if t in result]
+    return ','.join(matched) if matched else '行业资讯'
 
 
 def translate(title):

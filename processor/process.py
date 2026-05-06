@@ -59,7 +59,7 @@ def analyze_article(title: str, content: str, source: str) -> dict:
 {{
   "score": <0-100的整数，表示与AI技术领域的相关度>,
   "title_zh": "<将英文标题翻译成中文，保持简洁准确；如果标题已是中文则原样返回>",
-  "topic": "<从以下选项中选一个最匹配的：{topic_names}；若不相关则填空>",
+  "topics": "<从以下选项中选1-3个最匹配的话题，用英文逗号分隔，如：基础大模型,推理部署；若不相关则填空字符串>，可选值：{topic_names}",
   "summary": "<如果相关(score>={min_score})，用2-3句中文概括核心内容；否则留空>",
   "reason": "<判断依据，一句话>"
 }}"""
@@ -82,10 +82,22 @@ def analyze_article(title: str, content: str, source: str) -> dict:
         result = json.loads(m.group()) if m else {}
 
     score = int(result.get('score', 0))
+
+    # 兼容返回单个字符串或列表
+    raw_topics = result.get('topics', result.get('topic', ''))
+    if isinstance(raw_topics, list):
+        topics_str = ','.join(t.strip() for t in raw_topics if t.strip())
+    else:
+        topics_str = str(raw_topics).strip()
+
+    # 校验只保留合法话题名
+    valid = set(topic_names.split('、'))
+    topics_str = ','.join(t for t in topics_str.split(',') if t.strip() in valid)
+
     return {
         'score':    score,
         'title_zh': result.get('title_zh', ''),
-        'topic':    result.get('topic', ''),
+        'topic':    topics_str,
         'summary':  result.get('summary', ''),
         'relevant': score >= min_score,
     }

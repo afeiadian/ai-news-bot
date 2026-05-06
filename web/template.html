@@ -299,7 +299,7 @@
   function getVisibleRows() {
     return allRows.filter(row => {
       const catOk   = activeCat   === 'all' || row.dataset.category === activeCat;
-      const topicOk = activeTopic === 'all' || row.dataset.topic    === activeTopic;
+      const topicOk = activeTopic === 'all' || row.dataset.topic.split(',').map(t=>t.trim()).includes(activeTopic);
       const scoreOk = parseInt(row.dataset.score || 0) >= activeScore;
       let   dateOk  = true;
       if (activeDays !== 'all') {

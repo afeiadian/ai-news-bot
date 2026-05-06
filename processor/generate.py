@@ -84,32 +84,34 @@ def build_html(articles):
     for a in articles:
         if a['category'] in cat_counts:
             cat_counts[a['category']] += 1
-        t = a.get('topic') or ''
-        if t in topic_counts:
-            topic_counts[t] += 1
+        for t in (a.get('topic') or '').split(','):
+            t = t.strip()
+            if t in topic_counts:
+                topic_counts[t] += 1
 
     # 文章列表 HTML
     items_html = ''
     for i, a in enumerate(articles, 1):
         color    = category_color(a['category'])
-        topic    = a.get('topic') or ''
-        date_str = get_date(a['published_at'])
+        topic_raw = a.get('topic') or ''
+        topics    = [t.strip() for t in topic_raw.split(',') if t.strip()]
+        date_str  = get_date(a['published_at'])
 
         title_zh_html = ''
         if a.get('title_zh') and a['title_zh'] != a['title']:
             title_zh_html = f'<div class="title-zh">{a["title_zh"]}</div>'
 
         topic_html = ''
-        if topic:
-            tc = topic_color(topic)
-            topic_html = f'<span class="tag topic-tag" style="background:{tc}">{topic}</span>'
+        for t in topics:
+            tc = topic_color(t)
+            topic_html += f'<span class="tag topic-tag" style="background:{tc}">{t}</span>'
 
         summary_html = ''
         if a.get('summary'):
             summary_html = f'<p class="summary">{a["summary"]}</p>'
 
         items_html += f'''
-        <tr class="item-row" data-category="{a["category"]}" data-topic="{topic}" data-date="{date_str}" data-score="{a["score"]}">
+        <tr class="item-row" data-category="{a["category"]}" data-topic="{topic_raw}" data-date="{date_str}" data-score="{a["score"]}">
             <td class="rank">{i}</td>
             <td class="main">
                 <div class="title-line">
@@ -128,7 +130,7 @@ def build_html(articles):
                 </div>
             </td>
         </tr>
-        <tr class="spacer" data-category="{a["category"]}" data-topic="{topic}" data-date="{date_str}" data-score="{a["score"]}"><td colspan="2"></td></tr>'''
+        <tr class="spacer" data-category="{a["category"]}" data-topic="{topic_raw}" data-date="{date_str}" data-score="{a["score"]}"><td colspan="2"></td></tr>'''
 
     # 来源分类按钮（全显示）
     cat_buttons = ''
