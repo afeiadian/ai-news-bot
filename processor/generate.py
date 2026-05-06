@@ -125,8 +125,8 @@ def build_html(articles):
                 <div class="title-block">
                     <a class="title-link" href="{a["url"]}" target="_blank" rel="noopener">{a["title"]}</a>
                     {title_zh_html}
-                    {f'<div class="topic-tags">{topic_html}</div>' if topic_html else ''}
                 </div>
+                {f'<div class="topic-tags">{topic_html}</div>' if topic_html else ''}
                 {summary_html}
                 <div class="meta">
                     <span class="source-cat" style="color:{color}">{a["category"]}</span>
