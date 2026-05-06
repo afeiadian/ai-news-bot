@@ -14,7 +14,6 @@
       color: #000;
     }
 
-    /* 顶部导航栏 */
     #header {
       background: #ff6600;
       padding: 4px 8px;
@@ -29,7 +28,6 @@
       font-size: 16px;
       padding: 2px 6px;
       border-radius: 2px;
-      text-decoration: none;
     }
     #header .site-title {
       color: #fff;
@@ -43,11 +41,65 @@
       opacity: 0.85;
     }
 
-    /* 主内容区 */
     #main {
-      max-width: 900px;
+      max-width: 960px;
       margin: 0 auto;
       padding: 8px 4px;
+    }
+
+    /* 筛选栏整体 */
+    #filter-bar {
+      padding: 6px 4px 10px 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .filter-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .filter-label {
+      font-size: 12px;
+      color: #828282;
+      width: 36px;
+      flex-shrink: 0;
+    }
+
+    /* 按钮通用样式 */
+    .filter-btn {
+      font-size: 11px;
+      padding: 2px 8px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      background: #fff;
+      cursor: pointer;
+      color: #333;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+    .filter-btn:hover { background: #f0f0f0; }
+    .filter-btn.active {
+      background: #ff6600;
+      color: #fff;
+      border-color: #ff6600;
+    }
+    .filter-btn.active .btn-count {
+      background: rgba(255,255,255,0.3);
+    }
+
+    .btn-count {
+      font-size: 10px;
+      background: #e8e8e8;
+      color: #555;
+      padding: 0 4px;
+      border-radius: 8px;
+      min-width: 18px;
+      text-align: center;
     }
 
     /* 文章列表 */
@@ -70,14 +122,11 @@
       padding-top: 6px !important;
     }
 
-    .title-line {
-      line-height: 1.4;
-    }
-
     .title-link {
       font-size: 14px;
       color: #000;
       text-decoration: none;
+      line-height: 1.4;
     }
     .title-link:hover { text-decoration: underline; }
     .title-link:visited { color: #828282; }
@@ -87,7 +136,7 @@
       color: #444;
       margin-top: 4px;
       line-height: 1.5;
-      max-width: 800px;
+      max-width: 820px;
       padding: 4px 8px;
       background: #fffbf0;
       border-left: 3px solid #ff6600;
@@ -110,46 +159,20 @@
       padding: 1px 5px;
       border-radius: 3px;
       font-weight: bold;
-      letter-spacing: 0.3px;
     }
 
-    .source { color: #828282; }
     .dot { color: #ccc; }
-    .time { color: #828282; }
     .score { color: #b45309; font-weight: bold; }
 
-    .spacer td {
-      height: 8px;
-    }
+    .spacer td { height: 8px; }
 
-    /* 过滤栏 */
-    #filter-bar {
-      padding: 6px 4px 8px 4px;
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-    #filter-bar span {
+    /* 结果统计 */
+    #result-count {
       font-size: 12px;
       color: #828282;
-    }
-    .filter-btn {
-      font-size: 11px;
-      padding: 2px 8px;
-      border: 1px solid #ccc;
-      border-radius: 3px;
-      background: #fff;
-      cursor: pointer;
-      color: #333;
-    }
-    .filter-btn:hover, .filter-btn.active {
-      background: #ff6600;
-      color: #fff;
-      border-color: #ff6600;
+      padding: 0 4px 6px 4px;
     }
 
-    /* 底部 */
     #footer {
       text-align: center;
       padding: 16px;
@@ -159,7 +182,6 @@
       margin-top: 16px;
     }
 
-    /* 响应式 */
     @media (max-width: 600px) {
       .title-link { font-size: 13px; }
       #main { padding: 4px 2px; }
@@ -176,15 +198,25 @@
 
 <div id="main">
   <div id="filter-bar">
-    <span>筛选：</span>
-    <button class="filter-btn active" onclick="filterBy('all')">全部 ({{COUNT}})</button>
-    <button class="filter-btn" onclick="filterBy('arXiv')">arXiv</button>
-    <button class="filter-btn" onclick="filterBy('AI Lab')">AI Lab</button>
-    <button class="filter-btn" onclick="filterBy('AI Tools')">AI Tools</button>
-    <button class="filter-btn" onclick="filterBy('AI Chip')">AI Chip</button>
-    <button class="filter-btn" onclick="filterBy('Hacker News')">Hacker News</button>
-    <button class="filter-btn" onclick="filterBy('Reddit')">Reddit</button>
+    <!-- 日期筛选 -->
+    <div class="filter-row">
+      <span class="filter-label">日期：</span>
+      <button class="filter-btn active" data-date="all" onclick="filterDate(this)">全部</button>
+      <button class="filter-btn" data-date="0" onclick="filterDate(this)">今天</button>
+      <button class="filter-btn" data-date="1" onclick="filterDate(this)">昨天</button>
+      <button class="filter-btn" data-date="3" onclick="filterDate(this)">近3天</button>
+      <button class="filter-btn" data-date="7" onclick="filterDate(this)">近7天</button>
+      <button class="filter-btn" data-date="30" onclick="filterDate(this)">近30天</button>
+    </div>
+    <!-- 分类筛选 -->
+    <div class="filter-row">
+      <span class="filter-label">分类：</span>
+      <button class="filter-btn active" data-cat="all" onclick="filterCat(this)">全部 <span class="btn-count">{{COUNT}}</span></button>
+      {{CAT_BUTTONS}}
+    </div>
   </div>
+
+  <div id="result-count"></div>
 
   <table class="item-list" id="item-list">
     {{ITEMS}}
@@ -196,30 +228,66 @@
 </div>
 
 <script>
-  function filterBy(cat) {
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    event.target.classList.add('active');
+  let activeCat = 'all';
+  let activeDays = 'all';
 
-    document.querySelectorAll('.item-row').forEach(row => {
-      if (cat === 'all') {
-        row.style.display = '';
-        row.nextElementSibling.style.display = '';
-      } else {
-        const tag = row.querySelector('.tag');
-        const match = tag && tag.textContent.trim() === cat;
-        row.style.display = match ? '' : 'none';
-        row.nextElementSibling.style.display = match ? '' : 'none';
+  function getLocalDateStr(daysAgo) {
+    const d = new Date();
+    d.setDate(d.getDate() - daysAgo);
+    return d.toISOString().slice(0, 10);
+  }
+
+  function applyFilter() {
+    const rows = document.querySelectorAll('.item-row');
+    let visible = 0;
+
+    rows.forEach(row => {
+      const rowCat = row.dataset.category;
+      const rowDate = row.dataset.date;
+      const spacer = row.nextElementSibling;
+
+      const catOk = activeCat === 'all' || rowCat === activeCat;
+
+      let dateOk = true;
+      if (activeDays !== 'all') {
+        const cutoff = getLocalDateStr(parseInt(activeDays));
+        dateOk = rowDate >= cutoff;
       }
+
+      const show = catOk && dateOk;
+      row.style.display = show ? '' : 'none';
+      if (spacer) spacer.style.display = show ? '' : 'none';
+      if (show) visible++;
     });
 
     // 重新编号
     let n = 1;
-    document.querySelectorAll('.item-row').forEach(row => {
+    rows.forEach(row => {
       if (row.style.display !== 'none') {
         row.querySelector('.rank').textContent = n++;
       }
     });
+
+    document.getElementById('result-count').textContent =
+      visible > 0 ? `显示 ${visible} 条` : '暂无符合条件的资讯';
   }
+
+  function filterCat(btn) {
+    document.querySelectorAll('[data-cat]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeCat = btn.dataset.cat;
+    applyFilter();
+  }
+
+  function filterDate(btn) {
+    document.querySelectorAll('[data-date]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeDays = btn.dataset.date;
+    applyFilter();
+  }
+
+  // 初始化显示数量
+  applyFilter();
 </script>
 
 </body>

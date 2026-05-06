@@ -1,6 +1,5 @@
 import os
 import sys
-import json
 from datetime import datetime, timezone
 from storage import get_conn
 
@@ -24,7 +23,17 @@ def time_ago(iso_str):
         return iso_str[:10]
 
 
-def get_articles(limit=200, min_score=60):
+def get_date(iso_str):
+    """提取 YYYY-MM-DD 用于前端日期筛选"""
+    if not iso_str:
+        return ''
+    try:
+        return datetime.fromisoformat(iso_str.replace('Z', '+00:00')).strftime('%Y-%m-%d')
+    except Exception:
+        return iso_str[:10]
+
+
+def get_articles(limit=500, min_score=60):
     conn = get_conn()
     rows = conn.execute('''
         SELECT title, url, source_name, category, published_at, summary, score
@@ -54,15 +63,22 @@ def build_html(articles):
     with open(TEMPLATE_PATH, encoding='utf-8') as f:
         template = f.read()
 
+    # 统计各分类数量
+    cat_counts = {}
+    for a in articles:
+        cat_counts[a['category']] = cat_counts.get(a['category'], 0) + 1
+
+    # 生成文章列表 HTML
     items_html = ''
     for i, a in enumerate(articles, 1):
         color = category_color(a['category'])
         summary_html = ''
         if a.get('summary'):
             summary_html = f'<p class="summary">{a["summary"]}</p>'
+        date_str = get_date(a['published_at'])
 
         items_html += f'''
-        <tr class="item-row">
+        <tr class="item-row" data-category="{a["category"]}" data-date="{date_str}">
             <td class="rank">{i}</td>
             <td class="main">
                 <div class="title-line">
@@ -79,12 +95,22 @@ def build_html(articles):
                 </div>
             </td>
         </tr>
-        <tr class="spacer"><td colspan="2"></td></tr>'''
+        <tr class="spacer" data-category="{a["category"]}" data-date="{date_str}"><td colspan="2"></td></tr>'''
+
+    # 生成分类按钮 HTML
+    all_cats = ['arXiv', 'AI Lab', 'AI Tools', 'AI Chip', 'Hacker News', 'Reddit', 'Newsletter']
+    cat_buttons = ''
+    for cat in all_cats:
+        count = cat_counts.get(cat, 0)
+        if count == 0:
+            continue
+        cat_buttons += f'<button class="filter-btn" data-cat="{cat}" onclick="filterCat(this)">{cat} <span class="btn-count">{count}</span></button>\n'
 
     updated = datetime.now().strftime('%Y-%m-%d %H:%M UTC')
     html = template.replace('{{ITEMS}}', items_html)
     html = html.replace('{{COUNT}}', str(len(articles)))
     html = html.replace('{{UPDATED}}', updated)
+    html = html.replace('{{CAT_BUTTONS}}', cat_buttons)
     return html
 
 
