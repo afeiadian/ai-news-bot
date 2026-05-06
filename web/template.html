@@ -97,6 +97,18 @@
     }
     .btn-empty:hover { background: #fff; }
 
+    #date-select {
+      font-size: 11px;
+      padding: 2px 6px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      background: #fff;
+      color: #333;
+      cursor: pointer;
+      height: 24px;
+    }
+    #date-select:focus { outline: none; border-color: #ff6600; }
+
     .btn-count {
       font-size: 10px;
       background: #e8e8e8;
@@ -248,10 +260,12 @@
       <button class="filter-btn range-btn" data-date="7"  onclick="filterDate(this)">近7天</button>
       <button class="filter-btn range-btn" data-date="30" onclick="filterDate(this)">近30天</button>
     </div>
-    <!-- 具体日期 -->
+    <!-- 具体日期下拉 -->
     <div class="filter-row">
       <span class="filter-label"></span>
-      {{DATE_BUTTONS}}
+      <select id="date-select" onchange="filterExactDate(this)">
+        {{DATE_OPTIONS}}
+      </select>
     </div>
     <!-- 来源分类 -->
     <div class="filter-row">
@@ -402,19 +416,24 @@
   }
 
   function filterDate(btn) {
-    // 清除所有日期相关按钮的激活状态
-    document.querySelectorAll('.range-btn, [data-exact]').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     activeDays  = btn.dataset.date;
     activeExact = '';
+    document.getElementById('date-select').value = '';
     currentPage = 1; render();
   }
 
-  function filterExactDate(btn) {
-    document.querySelectorAll('.range-btn, [data-exact]').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    activeExact = btn.dataset.exact;
-    activeDays  = 'all';
+  function filterExactDate(sel) {
+    activeExact = sel.value;
+    if (activeExact) {
+      // 有具体日期时，取消范围按钮的激活
+      document.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
+      activeDays = 'all';
+    } else {
+      // 恢复"全部"按钮
+      document.querySelector('.range-btn[data-date="all"]').classList.add('active');
+    }
     currentPage = 1; render();
   }
 

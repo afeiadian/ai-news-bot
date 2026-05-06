@@ -159,15 +159,12 @@ def build_html(articles):
             f'{t} <span class="btn-count">{count}</span></button>\n'
         )
 
-    # 具体日期按钮（有文章的日期，降序，最近 30 天）
-    date_buttons = ''
+    # 具体日期下拉选项（有文章的日期，降序，最近 30 天）
+    date_options = '<option value="">指定日期...</option>\n'
     for d in sorted(date_counts.keys(), reverse=True)[:30]:
         label = d[5:]  # MM-DD
         count = date_counts[d]
-        date_buttons += (
-            f'<button class="filter-btn" data-exact="{d}" onclick="filterExactDate(this)">'
-            f'{label} <span class="btn-count">{count}</span></button>\n'
-        )
+        date_options += f'<option value="{d}">{label}（{count}篇）</option>\n'
 
     updated = datetime.now().strftime('%Y-%m-%d %H:%M UTC')
     html = template.replace('{{ITEMS}}', items_html)
@@ -175,7 +172,7 @@ def build_html(articles):
     html = html.replace('{{UPDATED}}', updated)
     html = html.replace('{{CAT_BUTTONS}}', cat_buttons)
     html = html.replace('{{TOPIC_BUTTONS}}', topic_buttons)
-    html = html.replace('{{DATE_BUTTONS}}', date_buttons)
+    html = html.replace('{{DATE_OPTIONS}}', date_options)
     return html
 
 
