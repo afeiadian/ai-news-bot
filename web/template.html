@@ -296,10 +296,12 @@
     <!-- 热度 -->
     <div class="filter-row">
       <span class="filter-label">热度：</span>
-      <button class="filter-btn active" data-hotness="0" onclick="filterHotness(this)">全部</button>
-      <button class="filter-btn" data-hotness="3" onclick="filterHotness(this)">3星以上</button>
-      <button class="filter-btn" data-hotness="4" onclick="filterHotness(this)">4星以上</button>
-      <button class="filter-btn" data-hotness="5" onclick="filterHotness(this)">5星</button>
+      <button class="filter-btn active" data-hotness="0" data-hotness-max="9" onclick="filterHotness(this)">全部</button>
+      <button class="filter-btn" data-hotness="2" data-hotness-max="2" onclick="filterHotness(this)">2星及以下</button>
+      <button class="filter-btn" data-hotness="2" data-hotness-max="9" onclick="filterHotness(this)">2星以上</button>
+      <button class="filter-btn" data-hotness="3" data-hotness-max="9" onclick="filterHotness(this)">3星以上</button>
+      <button class="filter-btn" data-hotness="4" data-hotness-max="9" onclick="filterHotness(this)">4星以上</button>
+      <button class="filter-btn" data-hotness="5" data-hotness-max="9" onclick="filterHotness(this)">5星</button>
     </div>
   </div>
 
@@ -325,9 +327,10 @@
   let activeTopic   = 'all';
   let activeDays    = 'all';
   let activeExact   = '';     // 具体日期 YYYY-MM-DD，优先级高于 activeDays
-  let activeScore   = 0;
-  let activeHotness = 0;
-  let currentPage   = 1;
+  let activeScore      = 0;
+  let activeHotness    = 0;
+  let activeHotnessMax = 9;
+  let currentPage      = 1;
 
   const allRows = Array.from(document.querySelectorAll('.item-row'));
 
@@ -342,7 +345,8 @@
       const catOk   = activeCat   === 'all' || row.dataset.category === activeCat;
       const topicOk = activeTopic === 'all' || row.dataset.topic.split(',').map(t=>t.trim()).includes(activeTopic);
       const scoreOk   = parseInt(row.dataset.score   || 0) >= activeScore;
-      const hotnessOk = parseInt(row.dataset.hotness || 0) >= activeHotness;
+      const h = parseInt(row.dataset.hotness || 0);
+      const hotnessOk = h >= activeHotness && h <= activeHotnessMax;
       let dateOk = true;
       if (activeExact) {
         dateOk = row.dataset.date === activeExact;
@@ -463,7 +467,8 @@
   function filterHotness(btn) {
     document.querySelectorAll('[data-hotness]').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    activeHotness = parseInt(btn.dataset.hotness);
+    activeHotness    = parseInt(btn.dataset.hotness);
+    activeHotnessMax = parseInt(btn.dataset.hotnessMax || 9);
     currentPage = 1; render();
   }
 
