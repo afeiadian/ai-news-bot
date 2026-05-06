@@ -250,7 +250,7 @@
 
 <div id="main">
   <div id="filter-bar">
-    <!-- 日期范围 -->
+    <!-- 日期 -->
     <div class="filter-row">
       <span class="filter-label">日期：</span>
       <button class="filter-btn range-btn active" data-date="all" onclick="filterDate(this)">全部</button>
@@ -259,10 +259,6 @@
       <button class="filter-btn range-btn" data-date="3"  onclick="filterDate(this)">近3天</button>
       <button class="filter-btn range-btn" data-date="7"  onclick="filterDate(this)">近7天</button>
       <button class="filter-btn range-btn" data-date="30" onclick="filterDate(this)">近30天</button>
-    </div>
-    <!-- 具体日期下拉 -->
-    <div class="filter-row">
-      <span class="filter-label"></span>
       <select id="date-select" onchange="filterExactDate(this)">
         {{DATE_OPTIONS}}
       </select>
