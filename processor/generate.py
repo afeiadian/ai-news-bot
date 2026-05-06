@@ -114,10 +114,10 @@ def build_html(articles):
         <tr class="item-row" data-category="{a["category"]}" data-topic="{topic_raw}" data-date="{date_str}" data-score="{a["score"]}">
             <td class="rank">{i}</td>
             <td class="main">
-                <div class="title-line">
+                <div class="title-block">
                     <a class="title-link" href="{a["url"]}" target="_blank" rel="noopener">{a["title"]}</a>
+                    {title_zh_html}
                 </div>
-                {title_zh_html}
                 {summary_html}
                 <div class="meta">
                     <span class="tag" style="background:{color}">{a["category"]}</span>
