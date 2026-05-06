@@ -112,7 +112,7 @@ def build_html(articles):
             topic_html += f'<span class="tag topic-tag" style="background:{tc}">{t}</span>'
 
         hotness = a.get('hotness') or 0
-        stars_html = f'<span class="stars">{"★" * hotness}{"☆" * (5 - hotness)}</span>' if hotness else ''
+        stars_html = f'<span class="hotness-label">热度</span><span class="stars">{"★" * hotness}{"☆" * (5 - hotness)}</span>' if hotness else ''
 
         summary_html = ''
         if a.get('summary'):
