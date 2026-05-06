@@ -25,7 +25,7 @@ def translate_title(title: str) -> str:
             'role': 'user',
             'content': f'将以下标题翻译成中文，只输出翻译结果，不加任何解释：\n{title}'
         }],
-        max_tokens=100,
+        max_tokens=2000,
         temperature=0.1,
     )
     return resp.choices[0].message.content.strip()

@@ -70,7 +70,7 @@ def analyze_article(title: str, content: str, source: str) -> dict:
             {'role': 'system', 'content': system_prompt},
             {'role': 'user',   'content': prompt},
         ],
-        max_tokens=500,
+        max_tokens=2000,
         temperature=0.1,
     )
 
