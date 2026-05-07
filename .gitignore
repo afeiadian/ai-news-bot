@@ -1,6 +1,6 @@
 .env
-data/*.db
+# data/*.db  # DB 由 GitHub Actions 持久化，需纳入版本控制
 __pycache__/
 *.pyc
 .DS_Store
-web/output/
+# web/output/  # 由 GitHub Actions 生成并提交，需纳入版本控制
