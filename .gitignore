@@ -3,4 +3,4 @@
 __pycache__/
 *.pyc
 .DS_Store
-# web/output/  # 由 GitHub Actions 生成并提交，需纳入版本控制
+web/output/

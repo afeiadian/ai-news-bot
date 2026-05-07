@@ -3,7 +3,7 @@ import sys
 from datetime import datetime, timezone
 from storage import get_conn
 
-OUTPUT_DIR = os.path.join(os.path.dirname(__file__), '..', 'web', 'output')
+OUTPUT_DIR = os.path.join(os.path.dirname(__file__), '..', 'docs')
 TEMPLATE_PATH = os.path.join(os.path.dirname(__file__), '..', 'web', 'template.html')
 
 ALL_CATS   = ['arXiv', 'AI Lab', 'AI Tools', 'AI Chip', 'Hacker News', 'Reddit', 'Newsletter']
