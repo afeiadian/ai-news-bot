@@ -285,8 +285,8 @@
     <!-- 日期 -->
     <div class="filter-row">
       <span class="filter-label">日期：</span>
-      <button class="filter-btn range-btn" data-date="all" onclick="filterDate(this)">全部</button>
-      <button class="filter-btn range-btn active" data-date="0"  onclick="filterDate(this)">今天</button>
+      <button class="filter-btn range-btn active" data-date="all" onclick="filterDate(this)">全部</button>
+      <button class="filter-btn range-btn" data-date="0"  onclick="filterDate(this)">今天</button>
       <button class="filter-btn range-btn" data-date="1"  onclick="filterDate(this)">昨天</button>
       <button class="filter-btn range-btn" data-date="3"  onclick="filterDate(this)">近3天</button>
       <button class="filter-btn range-btn" data-date="7"  onclick="filterDate(this)">近7天</button>
@@ -354,7 +354,7 @@
   const PAGE_SIZE   = 30;
   let activeCat     = 'all';
   let activeTopic   = 'all';
-  let activeDays    = '0';
+  let activeDays    = 'all';
   let activeExact   = '';     // 具体日期 YYYY-MM-DD，优先级高于 activeDays
   let activeScore      = 0;
   let activeHotness    = 0;

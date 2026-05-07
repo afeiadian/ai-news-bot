@@ -285,8 +285,8 @@
     <!-- 日期 -->
     <div class="filter-row">
       <span class="filter-label">日期：</span>
-      <button class="filter-btn range-btn" data-date="all" onclick="filterDate(this)">全部</button>
-      <button class="filter-btn range-btn active" data-date="0"  onclick="filterDate(this)">今天</button>
+      <button class="filter-btn range-btn active" data-date="all" onclick="filterDate(this)">全部</button>
+      <button class="filter-btn range-btn" data-date="0"  onclick="filterDate(this)">今天</button>
       <button class="filter-btn range-btn" data-date="1"  onclick="filterDate(this)">昨天</button>
       <button class="filter-btn range-btn" data-date="3"  onclick="filterDate(this)">近3天</button>
       <button class="filter-btn range-btn" data-date="7"  onclick="filterDate(this)">近7天</button>
@@ -372,7 +372,7 @@
                     <span class="source-cat" style="color:#ea580c">Hacker News</span>
                     <span class="source">Hacker News</span>
                     <span class="dot">·</span>
-                    <span class="time">19 小时前</span>
+                    <span class="time">20 小时前</span>
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★☆</span>
@@ -393,7 +393,7 @@
                     <span class="source-cat" style="color:#ea580c">Hacker News</span>
                     <span class="source">Hacker News</span>
                     <span class="dot">·</span>
-                    <span class="time">23 小时前</span>
+                    <span class="time">1 天前</span>
                     <span class="dot">·</span>
                     <span class="score">相关度 90%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★☆</span>
@@ -414,7 +414,7 @@
                     <span class="source-cat" style="color:#ea580c">Hacker News</span>
                     <span class="source">Hacker News</span>
                     <span class="dot">·</span>
-                    <span class="time">23 小时前</span>
+                    <span class="time">1 天前</span>
                     <span class="dot">·</span>
                     <span class="score">相关度 65%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★☆</span>
@@ -5299,7 +5299,7 @@
   <div id="pagination"></div>
 
   <div id="footer">
-    共 235 条资讯 · 更新于 2026-05-07 09:07 UTC · 数据来源：arXiv / HN / Reddit / RSS
+    共 235 条资讯 · 更新于 2026-05-07 09:09 UTC · 数据来源：arXiv / HN / Reddit / RSS
   </div>
 </div>
 
@@ -5307,7 +5307,7 @@
   const PAGE_SIZE   = 30;
   let activeCat     = 'all';
   let activeTopic   = 'all';
-  let activeDays    = '0';
+  let activeDays    = 'all';
   let activeExact   = '';     // 具体日期 YYYY-MM-DD，优先级高于 activeDays
   let activeScore      = 0;
   let activeHotness    = 0;
