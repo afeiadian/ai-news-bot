@@ -210,6 +210,7 @@
       color: #828282;
     }
 
+    #result-right { display: flex; align-items: center; gap: 16px; }
     #sort-bar { display: flex; align-items: center; gap: 4px; }
 
     .sort-btn {
@@ -324,14 +325,16 @@
   </div>
 
   <div id="result-bar">
-    <div id="sort-bar">
-      <span style="font-size:11px;color:#828282;">排序：</span>
-      <button class="sort-btn active" data-sort="hotness" onclick="setSort(this)">热度</button>
-      <button class="sort-btn" data-sort="score" onclick="setSort(this)">相关度</button>
-      <button class="sort-btn" data-sort="date" onclick="setSort(this)">时间</button>
-    </div>
     <span id="result-count"></span>
-    <span id="page-info"></span>
+    <div id="result-right">
+      <div id="sort-bar">
+        <span style="font-size:11px;color:#828282;">排序：</span>
+        <button class="sort-btn active" data-sort="hotness" onclick="setSort(this)">热度</button>
+        <button class="sort-btn" data-sort="score" onclick="setSort(this)">相关度</button>
+        <button class="sort-btn" data-sort="date" onclick="setSort(this)">时间</button>
+      </div>
+      <span id="page-info"></span>
+    </div>
   </div>
 
   <table class="item-list" id="item-list">
