@@ -210,6 +210,25 @@
       color: #828282;
     }
 
+    #sort-bar { display: flex; align-items: center; gap: 4px; }
+
+    .sort-btn {
+      font-size: 11px;
+      padding: 2px 8px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      background: #fff;
+      cursor: pointer;
+      color: #333;
+    }
+    .sort-btn:hover { background: #f0f0f0; }
+    .sort-btn.active {
+      background: #ff6600;
+      color: #fff;
+      border-color: #ff6600;
+      font-weight: bold;
+    }
+
     /* 分页 */
     #pagination {
       display: flex;
@@ -306,6 +325,12 @@
 
   <div id="result-bar">
     <span id="result-count"></span>
+    <div id="sort-bar">
+      <span style="font-size:11px;color:#828282;">排序：</span>
+      <button class="sort-btn active" data-sort="hotness" onclick="setSort(this)">热度</button>
+      <button class="sort-btn" data-sort="score" onclick="setSort(this)">相关度</button>
+      <button class="sort-btn" data-sort="date" onclick="setSort(this)">时间</button>
+    </div>
     <span id="page-info"></span>
   </div>
 
@@ -329,6 +354,7 @@
   let activeScore      = 0;
   let activeHotness    = 0;
   let activeHotnessMax = 9;
+  let sortBy           = 'hotness';
   let currentPage      = 1;
 
   const allRows = Array.from(document.querySelectorAll('.item-row'));
@@ -356,8 +382,22 @@
     });
   }
 
+  function sorted(rows) {
+    return [...rows].sort((a, b) => {
+      if (sortBy === 'hotness') {
+        const d = parseInt(b.dataset.hotness||0) - parseInt(a.dataset.hotness||0);
+        return d !== 0 ? d : b.dataset.date.localeCompare(a.dataset.date);
+      } else if (sortBy === 'score') {
+        const d = parseInt(b.dataset.score||0) - parseInt(a.dataset.score||0);
+        return d !== 0 ? d : b.dataset.date.localeCompare(a.dataset.date);
+      } else {
+        return b.dataset.date.localeCompare(a.dataset.date);
+      }
+    });
+  }
+
   function render() {
-    const visible = getVisibleRows();
+    const visible = sorted(getVisibleRows());
     const total   = visible.length;
     const pages   = Math.max(1, Math.ceil(total / PAGE_SIZE));
     if (currentPage > pages) currentPage = pages;
@@ -406,8 +446,15 @@
     return Array.from(range).sort((a,b) => a-b);
   }
 
+  function setSort(btn) {
+    document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    sortBy = btn.dataset.sort;
+    currentPage = 1; render();
+  }
+
   function goPage(p) {
-    const pages = Math.max(1, Math.ceil(getVisibleRows().length / PAGE_SIZE));
+    const pages = Math.max(1, Math.ceil(sorted(getVisibleRows()).length / PAGE_SIZE));
     if (p < 1 || p > pages) return;
     currentPage = p; render();
   }
