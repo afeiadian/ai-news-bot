@@ -40,6 +40,21 @@ def init_db():
     conn.close()
 
 
+def prune_old_articles(days=3):
+    """删除 days 天前的文章"""
+    conn = get_conn()
+    try:
+        cur = conn.execute(
+            "DELETE FROM articles WHERE published_at < datetime('now', ? || ' days')",
+            (f'-{days}',)
+        )
+        conn.commit()
+        if cur.rowcount:
+            print(f'清理旧文章：删除 {cur.rowcount} 篇（{days}天前）')
+    finally:
+        conn.close()
+
+
 def article_exists(url):
     conn = get_conn()
     row = conn.execute('SELECT 1 FROM articles WHERE url=?', (url,)).fetchone()
