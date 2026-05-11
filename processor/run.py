@@ -2,6 +2,7 @@ import sys
 import time
 from fetch import fetch_unread_entries, get_feeds, normalize_entry, mark_as_read, mark_old_as_read
 from fetch_twitter import fetch_twitter_entries
+from fetch_content import fetch_jina_content
 from process import analyze_article
 from hotness import calc_hotness
 from storage import init_db, article_exists, save_article
@@ -28,6 +29,13 @@ def main():
             continue
 
         print(f'[{processed+1}/{len(entries)}] {article["title"][:60]}')
+
+        # HN 或内容过短时，用 Jina Reader 抓取原文
+        if article['category'] == 'Hacker News' or len(article.get('content', '')) < 200:
+            jina = fetch_jina_content(article['url'])
+            if jina:
+                article['content'] = jina
+                print(f'  Jina 抓取成功（{len(jina)} 字符）')
 
         try:
             result = analyze_article(
