@@ -25,6 +25,16 @@ rss_sources:
     category: lab
     status: verified
 
+  - name: Meta AI Research Blog
+    url: "https://engineering.fb.com/category/ai-research/feed/"
+    category: lab
+    status: verified
+
+  - name: Microsoft Research Blog
+    url: "https://www.microsoft.com/en-us/research/blog/feed/"
+    category: lab
+    status: verified
+
   - name: Hugging Face Blog
     url: "https://huggingface.co/blog/feed.xml"
     category: lab
@@ -37,9 +47,19 @@ rss_sources:
     category: chip
     status: verified
 
+  - name: NVIDIA Developer Blog
+    url: "https://developer.nvidia.com/blog/feed/"
+    category: chip
+    status: verified
+
   - name: SemiAnalysis
     url: "https://semianalysis.com/feed/"
     category: chip
+    status: verified
+
+  - name: PyTorch Blog
+    url: "https://pytorch.org/blog/feed/"
+    category: tools
     status: verified
 
   - name: Import AI (Jack Clark)
@@ -51,6 +71,16 @@ rss_sources:
     url: "https://thegradient.pub/rss/"
     category: newsletter
     status: pending
+
+  - name: Ahead of AI (Sebastian Raschka)
+    url: "https://magazine.sebastianraschka.com/feed"
+    category: newsletter
+    status: verified
+
+  - name: Interconnects (Nathan Lambert)
+    url: "https://www.interconnects.ai/feed"
+    category: newsletter
+    status: verified
 
   # 以下官网无原生 RSS，后续通过 RSSHub 或网页抓取补充
   # - Anthropic Blog: https://www.anthropic.com/news
@@ -73,6 +103,16 @@ arxiv_sources:
     name: "Machine Learning"
     status: verified
 
+  - id: cs.CL
+    url: "https://rss.arxiv.org/rss/cs.CL"
+    name: "Computation and Language"
+    status: verified
+
+  - id: cs.CV
+    url: "https://rss.arxiv.org/rss/cs.CV"
+    name: "Computer Vision"
+    status: verified
+
   - id: cs.AR
     url: "https://rss.arxiv.org/rss/cs.AR"
     name: "Hardware Architecture"
@@ -83,7 +123,6 @@ arxiv_sources:
     name: "Distributed Computing"
     status: verified
 
-  # 已移除：cs.CL（偏语言学/NLP学术方向）、cs.CV（计算机视觉，非核心关注）
 
 # Hacker News（通过 RSSHub）
 hackernews_sources:
@@ -94,12 +133,37 @@ hackernews_sources:
 
 # X / Twitter 账号（通过 twscrape 采集，独立脚本处理）
 twitter_accounts:
+  # AI 公司创始人 / CEO
   - handle: karpathy
     name: "Andrej Karpathy"
-  - handle: ylecun
-    name: "Yann LeCun"
   - handle: sama
-    name: "Sam Altman"
+    name: "Sam Altman (OpenAI CEO)"
+  - handle: darioamodei
+    name: "Dario Amodei (Anthropic CEO)"
+  - handle: demishassabis
+    name: "Demis Hassabis (Google DeepMind CEO)"
+  - handle: elonmusk
+    name: "Elon Musk (xAI)"
+  - handle: gdb
+    name: "Greg Brockman (OpenAI 联创)"
+
+  # 顶级研究者 / 学者
+  - handle: ylecun
+    name: "Yann LeCun (Meta 首席AI科学家)"
+  - handle: fchollet
+    name: "François Chollet (Keras 作者，ARC-AGI)"
+  - handle: tri_dao
+    name: "Tri Dao (FlashAttention 作者)"
+  - handle: drjimfan
+    name: "Jim Fan (NVIDIA Research)"
+
+  # 芯片 / 系统 / 基础设施专家
+  - handle: dylan522p
+    name: "Dylan Patel (SemiAnalysis 芯片分析)"
+  - handle: clattner_llvm
+    name: "Chris Lattner (MLIR/Mojo 作者)"
+
+  # 官方账号
   - handle: AnthropicAI
     name: "Anthropic"
   - handle: OpenAI
@@ -110,6 +174,19 @@ twitter_accounts:
     name: "Hugging Face"
   - handle: nvidia
     name: "NVIDIA"
+  - handle: xai
+    name: "xAI"
+
+  - handle: soumithchintala
+    name: "Soumith Chintala (PyTorch 创始人，Meta)"
+  - handle: rasbt
+    name: "Sebastian Raschka (ML技术教育，Ahead of AI作者)"
+  - handle: natolambert
+    name: "Nathan Lambert (RLHF/对齐专家，Interconnects作者)"
+  - handle: arthurmensch
+    name: "Arthur Mensch (Mistral AI CEO)"
+
+  # 论文推荐
   - handle: _akhaliq
     name: "AK (Papers)"
 
