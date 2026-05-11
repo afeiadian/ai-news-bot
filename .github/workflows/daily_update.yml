@@ -35,6 +35,8 @@ jobs:
           DEEPSEEK_API_KEY=${{ secrets.DEEPSEEK_API_KEY }}
           DEEPSEEK_BASE_URL=${{ secrets.DEEPSEEK_BASE_URL }}
           DEEPSEEK_MODEL=${{ secrets.DEEPSEEK_MODEL }}
+          TWITTER_AUTH_TOKEN=${{ secrets.TWITTER_AUTH_TOKEN }}
+          TWITTER_CT0=${{ secrets.TWITTER_CT0 }}
           EOF
 
       - name: Fetch and process articles

@@ -8,6 +8,7 @@ SOURCE_BASE = {
     'arXiv':       2.5,
     'Newsletter':  2.5,
     'AI Chip':     2.5,
+    'X':           2.5,
     'AI Tools':    2.0,
     'Hacker News': 2.0,
     'Reddit':      1.5,

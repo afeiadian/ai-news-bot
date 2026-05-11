@@ -6,7 +6,7 @@ from storage import get_conn
 OUTPUT_DIR = os.path.join(os.path.dirname(__file__), '..', 'docs')
 TEMPLATE_PATH = os.path.join(os.path.dirname(__file__), '..', 'web', 'template.html')
 
-ALL_CATS   = ['arXiv', 'AI Lab', 'AI Tools', 'AI Chip', 'Hacker News', 'Reddit', 'Newsletter']
+ALL_CATS   = ['arXiv', 'AI Lab', 'AI Tools', 'AI Chip', 'Hacker News', 'Reddit', 'Newsletter', 'X']
 ALL_TOPICS = ['基础大模型', '推理部署', '性能优化', '训练微调', '开发工具', 'AI芯片硬件', '学术论文', '行业资讯']
 
 
@@ -57,6 +57,7 @@ def category_color(category):
         'Hacker News': '#ea580c',
         'Reddit':      '#dc2626',
         'Newsletter':  '#4f46e5',
+        'X':           '#000000',
     }
     return colors.get(category, '#6b7280')
 

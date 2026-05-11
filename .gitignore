@@ -1,4 +1,5 @@
 .env
+data/twitter_accounts.db
 # data/*.db  # DB 由 GitHub Actions 持久化，需纳入版本控制
 __pycache__/
 *.pyc
