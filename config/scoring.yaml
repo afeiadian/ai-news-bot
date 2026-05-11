@@ -4,50 +4,78 @@
 # 收录阈值：score >= 此值的文章才会被收录
 min_score: 60
 
-# 关注的技术领域（用于告知 AI 如何评分）
-# 可以自由增减或修改描述
+# 评分原则：相关度 x 质量权重
+# 高分（80+）：技术强相关 + 来源权威/创新性高/可能被行业广泛采纳
+# 中分（60-79）：技术相关但为普通进展、无显著创新、影响力有限
+# 低分（<60）：弱相关、营销软文、低质量转述、与AI软硬件无关
+quality_note: |
+  评分时同时考虑技术相关度与内容质量，具体规则如下：
+
+  [来源权威性加分] 以下来源在技术相关的前提下给予更高分数（+10~+20）：
+  - 顶级AI公司官方博客：OpenAI、Anthropic、Google Research、Google DeepMind、NVIDIA、Meta AI、Microsoft Research
+  - 行业领袖X发文：Andrej Karpathy、Yann LeCun、Sam Altman、Ilya Sutskever、Jim Keller等知名人物
+  - 顶级机构论文：Google、Meta、Microsoft、OpenAI、Anthropic、CMU、MIT、Stanford、Berkeley等
+
+  [内容类型加分] 以下类型内容应给予更高分数：
+  - 技术突破或创新：声称SOTA效果、显著性能提升（有具体数据）
+  - 权威技术预测与综述：行业领袖对技术趋势的判断或系统性综述
+  - 对具体技术/产品的深度评价或认可：知名人物/机构的明确推荐或批评
+  - 新工具/框架重要发布：由知名公司发布、解决实际工程问题的开源项目
+
+  [X推文特别说明] 内容较短，评分重点：发文者是否知名；是否含具体技术观点、评价或趋势判断。
+  纯个人生活、无评论的转发、模糊表态等低信息量推文给低分（<50）。
+
+  [arXiv论文特别说明] 重点关注：是否有SOTA声称；作者机构是否为主流AI企业或顶级院校；
+  是否解决工程痛点（推理加速、训练效率、量化精度等）。
+
+  [减分情形] 纯公关稿、无技术内容的产品公告、低质量转述、与AI软硬件核心领域无关的泛科技内容
+
+# 关注的技术领域
 domains:
-  - name: 大语言模型
-    description: LLM 相关技术、研究、产品发布，包括 GPT、Claude、Gemini、Llama、Qwen 等模型
-
-  - name: AI 开发工具与框架
-    description: AI 应用开发框架、SDK、API，如 LangChain、LlamaIndex、vLLM、Ollama、SGLang 等
-
-  - name: 推理优化与部署
-    description: 模型推理加速、量化、蒸馏、边缘部署、serving 架构、TensorRT 等
-
-  - name: 训练与微调技术
-    description: 预训练、SFT、RLHF、DPO、数据集构建、对齐技术、分布式训练
-
   - name: AI 芯片与硬件
-    description: GPU、NPU、TPU 等 AI 芯片，数据中心，互联技术，NVIDIA、AMD、Intel、自研芯片
+    description: GPU/NPU/TPU 等 AI 芯片的设计与架构；AI 服务器、数据中心硬件；芯片互联（NVLink/InfiniBand/PCIe）；NVIDIA/AMD/Intel/国产芯片产品动态与技术评测
 
-  - name: 多模态与 AI Agent
-    description: 多模态模型（视觉/语音/视频）、AI Agent 框架、工具调用、自主系统
+  - name: AI 芯片软件栈
+    description: AI 芯片配套软件生态，包括 CUDA/ROCm/XLA/OneAPI 等编程框架；cuDNN/cuBLAS 等算子库；AI 编译器（TVM/Triton/XLA）；Kernel 开发与优化；芯片软件适配与移植；软硬件协同优化
+
+  - name: 模型推理与部署
+    description: 推理加速框架（vLLM/SGLang/TensorRT-LLM/llama.cpp）；量化技术（GPTQ/AWQ/FP8/INT4）；推理 serving 架构；批处理与调度优化；边缘/端侧部署；推理性能显著提升的技术创新
+
+  - name: 模型训练与微调
+    description: 预训练技术与数据工程；SFT/RLHF/DPO 等对齐方法；分布式训练（Megatron-LM/DeepSpeed/FSDP）；训练效率优化；参数高效微调（LoRA/QLoRA）；训练基础设施
+
+  - name: AI 开发框架与工具
+    description: 提升模型开发或应用构建效率的框架与工具（LangChain/LlamaIndex/Transformers等）；性能 Profiling 与调试工具；Benchmark 测评框架；显著提升易用性或开发效率的创新工具
+
+  - name: 大模型技术与应用
+    description: 基础大模型架构创新（Transformer 变体、MoE、SSM 等）；新模型发布与能力评测；多模态模型；模型优缺点分析与对比；大模型在各行业的落地应用；权威趋势预测与技术综述
 
 # 话题分类（用于文章自动打标签）
 # name 必须与 generate.py 中 ALL_TOPICS 保持一致
 topics:
   - name: 基础大模型
-    description: 新模型发布、模型能力评测、多模态模型、模型架构创新
+    description: 新模型发布、模型能力评测、模型架构创新（MoE/SSM等）、多模态模型
 
   - name: 推理部署
-    description: 推理加速、量化、vLLM/ollama/TensorRT、serving、边缘部署
-
-  - name: 性能优化
-    description: 推理或训练的性能优化技术，包括算子优化、内存优化、并行策略、吞吐量提升、延迟降低、CUDA优化等
+    description: 推理加速、量化（GPTQ/AWQ/FP8）、vLLM/SGLang/TensorRT-LLM、serving架构、边缘部署
 
   - name: 训练微调
-    description: 预训练、SFT、RLHF、数据集、对齐技术
+    description: 预训练、SFT、RLHF、DPO、分布式训练、数据集构建、参数高效微调
 
-  - name: 开发工具
-    description: SDK、框架、API、Agent框架、RAG、工作流
+  - name: 性能优化
+    description: 系统级性能优化：算子/Kernel优化、内存优化、并行策略、CUDA/Triton优化、吞吐量与延迟改善
+
+  - name: 芯片软件栈
+    description: AI芯片配套软件：CUDA/ROCm/XLA、编译器、算子库、Kernel开发、芯片软件适配与移植
 
   - name: AI芯片硬件
-    description: GPU、NPU、TPU、芯片架构、数据中心、互联技术
+    description: GPU/NPU/TPU芯片架构与产品、AI数据中心硬件、芯片互联技术、芯片产品发布与评测
+
+  - name: 开发工具
+    description: AI应用开发框架、SDK、Agent框架、RAG工具链、Profiling与调试工具
 
   - name: 学术论文
-    description: arXiv论文、研究成果、Benchmark测评
+    description: arXiv论文、顶会研究成果、Benchmark测评报告
 
   - name: 行业资讯
-    description: 公司动态、融资、产品发布、政策法规、市场分析
+    description: 公司动态、融资、产品发布、权威趋势预测与综述、技术路线分析

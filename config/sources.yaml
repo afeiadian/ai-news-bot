@@ -4,7 +4,27 @@
 rsshub_base: "https://rsshub-production-5b5c.up.railway.app"
 
 rss_sources:
-  # --- 大模型实验室官网 ---
+  # --- 大模型实验室官网（高权威来源）---
+  - name: OpenAI News
+    url: "https://openai.com/news/rss.xml"
+    category: lab
+    status: verified
+
+  - name: Anthropic News
+    url: "https://rsshub-production-5b5c.up.railway.app/anthropic/news"
+    category: lab
+    status: verified
+
+  - name: Google Research Blog
+    url: "https://research.google/blog/rss/"
+    category: lab
+    status: verified
+
+  - name: Google DeepMind Blog
+    url: "https://deepmind.google/blog/rss.xml"
+    category: lab
+    status: verified
+
   - name: Hugging Face Blog
     url: "https://huggingface.co/blog/feed.xml"
     category: lab

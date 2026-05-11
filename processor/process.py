@@ -22,8 +22,9 @@ def load_scoring_config():
 
 
 def build_system_prompt(config):
-    domains = config.get('domains', [])
-    topics  = config.get('topics', [])
+    domains      = config.get('domains', [])
+    topics       = config.get('topics', [])
+    quality_note = config.get('quality_note', '')
 
     domain_lines = '\n'.join(
         f'{i+1}. {d["name"]}：{d["description"]}'
@@ -35,8 +36,11 @@ def build_system_prompt(config):
     )
     topic_names = '、'.join(t['name'] for t in topics)
 
+    quality_section = f'\n评分标准：\n{quality_note.strip()}' if quality_note else ''
+
     return f"""你是一个 AI 技术资讯编辑助手，专注于以下技术领域：
 {domain_lines}
+{quality_section}
 
 话题分类标准（topic 字段从以下选项中选择）：
 {topic_lines}
