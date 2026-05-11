@@ -61,6 +61,7 @@ rss_sources:
   # - Cerebras Blog: https://cerebras.ai/blog
 
 # arXiv 分类（原生 RSS，直接访问）
+# 只保留与AI芯片、系统优化、模型技术直接相关的分类
 arxiv_sources:
   - id: cs.AI
     url: "https://rss.arxiv.org/rss/cs.AI"
@@ -72,16 +73,6 @@ arxiv_sources:
     name: "Machine Learning"
     status: verified
 
-  - id: cs.CL
-    url: "https://rss.arxiv.org/rss/cs.CL"
-    name: "Computation and Language"
-    status: verified
-
-  - id: cs.CV
-    url: "https://rss.arxiv.org/rss/cs.CV"
-    name: "Computer Vision"
-    status: verified
-
   - id: cs.AR
     url: "https://rss.arxiv.org/rss/cs.AR"
     name: "Hardware Architecture"
@@ -91,6 +82,8 @@ arxiv_sources:
     url: "https://rss.arxiv.org/rss/cs.DC"
     name: "Distributed Computing"
     status: verified
+
+  # 已移除：cs.CL（偏语言学/NLP学术方向）、cs.CV（计算机视觉，非核心关注）
 
 # Hacker News（通过 RSSHub）
 hackernews_sources:
