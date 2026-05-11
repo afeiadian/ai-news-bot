@@ -97,6 +97,8 @@ def _parse_tweets(data):
                     'screen_name': screen_name,
                     'url': f'https://x.com/{screen_name}/status/{tweet_id}',
                     'date': dt,
+                    'likes': legacy.get('favorite_count', 0) or 0,
+                    'retweets': legacy.get('retweet_count', 0) or 0,
                 })
             except (KeyError, TypeError, ValueError):
                 continue
@@ -151,6 +153,8 @@ def fetch_twitter_entries(days_back=2, limit_per_account=20):
                     'category': 'X',
                     'published_at': t['date'].isoformat(),
                     'content': t['text'],
+                    'twitter_likes': t.get('likes', 0),
+                    'twitter_retweets': t.get('retweets', 0),
                 })
             time.sleep(1)  # 避免限流
         except Exception as e:

@@ -80,7 +80,11 @@ def main():
         article['title_zh'] = result['title_zh']
         article['topic'] = result['topic']
         article['score'] = result['score']
-        article['hotness'] = calc_hotness(article['category'], article['url'], article['title'])
+        article['hotness'] = calc_hotness(
+            article['category'], article['url'], article['title'],
+            twitter_likes=article.get('twitter_likes', 0),
+            twitter_retweets=article.get('twitter_retweets', 0),
+        )
         article['content'] = (article.get('content') or '')[:2000]
         save_article(article)
         processed += 1

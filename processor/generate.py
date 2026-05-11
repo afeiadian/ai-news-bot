@@ -129,15 +129,13 @@ def build_html(articles):
         if a.get('summary'):
             summary_html = f'<p class="summary">{a["summary"]}</p>'
 
-        # 原文按钮（仅有内容时显示）
+        # 原文按钮（所有文章都显示）
         raw_content = (a.get('content') or '').strip()[:2000]
-        original_html = ''
-        if raw_content:
-            escaped = _html.escape(raw_content)
-            original_html = (
-                f'<button class="show-original-btn" onclick="toggleOriginal(this,\'oc{i}\')">显示原文 ▾</button>'
-                f'<div class="original-content" id="oc{i}">{escaped}</div>'
-            )
+        escaped = _html.escape(raw_content) if raw_content else '<span style="color:#aaa">暂无原文内容</span>'
+        original_html = (
+            f'<button class="show-original-btn" onclick="toggleOriginal(this,\'oc{i}\')">显示原文 ▾</button>'
+            f'<div class="original-content" id="oc{i}">{escaped}</div>'
+        )
 
         items_html += f'''
         <tr class="item-row" data-category="{a["category"]}" data-topic="{topic_raw}" data-date="{date_str}" data-score="{a["score"]}" data-hotness="{hotness}">

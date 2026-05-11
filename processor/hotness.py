@@ -4,14 +4,13 @@ from urllib.parse import quote
 
 # 各来源基础权威分（1-3）
 SOURCE_BASE = {
-    'AI Lab':      3.0,
+    'AI Lab':      4.0,  # 顶级AI公司官博，权威性最高
+    'Hacker News': 3.5,  # 社区精选，能上HN本身已证明价值
+    'X':           3.0,  # 只追踪行业领袖，少而精
+    'Newsletter':  3.0,  # 专业编辑精选
     'arXiv':       2.5,
-    'Newsletter':  2.5,
     'AI Chip':     2.5,
-    'X':           2.5,
     'AI Tools':    2.0,
-    'Hacker News': 2.0,
-    'Reddit':      1.5,
 }
 
 # 互动数 → 加分（0-2）
@@ -67,22 +66,32 @@ def get_reddit_engagement(url: str) -> tuple:
     return 0, 0
 
 
-def calc_hotness(category: str, url: str, title: str) -> int:
+def get_twitter_engagement(likes: int, retweets: int) -> float:
+    """推文互动数转加分（likes 权重高，retweets 次之）"""
+    score = likes + retweets * 2
+    for threshold, bonus in ENGAGEMENT_TIERS:
+        if score >= threshold:
+            return bonus
+    return 0.0
+
+
+def calc_hotness(category: str, url: str, title: str,
+                 twitter_likes: int = 0, twitter_retweets: int = 0) -> int:
     """
     计算热度星级 1-5。
     - 来源权威度作为基础分
-    - HN / Reddit 真实互动数作为加分项
+    - HN 真实互动数作为加分项
+    - X 推文点赞/转发数作为加分项
     """
     base  = SOURCE_BASE.get(category, 2.0)
     bonus = 0.0
 
     if category == 'Hacker News':
-        points, comments = get_hn_engagement(title)
+        points, _ = get_hn_engagement(title)
         bonus = _engagement_bonus(points)
 
-    elif category == 'Reddit':
-        score, comments = get_reddit_engagement(url)
-        bonus = _engagement_bonus(score)
+    elif category == 'X':
+        bonus = get_twitter_engagement(twitter_likes, twitter_retweets)
 
     result = round(base + bonus)
     return max(1, min(5, result))
