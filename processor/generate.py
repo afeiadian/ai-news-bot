@@ -1,7 +1,15 @@
+import html as _html
 import os
 import sys
+import yaml
 from datetime import datetime, timezone
 from storage import get_conn
+
+SCORING_PATH = os.path.join(os.path.dirname(__file__), '..', 'config', 'scoring.yaml')
+
+def load_min_score():
+    with open(SCORING_PATH, encoding='utf-8') as f:
+        return yaml.safe_load(f).get('min_score', 65)
 
 OUTPUT_DIR = os.path.join(os.path.dirname(__file__), '..', 'docs')
 TEMPLATE_PATH = os.path.join(os.path.dirname(__file__), '..', 'web', 'template.html')
@@ -35,10 +43,12 @@ def get_date(iso_str):
         return iso_str[:10]
 
 
-def get_articles(limit=500, min_score=60):
+def get_articles(limit=500, min_score=None):
+    if min_score is None:
+        min_score = load_min_score()
     conn = get_conn()
     rows = conn.execute('''
-        SELECT title, title_zh, url, source_name, category, topic, published_at, summary, score, hotness
+        SELECT title, title_zh, url, source_name, category, topic, published_at, summary, score, hotness, content
         FROM articles
         WHERE score >= ?
         ORDER BY hotness DESC, published_at DESC
@@ -119,6 +129,16 @@ def build_html(articles):
         if a.get('summary'):
             summary_html = f'<p class="summary">{a["summary"]}</p>'
 
+        # 原文按钮（仅有内容时显示）
+        raw_content = (a.get('content') or '').strip()[:2000]
+        original_html = ''
+        if raw_content:
+            escaped = _html.escape(raw_content)
+            original_html = (
+                f'<button class="show-original-btn" onclick="toggleOriginal(this,\'oc{i}\')">显示原文 ▾</button>'
+                f'<div class="original-content" id="oc{i}">{escaped}</div>'
+            )
+
         items_html += f'''
         <tr class="item-row" data-category="{a["category"]}" data-topic="{topic_raw}" data-date="{date_str}" data-score="{a["score"]}" data-hotness="{hotness}">
             <td class="rank">{i}</td>
@@ -129,6 +149,7 @@ def build_html(articles):
                 </div>
                 {f'<div class="topic-tags">{topic_html}</div>' if topic_html else ''}
                 {summary_html}
+                {original_html}
                 <div class="meta">
                     <span class="source-cat" style="color:{color}">{a["category"]}</span>
                     <span class="source">{a["source_name"]}</span>

@@ -200,6 +200,35 @@
     .stars { color: #f59e0b; font-size: 12px; letter-spacing: 1px; margin-right: 4px; }
     .spacer td { height: 24px; }
 
+    .show-original-btn {
+      font-size: 11px;
+      padding: 1px 7px;
+      border: 1px solid #d0d0c8;
+      border-radius: 3px;
+      background: #f4f4ef;
+      cursor: pointer;
+      color: #666;
+      margin-top: 5px;
+      display: inline-block;
+    }
+    .show-original-btn:hover { background: #e8e8e0; }
+
+    .original-content {
+      display: none;
+      max-height: 160px;
+      overflow-y: auto;
+      margin-top: 5px;
+      padding: 7px 10px;
+      background: #f9f9f6;
+      border: 1px solid #e0e0d8;
+      border-radius: 3px;
+      font-size: 12px;
+      color: #333;
+      white-space: pre-wrap;
+      line-height: 1.55;
+      word-break: break-word;
+    }
+
     /* 结果统计 */
     #result-bar {
       display: flex;
@@ -521,6 +550,13 @@
     activeHotness    = parseInt(btn.dataset.hotness);
     activeHotnessMax = parseInt(btn.dataset.hotnessMax || 9);
     currentPage = 1; render();
+  }
+
+  function toggleOriginal(btn, id) {
+    const el = document.getElementById(id);
+    const open = el.style.display === 'block';
+    el.style.display = open ? 'none' : 'block';
+    btn.textContent = open ? '显示原文 ▾' : '收起 ▴';
   }
 
   render();

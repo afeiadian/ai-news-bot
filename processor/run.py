@@ -46,7 +46,7 @@ def main():
         article['topic'] = result['topic']
         article['score'] = result['score']
         article['hotness'] = calc_hotness(article['category'], article['url'], article['title'])
-        del article['content']
+        article['content'] = (article.get('content') or '')[:2000]
 
         save_article(article)
         read_ids.append(int(article['source_id']))
@@ -81,7 +81,7 @@ def main():
         article['topic'] = result['topic']
         article['score'] = result['score']
         article['hotness'] = calc_hotness(article['category'], article['url'], article['title'])
-        del article['content']
+        article['content'] = (article.get('content') or '')[:2000]
         save_article(article)
         processed += 1
         if result['relevant']:

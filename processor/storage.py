@@ -31,7 +31,7 @@ def init_db():
         CREATE INDEX IF NOT EXISTS idx_score ON articles(score DESC);
     ''')
     # 兼容旧数据库：按需添加新列
-    for col, typedef in [('title_zh', 'TEXT'), ('topic', 'TEXT'), ('hotness', 'INTEGER DEFAULT 0')]:
+    for col, typedef in [('title_zh', 'TEXT'), ('topic', 'TEXT'), ('hotness', 'INTEGER DEFAULT 0'), ('content', 'TEXT')]:
         try:
             conn.execute(f'ALTER TABLE articles ADD COLUMN {col} {typedef}')
             conn.commit()
@@ -52,10 +52,10 @@ def save_article(data: dict):
     try:
         conn.execute('''
             INSERT OR IGNORE INTO articles
-                (source_id, title, title_zh, url, source_name, category, topic, published_at, summary, score, hotness)
+                (source_id, title, title_zh, url, source_name, category, topic, published_at, summary, score, hotness, content)
             VALUES
-                (:source_id, :title, :title_zh, :url, :source_name, :category, :topic, :published_at, :summary, :score, :hotness)
-        ''', data)
+                (:source_id, :title, :title_zh, :url, :source_name, :category, :topic, :published_at, :summary, :score, :hotness, :content)
+        ''', {**data, 'content': data.get('content', '')})
         conn.commit()
     finally:
         conn.close()
