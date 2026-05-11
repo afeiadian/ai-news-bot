@@ -6,8 +6,8 @@ from storage import get_conn
 OUTPUT_DIR = os.path.join(os.path.dirname(__file__), '..', 'docs')
 TEMPLATE_PATH = os.path.join(os.path.dirname(__file__), '..', 'web', 'template.html')
 
-ALL_CATS   = ['arXiv', 'AI Lab', 'AI Tools', 'AI Chip', 'Hacker News', 'Reddit', 'Newsletter', 'X']
-ALL_TOPICS = ['基础大模型', '推理部署', '性能优化', '训练微调', '开发工具', 'AI芯片硬件', '学术论文', '行业资讯']
+ALL_CATS   = ['arXiv', 'AI Lab', 'AI Tools', 'AI Chip', 'Hacker News', 'Newsletter', 'X']
+ALL_TOPICS = ['基础大模型', '推理部署', '训练微调', '性能优化', '芯片软件栈', 'AI芯片硬件', '开发工具', '学术论文', '行业资讯']
 
 
 def time_ago(iso_str):
@@ -55,7 +55,6 @@ def category_color(category):
         'AI Tools':    '#0f766e',
         'AI Chip':     '#b45309',
         'Hacker News': '#ea580c',
-        'Reddit':      '#dc2626',
         'Newsletter':  '#4f46e5',
         'X':           '#000000',
     }
@@ -66,10 +65,11 @@ def topic_color(topic):
     colors = {
         '基础大模型': '#1d4ed8',
         '推理部署':   '#0f766e',
-        '性能优化':   '#065f46',
         '训练微调':   '#7c3aed',
-        '开发工具':   '#0369a1',
+        '性能优化':   '#065f46',
+        '芯片软件栈': '#c2410c',
         'AI芯片硬件': '#b45309',
+        '开发工具':   '#0369a1',
         '学术论文':   '#6d28d9',
         '行业资讯':   '#374151',
     }

@@ -98,23 +98,6 @@ hackernews_sources:
     url: "https://rsshub-production-5b5c.up.railway.app/hackernews/best"
     status: verified
 
-# Reddit（old.reddit.com 原生 RSS）
-reddit_sources:
-  - name: "r/MachineLearning"
-    url: "https://old.reddit.com/r/MachineLearning/new/.rss"
-    status: verified
-
-  - name: "r/LocalLLaMA"
-    url: "https://old.reddit.com/r/LocalLLaMA/new/.rss"
-    status: verified
-
-  - name: "r/artificial"
-    url: "https://old.reddit.com/r/artificial/new/.rss"
-    status: verified
-
-  - name: "r/Semiconductors"
-    url: "https://old.reddit.com/r/Semiconductors/new/.rss"
-    status: verified
 
 # X / Twitter 账号（通过 twscrape 采集，独立脚本处理）
 twitter_accounts:
