@@ -6,10 +6,115 @@ from datetime import datetime, timezone
 from storage import get_conn
 
 SCORING_PATH = os.path.join(os.path.dirname(__file__), '..', 'config', 'scoring.yaml')
+SOURCES_PATH = os.path.join(os.path.dirname(__file__), '..', 'config', 'sources.yaml')
 
 def load_min_score():
     with open(SCORING_PATH, encoding='utf-8') as f:
         return yaml.safe_load(f).get('min_score', 65)
+
+
+def build_sources_modal():
+    with open(SCORING_PATH, encoding='utf-8') as f:
+        scoring = yaml.safe_load(f)
+    with open(SOURCES_PATH, encoding='utf-8') as f:
+        sources = yaml.safe_load(f)
+
+    html = []
+
+    # === RSS 数据源 ===
+    html.append('<div class="modal-section">')
+    html.append('<h3>RSS 数据源</h3>')
+    html.append('<table class="modal-table"><tr><th>分类</th><th>来源名称</th><th>说明</th></tr>')
+
+    cat_map = {'lab': 'AI Lab', 'chip': 'AI Chip', 'tools': 'AI Tools',
+               'newsletter': 'Newsletter', 'arxiv': 'arXiv', 'hackernews': 'Hacker News'}
+    cat_colors = {'AI Lab': '#0369a1', 'AI Chip': '#b45309', 'AI Tools': '#0f766e',
+                  'Newsletter': '#4f46e5', 'arXiv': '#7c3aed', 'Hacker News': '#ea580c'}
+
+    for src in sources.get('rss_sources', []):
+        cat = cat_map.get(src.get('category', ''), src.get('category', ''))
+        color = cat_colors.get(cat, '#6b7280')
+        html.append(f'<tr><td><span class="modal-tag" style="background:{color}">{cat}</span></td>'
+                    f'<td>{_html.escape(src["name"])}</td>'
+                    f'<td style="color:#888;font-size:11px">{_html.escape(src["url"][:60])}</td></tr>')
+
+    # arXiv
+    for src in sources.get('arxiv_sources', []):
+        html.append(f'<tr><td><span class="modal-tag" style="background:#7c3aed">arXiv</span></td>'
+                    f'<td>arXiv {src["id"]}</td>'
+                    f'<td style="color:#888;font-size:11px">{_html.escape(src["name"])}</td></tr>')
+
+    # HN
+    for src in sources.get('hackernews_sources', []):
+        html.append(f'<tr><td><span class="modal-tag" style="background:#ea580c">Hacker News</span></td>'
+                    f'<td>{_html.escape(src["name"])}</td><td></td></tr>')
+
+    html.append('</table></div>')
+
+    # === X 平台账号 ===
+    accounts = sources.get('twitter_accounts', [])
+    html.append('<div class="modal-section">')
+    html.append(f'<h3>X 平台追踪账号（{len(accounts)} 个）</h3>')
+    html.append('<table class="modal-table"><tr><th>账号</th><th>身份说明</th></tr>')
+    for acc in accounts:
+        html.append(f'<tr><td><a href="https://x.com/{_html.escape(acc["handle"])}" target="_blank" '
+                    f'style="color:#1d9bf0;text-decoration:none">@{_html.escape(acc["handle"])}</a></td>'
+                    f'<td>{_html.escape(acc["name"])}</td></tr>')
+    html.append('</table></div>')
+
+    # === 关注领域 ===
+    domains = scoring.get('domains', [])
+    html.append('<div class="modal-section">')
+    html.append('<h3>关注领域</h3>')
+    html.append('<table class="modal-table"><tr><th>领域</th><th>涵盖内容</th></tr>')
+    for d in domains:
+        html.append(f'<tr><td style="white-space:nowrap;font-weight:bold">{_html.escape(d["name"])}</td>'
+                    f'<td>{_html.escape(d["description"])}</td></tr>')
+    html.append('</table></div>')
+
+    # === 话题分类 ===
+    topics = scoring.get('topics', [])
+    topic_colors_map = {
+        '基础大模型': '#1d4ed8', '推理部署': '#0f766e', '训练微调': '#7c3aed',
+        '性能优化': '#065f46', '芯片软件栈': '#c2410c', 'AI芯片硬件': '#b45309',
+        '开发工具': '#0369a1', '学术论文': '#6d28d9', '行业资讯': '#374151',
+    }
+    html.append('<div class="modal-section">')
+    html.append('<h3>话题分类标签</h3>')
+    html.append('<table class="modal-table"><tr><th>话题</th><th>涵盖内容</th></tr>')
+    for t in topics:
+        color = topic_colors_map.get(t['name'], '#6b7280')
+        html.append(f'<tr><td><span class="modal-tag" style="background:{color}">{_html.escape(t["name"])}</span></td>'
+                    f'<td>{_html.escape(t["description"])}</td></tr>')
+    html.append('</table></div>')
+
+    # === 评分规则 ===
+    min_score = scoring.get('min_score', 70)
+    quality_note = (scoring.get('quality_note') or '').strip()
+    html.append('<div class="modal-section">')
+    html.append(f'<h3>相关度评分规则（收录阈值：{min_score} 分）</h3>')
+    if quality_note:
+        html.append(f'<div class="modal-note">{_html.escape(quality_note)}</div>')
+    html.append('</div>')
+
+    # === 热度评分 ===
+    html.append('<div class="modal-section">')
+    html.append('<h3>热度评分（1–5 星）</h3>')
+    html.append('<table class="modal-table"><tr><th>来源</th><th>基础分</th><th>互动加分</th></tr>')
+    base_scores = [
+        ('AI Lab', '4.0', '—'),
+        ('Hacker News', '3.5', 'HN 点赞数：≥500→+2.0 / ≥200→+1.5 / ≥100→+1.0 / ≥30→+0.5'),
+        ('X', '3.0', '点赞+转发×2：同上档位'),
+        ('Newsletter', '3.0', '—'),
+        ('arXiv', '2.5', '—'),
+        ('AI Chip', '2.5', '—'),
+        ('AI Tools', '2.0', '—'),
+    ]
+    for name, base, bonus in base_scores:
+        html.append(f'<tr><td>{name}</td><td style="text-align:center">{base}</td><td style="font-size:11px;color:#666">{bonus}</td></tr>')
+    html.append('</table></div>')
+
+    return '\n'.join(html)
 
 OUTPUT_DIR = os.path.join(os.path.dirname(__file__), '..', 'docs')
 TEMPLATE_PATH = os.path.join(os.path.dirname(__file__), '..', 'web', 'template.html')
@@ -197,6 +302,7 @@ def build_html(articles):
     html = html.replace('{{CAT_BUTTONS}}', cat_buttons)
     html = html.replace('{{TOPIC_BUTTONS}}', topic_buttons)
     html = html.replace('{{DATE_OPTIONS}}', date_options)
+    html = html.replace('{{SOURCES_CONTENT}}', build_sources_modal())
     return html
 
 

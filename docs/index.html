@@ -31,6 +31,104 @@
     }
     #header .site-title { color: #fff; font-weight: bold; font-size: 14px; }
     #header .nav-links  { margin-left: auto; color: #fff; font-size: 12px; opacity: 0.85; }
+    #sources-btn {
+      background: rgba(255,255,255,0.18);
+      border: 1px solid rgba(255,255,255,0.5);
+      color: #fff;
+      font-size: 12px;
+      padding: 2px 10px;
+      border-radius: 3px;
+      cursor: pointer;
+      margin-left: auto;
+      white-space: nowrap;
+    }
+    #sources-btn:hover { background: rgba(255,255,255,0.3); }
+
+    /* 弹窗 */
+    #modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      overflow-y: auto;
+      padding: 40px 16px;
+    }
+    #modal-overlay.open { display: block; }
+    #modal-box {
+      background: #fff;
+      max-width: 760px;
+      margin: 0 auto;
+      border-radius: 6px;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+    }
+    #modal-header {
+      background: #ff6600;
+      color: #fff;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    #modal-header h2 { font-size: 15px; font-weight: bold; }
+    #modal-close {
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 20px;
+      cursor: pointer;
+      line-height: 1;
+      padding: 0 4px;
+    }
+    #modal-close:hover { opacity: 0.7; }
+    #modal-body {
+      padding: 20px;
+      font-size: 13px;
+      line-height: 1.6;
+      color: #333;
+    }
+    .modal-section { margin-bottom: 24px; }
+    .modal-section h3 {
+      font-size: 13px;
+      font-weight: bold;
+      color: #ff6600;
+      border-bottom: 1px solid #f0e0d0;
+      padding-bottom: 4px;
+      margin-bottom: 10px;
+    }
+    .modal-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .modal-table th {
+      background: #f6f6ef;
+      text-align: left;
+      padding: 4px 8px;
+      border: 1px solid #e0e0d8;
+      color: #555;
+      font-weight: bold;
+    }
+    .modal-table td {
+      padding: 4px 8px;
+      border: 1px solid #e0e0d8;
+      vertical-align: top;
+    }
+    .modal-table tr:nth-child(even) td { background: #fafaf7; }
+    .modal-tag {
+      display: inline-block;
+      padding: 1px 6px;
+      border-radius: 3px;
+      font-size: 11px;
+      color: #fff;
+      font-weight: bold;
+      margin: 1px 2px;
+    }
+    .modal-note {
+      background: #f6f6ef;
+      border-left: 3px solid #ff6600;
+      padding: 8px 12px;
+      font-size: 12px;
+      color: #555;
+      white-space: pre-line;
+    }
 
     #main {
       max-width: 960px;
@@ -306,7 +404,142 @@
 <div id="header">
   <span class="logo">AI</span>
   <span class="site-title">AI 资讯日报</span>
-  <span class="nav-links">大模型 · AI工具 · AI芯片</span>
+  <button id="sources-btn" onclick="openModal()">数据来源 &amp; 评分标准</button>
+</div>
+
+<!-- 弹窗 -->
+<div id="modal-overlay" onclick="handleOverlayClick(event)">
+  <div id="modal-box">
+    <div id="modal-header">
+      <h2>数据来源 &amp; 评分标准</h2>
+      <button id="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div id="modal-body">
+      <div class="modal-section">
+<h3>RSS 数据源</h3>
+<table class="modal-table"><tr><th>分类</th><th>来源名称</th><th>说明</th></tr>
+<tr><td><span class="modal-tag" style="background:#0369a1">AI Lab</span></td><td>OpenAI News</td><td style="color:#888;font-size:11px">https://openai.com/news/rss.xml</td></tr>
+<tr><td><span class="modal-tag" style="background:#0369a1">AI Lab</span></td><td>Anthropic News</td><td style="color:#888;font-size:11px">https://rsshub-production-5b5c.up.railway.app/anthropic/news</td></tr>
+<tr><td><span class="modal-tag" style="background:#0369a1">AI Lab</span></td><td>Google Research Blog</td><td style="color:#888;font-size:11px">https://research.google/blog/rss/</td></tr>
+<tr><td><span class="modal-tag" style="background:#0369a1">AI Lab</span></td><td>Google DeepMind Blog</td><td style="color:#888;font-size:11px">https://deepmind.google/blog/rss.xml</td></tr>
+<tr><td><span class="modal-tag" style="background:#0369a1">AI Lab</span></td><td>Meta AI Research Blog</td><td style="color:#888;font-size:11px">https://engineering.fb.com/category/ai-research/feed/</td></tr>
+<tr><td><span class="modal-tag" style="background:#0369a1">AI Lab</span></td><td>Microsoft Research Blog</td><td style="color:#888;font-size:11px">https://www.microsoft.com/en-us/research/blog/feed/</td></tr>
+<tr><td><span class="modal-tag" style="background:#0369a1">AI Lab</span></td><td>Hugging Face Blog</td><td style="color:#888;font-size:11px">https://huggingface.co/blog/feed.xml</td></tr>
+<tr><td><span class="modal-tag" style="background:#b45309">AI Chip</span></td><td>NVIDIA Blog</td><td style="color:#888;font-size:11px">https://blogs.nvidia.com/feed/</td></tr>
+<tr><td><span class="modal-tag" style="background:#b45309">AI Chip</span></td><td>NVIDIA Developer Blog</td><td style="color:#888;font-size:11px">https://developer.nvidia.com/blog/feed/</td></tr>
+<tr><td><span class="modal-tag" style="background:#b45309">AI Chip</span></td><td>SemiAnalysis</td><td style="color:#888;font-size:11px">https://semianalysis.com/feed/</td></tr>
+<tr><td><span class="modal-tag" style="background:#0f766e">AI Tools</span></td><td>PyTorch Blog</td><td style="color:#888;font-size:11px">https://pytorch.org/blog/feed/</td></tr>
+<tr><td><span class="modal-tag" style="background:#4f46e5">Newsletter</span></td><td>Import AI (Jack Clark)</td><td style="color:#888;font-size:11px">https://importai.substack.com/feed</td></tr>
+<tr><td><span class="modal-tag" style="background:#4f46e5">Newsletter</span></td><td>The Gradient</td><td style="color:#888;font-size:11px">https://thegradient.pub/rss/</td></tr>
+<tr><td><span class="modal-tag" style="background:#4f46e5">Newsletter</span></td><td>Ahead of AI (Sebastian Raschka)</td><td style="color:#888;font-size:11px">https://magazine.sebastianraschka.com/feed</td></tr>
+<tr><td><span class="modal-tag" style="background:#4f46e5">Newsletter</span></td><td>Interconnects (Nathan Lambert)</td><td style="color:#888;font-size:11px">https://www.interconnects.ai/feed</td></tr>
+<tr><td><span class="modal-tag" style="background:#7c3aed">arXiv</span></td><td>arXiv cs.AI</td><td style="color:#888;font-size:11px">Artificial Intelligence</td></tr>
+<tr><td><span class="modal-tag" style="background:#7c3aed">arXiv</span></td><td>arXiv cs.LG</td><td style="color:#888;font-size:11px">Machine Learning</td></tr>
+<tr><td><span class="modal-tag" style="background:#7c3aed">arXiv</span></td><td>arXiv cs.CL</td><td style="color:#888;font-size:11px">Computation and Language</td></tr>
+<tr><td><span class="modal-tag" style="background:#7c3aed">arXiv</span></td><td>arXiv cs.CV</td><td style="color:#888;font-size:11px">Computer Vision</td></tr>
+<tr><td><span class="modal-tag" style="background:#7c3aed">arXiv</span></td><td>arXiv cs.AR</td><td style="color:#888;font-size:11px">Hardware Architecture</td></tr>
+<tr><td><span class="modal-tag" style="background:#7c3aed">arXiv</span></td><td>arXiv cs.DC</td><td style="color:#888;font-size:11px">Distributed Computing</td></tr>
+<tr><td><span class="modal-tag" style="background:#ea580c">Hacker News</span></td><td>HN Top Links</td><td></td></tr>
+</table></div>
+<div class="modal-section">
+<h3>X 平台追踪账号（23 个）</h3>
+<table class="modal-table"><tr><th>账号</th><th>身份说明</th></tr>
+<tr><td><a href="https://x.com/karpathy" target="_blank" style="color:#1d9bf0;text-decoration:none">@karpathy</a></td><td>Andrej Karpathy</td></tr>
+<tr><td><a href="https://x.com/sama" target="_blank" style="color:#1d9bf0;text-decoration:none">@sama</a></td><td>Sam Altman (OpenAI CEO)</td></tr>
+<tr><td><a href="https://x.com/darioamodei" target="_blank" style="color:#1d9bf0;text-decoration:none">@darioamodei</a></td><td>Dario Amodei (Anthropic CEO)</td></tr>
+<tr><td><a href="https://x.com/demishassabis" target="_blank" style="color:#1d9bf0;text-decoration:none">@demishassabis</a></td><td>Demis Hassabis (Google DeepMind CEO)</td></tr>
+<tr><td><a href="https://x.com/elonmusk" target="_blank" style="color:#1d9bf0;text-decoration:none">@elonmusk</a></td><td>Elon Musk (xAI)</td></tr>
+<tr><td><a href="https://x.com/gdb" target="_blank" style="color:#1d9bf0;text-decoration:none">@gdb</a></td><td>Greg Brockman (OpenAI 联创)</td></tr>
+<tr><td><a href="https://x.com/ylecun" target="_blank" style="color:#1d9bf0;text-decoration:none">@ylecun</a></td><td>Yann LeCun (Meta 首席AI科学家)</td></tr>
+<tr><td><a href="https://x.com/fchollet" target="_blank" style="color:#1d9bf0;text-decoration:none">@fchollet</a></td><td>François Chollet (Keras 作者，ARC-AGI)</td></tr>
+<tr><td><a href="https://x.com/tri_dao" target="_blank" style="color:#1d9bf0;text-decoration:none">@tri_dao</a></td><td>Tri Dao (FlashAttention 作者)</td></tr>
+<tr><td><a href="https://x.com/drjimfan" target="_blank" style="color:#1d9bf0;text-decoration:none">@drjimfan</a></td><td>Jim Fan (NVIDIA Research)</td></tr>
+<tr><td><a href="https://x.com/dylan522p" target="_blank" style="color:#1d9bf0;text-decoration:none">@dylan522p</a></td><td>Dylan Patel (SemiAnalysis 芯片分析)</td></tr>
+<tr><td><a href="https://x.com/clattner_llvm" target="_blank" style="color:#1d9bf0;text-decoration:none">@clattner_llvm</a></td><td>Chris Lattner (MLIR/Mojo 作者)</td></tr>
+<tr><td><a href="https://x.com/AnthropicAI" target="_blank" style="color:#1d9bf0;text-decoration:none">@AnthropicAI</a></td><td>Anthropic</td></tr>
+<tr><td><a href="https://x.com/OpenAI" target="_blank" style="color:#1d9bf0;text-decoration:none">@OpenAI</a></td><td>OpenAI</td></tr>
+<tr><td><a href="https://x.com/GoogleDeepMind" target="_blank" style="color:#1d9bf0;text-decoration:none">@GoogleDeepMind</a></td><td>Google DeepMind</td></tr>
+<tr><td><a href="https://x.com/huggingface" target="_blank" style="color:#1d9bf0;text-decoration:none">@huggingface</a></td><td>Hugging Face</td></tr>
+<tr><td><a href="https://x.com/nvidia" target="_blank" style="color:#1d9bf0;text-decoration:none">@nvidia</a></td><td>NVIDIA</td></tr>
+<tr><td><a href="https://x.com/xai" target="_blank" style="color:#1d9bf0;text-decoration:none">@xai</a></td><td>xAI</td></tr>
+<tr><td><a href="https://x.com/soumithchintala" target="_blank" style="color:#1d9bf0;text-decoration:none">@soumithchintala</a></td><td>Soumith Chintala (PyTorch 创始人，Meta)</td></tr>
+<tr><td><a href="https://x.com/rasbt" target="_blank" style="color:#1d9bf0;text-decoration:none">@rasbt</a></td><td>Sebastian Raschka (ML技术教育，Ahead of AI作者)</td></tr>
+<tr><td><a href="https://x.com/natolambert" target="_blank" style="color:#1d9bf0;text-decoration:none">@natolambert</a></td><td>Nathan Lambert (RLHF/对齐专家，Interconnects作者)</td></tr>
+<tr><td><a href="https://x.com/arthurmensch" target="_blank" style="color:#1d9bf0;text-decoration:none">@arthurmensch</a></td><td>Arthur Mensch (Mistral AI CEO)</td></tr>
+<tr><td><a href="https://x.com/_akhaliq" target="_blank" style="color:#1d9bf0;text-decoration:none">@_akhaliq</a></td><td>AK (Papers)</td></tr>
+</table></div>
+<div class="modal-section">
+<h3>关注领域</h3>
+<table class="modal-table"><tr><th>领域</th><th>涵盖内容</th></tr>
+<tr><td style="white-space:nowrap;font-weight:bold">AI 芯片与硬件</td><td>GPU/NPU/TPU 等 AI 芯片的设计与架构；AI 服务器、数据中心硬件；芯片互联（NVLink/InfiniBand/PCIe）；NVIDIA/AMD/Intel/国产芯片产品动态与技术评测</td></tr>
+<tr><td style="white-space:nowrap;font-weight:bold">AI 芯片软件栈</td><td>AI 芯片配套软件生态，包括 CUDA/ROCm/XLA/OneAPI 等编程框架；cuDNN/cuBLAS 等算子库；AI 编译器（TVM/Triton/XLA）；Kernel 开发与优化；芯片软件适配与移植；软硬件协同优化</td></tr>
+<tr><td style="white-space:nowrap;font-weight:bold">模型推理与部署</td><td>推理加速框架（vLLM/SGLang/TensorRT-LLM/llama.cpp）；量化技术（GPTQ/AWQ/FP8/INT4）；推理 serving 架构；批处理与调度优化；边缘/端侧部署；推理性能显著提升的技术创新</td></tr>
+<tr><td style="white-space:nowrap;font-weight:bold">模型训练与微调</td><td>预训练技术与数据工程；SFT/RLHF/DPO 等对齐方法；分布式训练（Megatron-LM/DeepSpeed/FSDP）；训练效率优化；参数高效微调（LoRA/QLoRA）；训练基础设施</td></tr>
+<tr><td style="white-space:nowrap;font-weight:bold">AI 开发框架与工具</td><td>提升模型开发或应用构建效率的框架与工具（LangChain/LlamaIndex/Transformers等）；性能 Profiling 与调试工具；Benchmark 测评框架；显著提升易用性或开发效率的创新工具</td></tr>
+<tr><td style="white-space:nowrap;font-weight:bold">大模型技术与应用</td><td>基础大模型架构创新（Transformer 变体、MoE、SSM 等）；新模型发布与能力评测；多模态模型；模型优缺点分析与对比；大模型在各行业的落地应用；权威趋势预测与技术综述</td></tr>
+</table></div>
+<div class="modal-section">
+<h3>话题分类标签</h3>
+<table class="modal-table"><tr><th>话题</th><th>涵盖内容</th></tr>
+<tr><td><span class="modal-tag" style="background:#1d4ed8">基础大模型</span></td><td>新模型发布、模型能力评测、模型架构创新（MoE/SSM等）、多模态模型</td></tr>
+<tr><td><span class="modal-tag" style="background:#0f766e">推理部署</span></td><td>推理加速、量化（GPTQ/AWQ/FP8）、vLLM/SGLang/TensorRT-LLM、serving架构、边缘部署</td></tr>
+<tr><td><span class="modal-tag" style="background:#7c3aed">训练微调</span></td><td>预训练、SFT、RLHF、DPO、分布式训练、数据集构建、参数高效微调</td></tr>
+<tr><td><span class="modal-tag" style="background:#065f46">性能优化</span></td><td>系统级性能优化：算子/Kernel优化、内存优化、并行策略、CUDA/Triton优化、吞吐量与延迟改善</td></tr>
+<tr><td><span class="modal-tag" style="background:#c2410c">芯片软件栈</span></td><td>AI芯片配套软件：CUDA/ROCm/XLA、编译器、算子库、Kernel开发、芯片软件适配与移植</td></tr>
+<tr><td><span class="modal-tag" style="background:#b45309">AI芯片硬件</span></td><td>GPU/NPU/TPU芯片架构与产品、AI数据中心硬件、芯片互联技术、芯片产品发布与评测</td></tr>
+<tr><td><span class="modal-tag" style="background:#0369a1">开发工具</span></td><td>AI应用开发框架、SDK、Agent框架、RAG工具链、Profiling与调试工具</td></tr>
+<tr><td><span class="modal-tag" style="background:#6d28d9">学术论文</span></td><td>arXiv论文、顶会研究成果、Benchmark测评报告</td></tr>
+<tr><td><span class="modal-tag" style="background:#374151">行业资讯</span></td><td>公司动态、融资、产品发布、权威趋势预测与综述、技术路线分析</td></tr>
+</table></div>
+<div class="modal-section">
+<h3>相关度评分规则（收录阈值：70 分）</h3>
+<div class="modal-note">【收录范围】只收录以下方向的内容，其他一律给低分（&lt;40）过滤：
+- AI 芯片与硬件：GPU/NPU/TPU设计、AI数据中心、芯片互联、芯片产品发布
+- AI 芯片软件栈：CUDA/ROCm/XLA、编译器、算子库、Kernel优化、芯片软件适配
+- 大语言模型技术：LLM架构、训练、对齐、推理、量化、多模态、文生视频
+- AI 基础设施：分布式训练系统、推理serving框架、AI集群网络
+- AI 产品与行业：主流AI公司产品发布、重要模型上线、行业格局变化、权威技术预测
+凡是与上述方向无关的内容（无论来源多权威），直接给分 ≤ 30。
+
+【明确排除，直接给分≤30】
+- 非AI领域的科技新闻（手机、电动车、区块链、量子计算等）
+- 纯商业/财经/政治新闻（融资除非涉及AI核心公司且金额重大）
+- 将AI作为噱头的泛应用报道（AI写作工具、AI客服等边缘应用）
+- 传统CV/NLP任务（目标检测、医学影像、机器翻译小模型等与大模型无关）
+- X平台上的个人生活、时事评论、非AI话题发言（即使来自知名人物）
+
+【来源权威性加分】在收录范围内，以下来源额外加分（+10~+20）：
+- 顶级AI公司官方博客：OpenAI、Anthropic、Google Research、DeepMind、NVIDIA、Meta AI
+- 行业领袖X发文（内容涉及AI技术/产品/趋势）：Karpathy、LeCun、Sam Altman、Dario Amodei、Demis Hassabis等
+- 顶级机构论文：Google/Meta/Microsoft/OpenAI/Anthropic/NVIDIA及MIT/Stanford/CMU/Berkeley等
+
+【内容质量加分】
+- SOTA技术突破（有具体性能数据）：+15
+- 权威人物对技术趋势的明确预测或深度评价：+10
+- 重要新模型/新框架发布（主流公司）：+10
+- 解决实际工程痛点的新方法：+10
+
+【arXiv严格筛选】须满足至少一项才能≥65分：
+1. 明确SOTA声称且有具体数据；2. 顶级机构出品；3. 直接解决推理/训练/芯片工程痛点
+cs.CL过滤：纯语言学/小型垂直NLP模型 → ≤40分
+cs.CV过滤：传统图像分类/目标检测/医学影像 → ≤35分；文生视频/多模态VLM → 正常评分
+
+【X推文】发文者知名 + 内容含具体AI技术观点/评价/预测 → 正常评分
+低信息量推文（生活、转发无评论、非AI话题）→ ≤30分</div>
+</div>
+<div class="modal-section">
+<h3>热度评分（1–5 星）</h3>
+<table class="modal-table"><tr><th>来源</th><th>基础分</th><th>互动加分</th></tr>
+<tr><td>AI Lab</td><td style="text-align:center">4.0</td><td style="font-size:11px;color:#666">—</td></tr>
+<tr><td>Hacker News</td><td style="text-align:center">3.5</td><td style="font-size:11px;color:#666">HN 点赞数：≥500→+2.0 / ≥200→+1.5 / ≥100→+1.0 / ≥30→+0.5</td></tr>
+<tr><td>X</td><td style="text-align:center">3.0</td><td style="font-size:11px;color:#666">点赞+转发×2：同上档位</td></tr>
+<tr><td>Newsletter</td><td style="text-align:center">3.0</td><td style="font-size:11px;color:#666">—</td></tr>
+<tr><td>arXiv</td><td style="text-align:center">2.5</td><td style="font-size:11px;color:#666">—</td></tr>
+<tr><td>AI Chip</td><td style="text-align:center">2.5</td><td style="font-size:11px;color:#666">—</td></tr>
+<tr><td>AI Tools</td><td style="text-align:center">2.0</td><td style="font-size:11px;color:#666">—</td></tr>
+</table></div>
+    </div>
+  </div>
 </div>
 
 <div id="main">
@@ -3301,7 +3534,7 @@ Abstract: Indirect prompt injection remains a persistent weakness in retrieval-a
                     <span class="source-cat" style="color:#6b7280">Reddit</span>
                     <span class="source">r/LocalLLaMA</span>
                     <span class="dot">·</span>
-                    <span class="time">2 天前</span>
+                    <span class="time">3 天前</span>
                     <span class="dot">·</span>
                     <span class="score">相关度 72%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
@@ -4524,7 +4757,7 @@ Abstract: Indirect prompt injection remains a persistent weakness in retrieval-a
   <div id="pagination"></div>
 
   <div id="footer">
-    共 178 条资讯 · 更新于 2026-05-12 14:29 UTC · 数据来源：arXiv / HN / Reddit / RSS / X
+    共 178 条资讯 · 更新于 2026-05-12 15:58 UTC · 数据来源：arXiv / HN / Reddit / RSS / X
   </div>
 </div>
 
@@ -4732,6 +4965,19 @@ Abstract: Indirect prompt injection remains a persistent weakness in retrieval-a
     activeHotnessMax = parseInt(btn.dataset.hotnessMax || 9);
     currentPage = 1; render();
   }
+
+  function openModal() {
+    document.getElementById('modal-overlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeModal() {
+    document.getElementById('modal-overlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  function handleOverlayClick(e) {
+    if (e.target === document.getElementById('modal-overlay')) closeModal();
+  }
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
   function toggleOriginal(btn, id) {
     const el = document.getElementById(id);
