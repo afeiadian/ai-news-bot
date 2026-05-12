@@ -151,14 +151,16 @@ def get_date(iso_str):
 def get_articles(limit=500, min_score=None):
     if min_score is None:
         min_score = load_min_score()
+    # X 推文较短信息密度低，单独放宽到 60 分
+    x_threshold = 60
     conn = get_conn()
     rows = conn.execute('''
         SELECT title, title_zh, url, source_name, category, topic, published_at, summary, score, hotness, content
         FROM articles
-        WHERE score >= ?
+        WHERE (category != 'X' AND score >= ?) OR (category = 'X' AND score >= ?)
         ORDER BY hotness DESC, published_at DESC
         LIMIT ?
-    ''', (min_score, limit)).fetchall()
+    ''', (min_score, x_threshold, limit)).fetchall()
     conn.close()
     return [dict(r) for r in rows]
 
