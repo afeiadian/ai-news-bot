@@ -380,18 +380,24 @@
 </div>
 
 <script>
-  const PAGE_SIZE   = 30;
-  let activeCat     = 'all';
-  let activeTopic   = 'all';
-  let activeDays    = 'all';
-  let activeExact   = '';     // 具体日期 YYYY-MM-DD，优先级高于 activeDays
-  let activeScore      = 0;
-  let activeHotness    = 0;
+  const PAGE_SIZE = 30;
+  let activeCat      = 'all';
+  let activeTopic    = 'all';
+  let activeDays     = 'all';
+  let activeExact    = '';
+  let activeScore    = 0;
+  let activeHotness  = 0;
   let activeHotnessMax = 9;
-  let sortBy           = 'hotness';
-  let currentPage      = 1;
+  let sortBy   = 'hotness';
+  let sortDesc = true;
+  let currentPage = 1;
 
+  const table   = document.getElementById('item-list');
   const allRows = Array.from(document.querySelectorAll('.item-row'));
+
+  // 预先记录每行对应的 spacer（初始化后 DOM 操作可能改变 nextElementSibling）
+  const spacerOf = new Map();
+  allRows.forEach(row => spacerOf.set(row, row.nextElementSibling));
 
   function getLocalDateStr(daysAgo) {
     const d = new Date();
@@ -401,10 +407,10 @@
 
   function getVisibleRows() {
     return allRows.filter(row => {
-      const catOk   = activeCat   === 'all' || row.dataset.category === activeCat;
-      const topicOk = activeTopic === 'all' || row.dataset.topic.split(',').map(t=>t.trim()).includes(activeTopic);
+      const catOk     = activeCat   === 'all' || row.dataset.category === activeCat;
+      const topicOk   = activeTopic === 'all' || row.dataset.topic.split(',').map(t => t.trim()).includes(activeTopic);
       const scoreOk   = parseInt(row.dataset.score   || 0) >= activeScore;
-      const h = parseInt(row.dataset.hotness || 0);
+      const h         = parseInt(row.dataset.hotness || 0);
       const hotnessOk = h >= activeHotness && h <= activeHotnessMax;
       let dateOk = true;
       if (activeExact) {
@@ -416,34 +422,51 @@
     });
   }
 
-  function sorted(rows) {
+  function sortedRows(rows) {
+    const dir = sortDesc ? 1 : -1;
     return [...rows].sort((a, b) => {
+      let d = 0;
       if (sortBy === 'hotness') {
-        const d = parseInt(b.dataset.hotness||0) - parseInt(a.dataset.hotness||0);
-        return d !== 0 ? d : b.dataset.date.localeCompare(a.dataset.date);
+        d = (parseInt(b.dataset.hotness || 0) - parseInt(a.dataset.hotness || 0)) * dir;
       } else if (sortBy === 'score') {
-        const d = parseInt(b.dataset.score||0) - parseInt(a.dataset.score||0);
-        return d !== 0 ? d : b.dataset.date.localeCompare(a.dataset.date);
+        d = (parseInt(b.dataset.score || 0) - parseInt(a.dataset.score || 0)) * dir;
       } else {
-        return b.dataset.date.localeCompare(a.dataset.date);
+        d = b.dataset.date.localeCompare(a.dataset.date) * dir;
       }
+      // 同分时按时间降序兜底
+      return d !== 0 ? d : b.dataset.date.localeCompare(a.dataset.date);
     });
   }
 
   function render() {
-    const visible = sorted(getVisibleRows());
-    const total   = visible.length;
-    const pages   = Math.max(1, Math.ceil(total / PAGE_SIZE));
+    const visible  = sortedRows(getVisibleRows());
+    const total    = visible.length;
+    const pages    = Math.max(1, Math.ceil(total / PAGE_SIZE));
     if (currentPage > pages) currentPage = pages;
 
-    const start    = (currentPage - 1) * PAGE_SIZE;
-    const pageRows = new Set(visible.slice(start, start + PAGE_SIZE));
+    const start     = (currentPage - 1) * PAGE_SIZE;
+    const pageItems = visible.slice(start, start + PAGE_SIZE);
+    const pageSet   = new Set(pageItems);
 
+    // 按正确顺序重新插入 DOM，实现真正的排序
+    pageItems.forEach(row => {
+      table.appendChild(row);
+      const sp = spacerOf.get(row);
+      if (sp) table.appendChild(sp);
+    });
+    // 隐藏行追加到末尾（不影响显示）
+    allRows.filter(r => !pageSet.has(r)).forEach(row => {
+      table.appendChild(row);
+      const sp = spacerOf.get(row);
+      if (sp) table.appendChild(sp);
+    });
+
+    // 显示 / 隐藏
     allRows.forEach(row => {
-      const show   = pageRows.has(row);
-      const spacer = row.nextElementSibling;
-      row.style.display              = show ? '' : 'none';
-      if (spacer) spacer.style.display = show ? '' : 'none';
+      const show = pageSet.has(row);
+      row.style.display = show ? '' : 'none';
+      const sp = spacerOf.get(row);
+      if (sp) sp.style.display = show ? '' : 'none';
     });
 
     // 全局连续编号
@@ -461,41 +484,54 @@
   function renderPagination(pages) {
     const el = document.getElementById('pagination');
     if (pages <= 1) { el.innerHTML = ''; return; }
-    let html = '';
-    html += `<button class="page-btn" onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>‹ 上一页</button>`;
+    let html = `<button class="page-btn" onclick="goPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>‹ 上一页</button>`;
     const range = getPageRange(currentPage, pages);
     let prev = null;
     range.forEach(p => {
       if (prev !== null && p - prev > 1) html += `<span class="page-ellipsis">…</span>`;
-      html += `<button class="page-btn ${p===currentPage?'active':''}" onclick="goPage(${p})">${p}</button>`;
+      html += `<button class="page-btn ${p === currentPage ? 'active' : ''}" onclick="goPage(${p})">${p}</button>`;
       prev = p;
     });
-    html += `<button class="page-btn" onclick="goPage(${currentPage+1})" ${currentPage===pages?'disabled':''}>下一页 ›</button>`;
+    html += `<button class="page-btn" onclick="goPage(${currentPage + 1})" ${currentPage === pages ? 'disabled' : ''}>下一页 ›</button>`;
     el.innerHTML = html;
   }
 
   function getPageRange(cur, total) {
     const delta = 2, range = new Set([1, total]);
-    for (let i = Math.max(2, cur-delta); i <= Math.min(total-1, cur+delta); i++) range.add(i);
-    return Array.from(range).sort((a,b) => a-b);
+    for (let i = Math.max(2, cur - delta); i <= Math.min(total - 1, cur + delta); i++) range.add(i);
+    return Array.from(range).sort((a, b) => a - b);
   }
 
+  const SORT_LABELS = { hotness: '热度', score: '相关度', date: '时间' };
+
   function setSort(btn) {
-    document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    sortBy = btn.dataset.sort;
-    currentPage = 1; render();
+    const key = btn.dataset.sort;
+    if (key === sortBy) {
+      // 再次点击：切换升降序
+      sortDesc = !sortDesc;
+    } else {
+      sortDesc = true;
+      sortBy = key;
+      document.querySelectorAll('.sort-btn').forEach(b => {
+        b.classList.remove('active');
+        b.textContent = SORT_LABELS[b.dataset.sort] || b.dataset.sort;
+      });
+      btn.classList.add('active');
+    }
+    btn.textContent = SORT_LABELS[key] + (sortDesc ? ' ↓' : ' ↑');
+    currentPage = 1;
+    render();
   }
 
   function goPage(p) {
-    const pages = Math.max(1, Math.ceil(sorted(getVisibleRows()).length / PAGE_SIZE));
+    const pages = Math.max(1, Math.ceil(sortedRows(getVisibleRows()).length / PAGE_SIZE));
     if (p < 1 || p > pages) return;
     currentPage = p; render();
   }
 
   function filterCat(btn) {
     if (btn.classList.contains('btn-empty')) return;
-    document.querySelectorAll('[data-cat]').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('#filter-bar [data-cat]').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     activeCat = btn.dataset.cat;
     currentPage = 1; render();
@@ -503,9 +539,7 @@
 
   function filterTopic(btn) {
     if (btn.classList.contains('btn-empty')) return;
-    document.querySelectorAll('[data-topic]').forEach(b => {
-      b.classList.remove('active', 'topic-active');
-    });
+    document.querySelectorAll('#filter-bar [data-topic]').forEach(b => b.classList.remove('active', 'topic-active'));
     if (btn.dataset.topic === 'all') {
       btn.classList.add('active');
     } else {
@@ -527,25 +561,23 @@
   function filterExactDate(sel) {
     activeExact = sel.value;
     if (activeExact) {
-      // 有具体日期时，取消范围按钮的激活
       document.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
       activeDays = 'all';
     } else {
-      // 恢复"全部"按钮
       document.querySelector('.range-btn[data-date="all"]').classList.add('active');
     }
     currentPage = 1; render();
   }
 
   function filterScore(btn) {
-    document.querySelectorAll('.filter-row [data-score]').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('#filter-bar [data-score]').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     activeScore = parseInt(btn.dataset.score);
     currentPage = 1; render();
   }
 
   function filterHotness(btn) {
-    document.querySelectorAll('[data-hotness]').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('#filter-bar [data-hotness]').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     activeHotness    = parseInt(btn.dataset.hotness);
     activeHotnessMax = parseInt(btn.dataset.hotnessMax || 9);
@@ -556,7 +588,7 @@
     const el = document.getElementById(id);
     const open = el.style.display === 'block';
     el.style.display = open ? 'none' : 'block';
-    btn.textContent = open ? '显示原文 ▾' : '收起 ▴';
+    btn.textContent  = open ? '显示原文 ▾' : '收起 ▴';
   }
 
   render();
