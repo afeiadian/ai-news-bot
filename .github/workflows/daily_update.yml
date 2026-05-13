@@ -2,7 +2,8 @@ name: Daily News Update
 
 on:
   schedule:
-    - cron: '0 1 * * *'   # 每天 01:00 UTC = 北京时间 09:00
+    - cron: '0 7 * * *'   # 每天 07:00 UTC = 北京时间 15:00
+                          # 必须晚于 arXiv 当日内容入库时间（约 UTC 06:00）
   workflow_dispatch:        # 支持手动触发
 
 permissions:
