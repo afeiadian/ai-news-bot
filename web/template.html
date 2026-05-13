@@ -42,6 +42,14 @@
       margin-left: 16px;
       white-space: nowrap;
     }
+    #visit-count {
+      margin-left: auto;
+      color: #fff;
+      font-size: 12px;
+      opacity: 0.92;
+      white-space: nowrap;
+    }
+    #visit-count strong { font-weight: bold; }
     #sources-btn:hover { background: rgba(255,255,255,0.3); }
 
     /* 弹窗 */
@@ -405,6 +413,7 @@
   <span class="logo">AI</span>
   <span class="site-title">AI 资讯日报</span>
   <button id="sources-btn" onclick="openModal()">数据来源 &amp; 评分标准</button>
+  <span id="visit-count">累计浏览 <strong id="visit-num">···</strong></span>
 </div>
 
 <!-- 弹窗 -->
@@ -707,6 +716,19 @@
     if (e.target === document.getElementById('modal-overlay')) closeModal();
   }
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+  // 累计浏览次数（counterapi.dev，免费免账号）
+  fetch('https://api.counterapi.dev/v1/afeiadian-ai-news-bot/views/up')
+    .then(r => r.json())
+    .then(d => {
+      const n = d && d.count;
+      if (typeof n === 'number') {
+        document.getElementById('visit-num').textContent = n.toLocaleString();
+      } else {
+        document.getElementById('visit-num').textContent = '-';
+      }
+    })
+    .catch(() => { document.getElementById('visit-num').textContent = '-'; });
 
   function toggleOriginal(btn, id) {
     const el = document.getElementById(id);
