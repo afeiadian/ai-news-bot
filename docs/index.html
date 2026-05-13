@@ -42,6 +42,14 @@
       margin-left: 16px;
       white-space: nowrap;
     }
+    #visit-count {
+      margin-left: auto;
+      color: #fff;
+      font-size: 12px;
+      opacity: 0.92;
+      white-space: nowrap;
+    }
+    #visit-count strong { font-weight: bold; }
     #sources-btn:hover { background: rgba(255,255,255,0.3); }
 
     /* 弹窗 */
@@ -405,6 +413,7 @@
   <span class="logo">AI</span>
   <span class="site-title">AI 资讯日报</span>
   <button id="sources-btn" onclick="openModal()">数据来源 &amp; 评分标准</button>
+  <span id="visit-count">累计浏览 <strong id="visit-num">···</strong></span>
 </div>
 
 <!-- 弹窗 -->
@@ -767,7 +776,7 @@ d=512, 8H/4KV, BPE=8192
                     <span class="source-cat" style="color:#ea580c">Hacker News</span>
                     <span class="source">Hacker News</span>
                     <span class="dot">·</span>
-                    <span class="time">6 小时前</span>
+                    <span class="time">7 小时前</span>
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
@@ -789,7 +798,7 @@ d=512, 8H/4KV, BPE=8192
                     <span class="source-cat" style="color:#000000">X</span>
                     <span class="source">@elonmusk</span>
                     <span class="dot">·</span>
-                    <span class="time">9 小时前</span>
+                    <span class="time">10 小时前</span>
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
@@ -811,7 +820,7 @@ d=512, 8H/4KV, BPE=8192
                     <span class="source-cat" style="color:#000000">X</span>
                     <span class="source">@elonmusk</span>
                     <span class="dot">·</span>
-                    <span class="time">9 小时前</span>
+                    <span class="time">10 小时前</span>
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
@@ -1460,7 +1469,7 @@ Community</div>
                     <span class="source-cat" style="color:#ea580c">Hacker News</span>
                     <span class="source">Hacker News</span>
                     <span class="dot">·</span>
-                    <span class="time">10 小时前</span>
+                    <span class="time">11 小时前</span>
                     <span class="dot">·</span>
                     <span class="score">相关度 78%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
@@ -1512,7 +1521,7 @@ We’re looking for supercomputing engineers to build the infrastructure behind 
                     <span class="source-cat" style="color:#000000">X</span>
                     <span class="source">@soumithchintala</span>
                     <span class="dot">·</span>
-                    <span class="time">12 小时前</span>
+                    <span class="time">13 小时前</span>
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
@@ -1534,7 +1543,7 @@ We’re looking for supercomputing engineers to build the infrastructure behind 
                     <span class="source-cat" style="color:#000000">X</span>
                     <span class="source">@fchollet</span>
                     <span class="dot">·</span>
-                    <span class="time">14 小时前</span>
+                    <span class="time">15 小时前</span>
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
@@ -1587,7 +1596,7 @@ Autonomous interfaces are valuable, but in most real work, users can’t fully s
                     <span class="source-cat" style="color:#ea580c">Hacker News</span>
                     <span class="source">Hacker News</span>
                     <span class="dot">·</span>
-                    <span class="time">20 小时前</span>
+                    <span class="time">21 小时前</span>
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
@@ -1913,7 +1922,7 @@ We’re early in companies figuring out how to leverage this successfully.</div>
                     <span class="source-cat" style="color:#000000">X</span>
                     <span class="source">@natolambert</span>
                     <span class="dot">·</span>
-                    <span class="time">13 小时前</span>
+                    <span class="time">14 小时前</span>
                     <span class="dot">·</span>
                     <span class="score">相关度 65%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★☆</span>
@@ -1943,7 +1952,7 @@ Onwards to the next million 🚀 https://t.co/PV6knP3XlJ</div>
                     <span class="source-cat" style="color:#000000">X</span>
                     <span class="source">@huggingface</span>
                     <span class="dot">·</span>
-                    <span class="time">14 小时前</span>
+                    <span class="time">15 小时前</span>
                     <span class="dot">·</span>
                     <span class="score">相关度 70%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★☆</span>
@@ -2385,7 +2394,7 @@ Oncology is one of the most information-dense and cognitively demanding domains 
                     <span class="source-cat" style="color:#b45309">AI Chip</span>
                     <span class="source">NVIDIA Blog</span>
                     <span class="dot">·</span>
-                    <span class="time">17 小时前</span>
+                    <span class="time">18 小时前</span>
                     <span class="dot">·</span>
                     <span class="score">相关度 78%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
@@ -6722,7 +6731,7 @@ Abstract: Indirect prompt injection remains a persistent weakness in retrieval-a
                     <span class="source-cat" style="color:#6b7280">Reddit</span>
                     <span class="source">r/LocalLLaMA</span>
                     <span class="dot">·</span>
-                    <span class="time">3 天前</span>
+                    <span class="time">4 天前</span>
                     <span class="dot">·</span>
                     <span class="score">相关度 72%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
@@ -7945,7 +7954,7 @@ Abstract: Indirect prompt injection remains a persistent weakness in retrieval-a
   <div id="pagination"></div>
 
   <div id="footer">
-    共 280 条资讯 · 更新于 2026-05-13 06:02 UTC · 数据来源：arXiv / HN / Reddit / RSS / X
+    共 280 条资讯 · 更新于 2026-05-13 14:49 UTC · 数据来源：arXiv / HN / Reddit / RSS / X
   </div>
 </div>
 
@@ -8166,6 +8175,19 @@ Abstract: Indirect prompt injection remains a persistent weakness in retrieval-a
     if (e.target === document.getElementById('modal-overlay')) closeModal();
   }
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+  // 累计浏览次数（counterapi.dev，免费免账号）
+  fetch('https://api.counterapi.dev/v1/afeiadian-ai-news-bot/views/up')
+    .then(r => r.json())
+    .then(d => {
+      const n = d && d.count;
+      if (typeof n === 'number') {
+        document.getElementById('visit-num').textContent = n.toLocaleString();
+      } else {
+        document.getElementById('visit-num').textContent = '-';
+      }
+    })
+    .catch(() => { document.getElementById('visit-num').textContent = '-'; });
 
   function toggleOriginal(btn, id) {
     const el = document.getElementById(id);
