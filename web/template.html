@@ -585,7 +585,66 @@
     });
   }
 
+  function matchesBase(row) {
+    // 应用日期、相关度、热度（不应用来源/话题）
+    const scoreOk = parseInt(row.dataset.score || 0) >= activeScore;
+    const h = parseInt(row.dataset.hotness || 0);
+    const hotnessOk = h >= activeHotness && h <= activeHotnessMax;
+    let dateOk = true;
+    const rowDate = row.dataset.localDate || row.dataset.date;
+    if (activeExact) dateOk = rowDate === activeExact;
+    else if (activeDays !== 'all') dateOk = rowDate >= getLocalDateStr(parseInt(activeDays));
+    return scoreOk && hotnessOk && dateOk;
+  }
+
+  function updateFacetCounts() {
+    // 来源 count：忽略当前来源选择，应用其他筛选
+    const catCounts = {};
+    let catAllTotal = 0;
+    allRows.forEach(row => {
+      if (!matchesBase(row)) return;
+      if (activeTopic !== 'all') {
+        const topics = (row.dataset.topic || '').split(',').map(t => t.trim());
+        if (!topics.includes(activeTopic)) return;
+      }
+      const c = row.dataset.category;
+      catCounts[c] = (catCounts[c] || 0) + 1;
+      catAllTotal++;
+    });
+    document.querySelectorAll('#filter-bar [data-cat]').forEach(btn => {
+      const c = btn.dataset.cat;
+      const countEl = btn.querySelector('.btn-count');
+      const n = c === 'all' ? catAllTotal : (catCounts[c] || 0);
+      if (countEl) countEl.textContent = n;
+      if (c !== 'all') {
+        if (n === 0) btn.classList.add('btn-empty');
+        else btn.classList.remove('btn-empty');
+      }
+    });
+
+    // 话题 count：忽略当前话题选择，应用其他筛选
+    const topicCounts = {};
+    let topicAllTotal = 0;
+    allRows.forEach(row => {
+      if (!matchesBase(row)) return;
+      if (activeCat !== 'all' && row.dataset.category !== activeCat) return;
+      const topics = (row.dataset.topic || '').split(',').map(t => t.trim()).filter(Boolean);
+      if (topics.length) topicAllTotal++;
+      topics.forEach(t => { topicCounts[t] = (topicCounts[t] || 0) + 1; });
+    });
+    document.querySelectorAll('#filter-bar [data-topic]').forEach(btn => {
+      const t = btn.dataset.topic;
+      const countEl = btn.querySelector('.btn-count');
+      if (t === 'all') return;
+      const n = topicCounts[t] || 0;
+      if (countEl) countEl.textContent = n;
+      if (n === 0) btn.classList.add('btn-empty');
+      else btn.classList.remove('btn-empty');
+    });
+  }
+
   function render() {
+    updateFacetCounts();
     const visible  = sortedRows(getVisibleRows());
     const total    = visible.length;
     const pages    = Math.max(1, Math.ceil(total / PAGE_SIZE));
