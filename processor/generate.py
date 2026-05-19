@@ -263,6 +263,7 @@ def build_html(articles):
                     <span class="dot">·</span>
                     <span class="score">相关度 {a["score"]}%</span>
                     {stars_html}
+                    <span class="pub-date" data-iso="{a["published_at"]}">{date_str}</span>
                 </div>
             </td>
         </tr>
