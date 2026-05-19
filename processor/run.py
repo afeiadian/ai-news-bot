@@ -5,10 +5,11 @@ from fetch_twitter import fetch_twitter_entries
 from fetch_content import fetch_article_content
 from process import analyze_article
 from hotness import calc_hotness
-from storage import init_db, article_exists, save_article
+from storage import init_db, article_exists, save_article, prune_old_articles
 
 def main():
     init_db()
+    prune_old_articles(days=30)     # 删除30天前的旧文章
     mark_old_as_read(days_back=2)   # 清理2天前的积压
     feeds = get_feeds()
     entries = fetch_unread_entries(limit=200, days_back=2)
