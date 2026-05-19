@@ -146,22 +146,46 @@ twitter_accounts:
     name: "Elon Musk (xAI)"
   - handle: gdb
     name: "Greg Brockman (OpenAI 联创)"
+  - handle: ilyasut
+    name: "Ilya Sutskever (Safe Superintelligence 创始人)"
+  - handle: miramurati
+    name: "Mira Murati (Thinking Machines CEO，原 OpenAI CTO)"
+  - handle: kevinweil
+    name: "Kevin Weil (OpenAI 首席产品官)"
 
   # 顶级研究者 / 学者
   - handle: ylecun
     name: "Yann LeCun (Meta 首席AI科学家)"
   - handle: fchollet
     name: "François Chollet (Keras 作者，ARC-AGI)"
+  - handle: drfeifei
+    name: "Fei-Fei Li (Stanford HAI / World Labs CEO)"
+  - handle: AndrewYNg
+    name: "Andrew Ng (DeepLearning.AI 创始人)"
+  - handle: JeffDean
+    name: "Jeff Dean (Google AI 首席科学家)"
+  - handle: Yoshua_Bengio
+    name: "Yoshua Bengio (Mila 创始人，图灵奖得主)"
   - handle: tri_dao
     name: "Tri Dao (FlashAttention 作者)"
   - handle: drjimfan
     name: "Jim Fan (NVIDIA Research)"
+  - handle: giffmana
+    name: "Lucas Beyer (Google DeepMind 多模态研究)"
+  - handle: denny_zhou
+    name: "Denny Zhou (Google DeepMind 推理/CoT 研究)"
+  - handle: AmandaAskell
+    name: "Amanda Askell (Anthropic 对齐/安全研究)"
 
   # 芯片 / 系统 / 基础设施专家
   - handle: dylan522p
     name: "Dylan Patel (SemiAnalysis 芯片分析)"
   - handle: clattner_llvm
     name: "Chris Lattner (MLIR/Mojo 作者)"
+  - handle: JimKeller
+    name: "Jim Keller (Tenstorrent CEO，传奇芯片设计师)"
+  - handle: ggerganov
+    name: "Georgi Gerganov (llama.cpp 作者)"
 
   # 官方账号
   - handle: AnthropicAI

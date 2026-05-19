@@ -167,7 +167,7 @@
 | Newsletter | 靛蓝色 | Ahead of AI、Interconnects、Import AI、The Gradient |
 | Hacker News | 橙色 | Top Links（通过 RSSHub）|
 | arXiv | 紫色 | cs.AI / cs.LG / cs.CL / cs.CV / cs.AR / cs.DC |
-| X | 黑色 | 22 个行业领袖账号 |
+| X | 黑色 | 35 个行业领袖账号（详见首页"数据来源 & 评分标准"按钮）|
 
 ---
 

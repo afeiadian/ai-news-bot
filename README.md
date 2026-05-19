@@ -16,7 +16,7 @@
 
 ## 功能
 
-- **多源采集**：22 个 RSS 订阅源 + 22 个 X 平台行业领袖账号
+- **多源采集**：22 个 RSS 订阅源 + 35 个 X 平台行业领袖账号
 - **分类配额抓取**：高价值来源（公司博客、Newsletter、HN）优先满抓，arXiv 用剩余配额，避免被海量论文挤掉
 - **AI 智能处理**：相关度评分（0–100）、中文标题翻译、3–5 句内容摘要、话题自动分类
 - **原文抓取**：Jina Reader + trafilatura 双备份，arXiv 用官方 API 获取作者和摘要
@@ -82,7 +82,7 @@ GitHub Pages           →  静态 HTML 网页托管
     └── daily_update.yml          # GitHub Actions 定时任务
 ```
 
-## 数据源（当前 22 个 RSS + 22 个 X 账号）
+## 数据源（当前 22 个 RSS + 35 个 X 账号）
 
 ### RSS 订阅源
 
@@ -99,9 +99,9 @@ GitHub Pages           →  静态 HTML 网页托管
 
 | 类别 | 账号 |
 |------|------|
-| AI 公司创始人/CEO | @karpathy、@sama、@darioamodei、@demishassabis、@elonmusk、@gdb、@arthurmensch |
-| 顶级研究者 | @ylecun、@fchollet、@tri_dao、@drjimfan、@soumithchintala、@rasbt、@natolambert |
-| 芯片/系统专家 | @dylan522p、@clattner_llvm |
+| AI 公司创始人/CEO | @karpathy、@sama、@darioamodei、@demishassabis、@elonmusk、@gdb、@arthurmensch、@ilyasut、@miramurati、@kevinweil |
+| 顶级研究者 | @ylecun、@fchollet、@drfeifei、@AndrewYNg、@JeffDean、@Yoshua_Bengio、@tri_dao、@drjimfan、@giffmana、@denny_zhou、@AmandaAskell、@soumithchintala、@rasbt、@natolambert |
+| 芯片/系统专家 | @dylan522p、@clattner_llvm、@JimKeller、@ggerganov |
 | 官方账号 | @AnthropicAI、@OpenAI、@GoogleDeepMind、@huggingface、@nvidia、@xai |
 | 论文推荐 | @_akhaliq |
 
