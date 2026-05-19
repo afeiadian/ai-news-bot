@@ -440,12 +440,12 @@
     <!-- 日期 -->
     <div class="filter-row">
       <span class="filter-label">日期：</span>
-      <button class="filter-btn range-btn active" data-date="all" onclick="filterDate(this)">全部</button>
-      <button class="filter-btn range-btn" data-date="0"  onclick="filterDate(this)">今天</button>
-      <button class="filter-btn range-btn" data-date="1"  onclick="filterDate(this)">昨天</button>
-      <button class="filter-btn range-btn" data-date="3"  onclick="filterDate(this)">近3天</button>
-      <button class="filter-btn range-btn" data-date="7"  onclick="filterDate(this)">近7天</button>
-      <button class="filter-btn range-btn" data-date="30" onclick="filterDate(this)">近30天</button>
+      <button class="filter-btn range-btn active" data-date="all" onclick="filterDate(this)">全部 <span class="btn-count">0</span></button>
+      <button class="filter-btn range-btn" data-date="0"  onclick="filterDate(this)">今天 <span class="btn-count">0</span></button>
+      <button class="filter-btn range-btn" data-date="1"  onclick="filterDate(this)">昨天 <span class="btn-count">0</span></button>
+      <button class="filter-btn range-btn" data-date="3"  onclick="filterDate(this)">近3天 <span class="btn-count">0</span></button>
+      <button class="filter-btn range-btn" data-date="7"  onclick="filterDate(this)">近7天 <span class="btn-count">0</span></button>
+      <button class="filter-btn range-btn" data-date="30" onclick="filterDate(this)">近30天 <span class="btn-count">0</span></button>
       <select id="date-select" onchange="filterExactDate(this)">
         {{DATE_OPTIONS}}
       </select>
@@ -622,6 +622,36 @@
       }
     });
 
+    // 日期 count：忽略当前日期选择，应用其他筛选
+    const dateBase = allRows.filter(row => {
+      const scoreOk = parseInt(row.dataset.score || 0) >= activeScore;
+      const h = parseInt(row.dataset.hotness || 0);
+      const hotnessOk = h >= activeHotness && h <= activeHotnessMax;
+      if (!scoreOk || !hotnessOk) return false;
+      if (activeCat !== 'all' && row.dataset.category !== activeCat) return false;
+      if (activeTopic !== 'all') {
+        const topics = (row.dataset.topic || '').split(',').map(t => t.trim());
+        if (!topics.includes(activeTopic)) return false;
+      }
+      return true;
+    });
+    document.querySelectorAll('.range-btn').forEach(btn => {
+      const d = btn.dataset.date;
+      const countEl = btn.querySelector('.btn-count');
+      if (!countEl) return;
+      let n;
+      if (d === 'all') n = dateBase.length;
+      else {
+        const cutoff = getLocalDateStr(parseInt(d));
+        n = dateBase.filter(row => (row.dataset.localDate || row.dataset.date) >= cutoff).length;
+      }
+      countEl.textContent = n;
+      if (d !== 'all') {
+        if (n === 0) btn.classList.add('btn-empty');
+        else btn.classList.remove('btn-empty');
+      }
+    });
+
     // 话题 count：忽略当前话题选择，应用其他筛选
     const topicCounts = {};
     let topicAllTotal = 0;
@@ -756,6 +786,7 @@
   }
 
   function filterDate(btn) {
+    if (btn.classList.contains('btn-empty')) return;
     document.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     activeDays  = btn.dataset.date;

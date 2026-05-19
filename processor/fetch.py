@@ -40,26 +40,68 @@ def get_feeds():
     return {f['id']: f for f in resp.json()}
 
 
+def _get_categories():
+    """返回 {category_name: category_id}"""
+    resp = requests.get(f'{MINIFLUX_URL}/v1/categories', headers=HEADERS)
+    return {c['title']: c['id'] for c in resp.json()}
+
+
 def fetch_unread_entries(limit=200, days_back=1):
-    """只取最近 days_back 天内发布的未读文章，防止历史积压"""
+    """
+    按分类配额抓取最近 days_back 天的未读文章，避免 arXiv 把高价值来源挤出去。
+    优先抓全部 lab/tools/chip/newsletter/hackernews，剩余配额给 arXiv。
+    """
     from datetime import datetime, timezone, timedelta
     after_ts = int((datetime.now(timezone.utc) - timedelta(days=days_back)).timestamp())
 
-    resp = requests.get(
-        f'{MINIFLUX_URL}/v1/entries',
-        headers=HEADERS,
-        params={
-            'status': 'unread',
-            'limit': limit,
-            'order': 'published_at',
-            'direction': 'desc',
-            'after': after_ts,
-        }
-    )
-    data = resp.json()
-    entries = data.get('entries') or []
-    print(f'获取到 {len(entries)} 条未读文章（最近 {days_back} 天）')
-    return entries
+    cats = _get_categories()
+    # 优先级：高价值来源全抓（数量很少），arXiv 用剩余配额
+    priority_cats = ['lab', 'tools', 'chip', 'newsletter', 'hackernews']
+
+    all_entries = []
+    for cat_name in priority_cats:
+        cat_id = cats.get(cat_name)
+        if not cat_id:
+            continue
+        r = requests.get(
+            f'{MINIFLUX_URL}/v1/entries',
+            headers=HEADERS,
+            params={
+                'status': 'unread',
+                'limit': 100,  # 高价值来源每分类上限 100，通常 <20
+                'order': 'published_at',
+                'direction': 'desc',
+                'after': after_ts,
+                'category_id': cat_id,
+            }
+        )
+        ents = r.json().get('entries') or []
+        all_entries.extend(ents)
+        if ents:
+            print(f'  {cat_name}: 抓取 {len(ents)} 条')
+
+    # 剩余配额给 arXiv
+    arxiv_quota = max(0, limit - len(all_entries))
+    arxiv_id = cats.get('arxiv')
+    if arxiv_id and arxiv_quota > 0:
+        r = requests.get(
+            f'{MINIFLUX_URL}/v1/entries',
+            headers=HEADERS,
+            params={
+                'status': 'unread',
+                'limit': arxiv_quota,
+                'order': 'published_at',
+                'direction': 'desc',
+                'after': after_ts,
+                'category_id': arxiv_id,
+            }
+        )
+        ents = r.json().get('entries') or []
+        all_entries.extend(ents)
+        print(f'  arxiv: 抓取 {len(ents)} 条（剩余配额 {arxiv_quota}）')
+
+    print(f'共获取 {len(all_entries)} 条未读文章（最近 {days_back} 天）')
+    return all_entries
 
 
 def mark_old_as_read(days_back=2):
