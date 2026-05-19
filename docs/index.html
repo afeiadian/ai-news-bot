@@ -304,6 +304,12 @@
     .score { color: #b45309; font-weight: bold; margin-right: 4px; }
     .hotness-label { color: #b45309; font-weight: bold; margin-right: 3px; }
     .stars { color: #f59e0b; font-size: 12px; letter-spacing: 1px; margin-right: 4px; }
+    .pub-date {
+      margin-left: auto;
+      color: #aaa;
+      font-size: 11px;
+      white-space: nowrap;
+    }
     .spacer td { height: 24px; }
 
     .show-original-btn {
@@ -501,7 +507,23 @@
 <tr><td><span class="modal-tag" style="background:#374151">行业资讯</span></td><td>公司动态、融资、产品发布、权威趋势预测与综述、技术路线分析</td></tr>
 </table></div>
 <div class="modal-section">
-<h3>相关度评分规则（收录阈值：70 分）</h3>
+<h3>抓取策略：分类配额</h3>
+<div class="modal-note">每天 UTC 07:00（北京 15:00）自动抓取，每次最多 200 篇。不是简单按时间倒序——arXiv 每天数百篇会挤掉其他来源，因此按分类配额：
+· 优先抓全部 lab / tools / chip / newsletter / hackernews（每类上限 100，实际通常 &lt;30）
+· 剩余配额给 arXiv（通常 140-150 篇）
+保证 AI 公司官博、NVIDIA、PyTorch 等高价值来源不被海量论文挤掉。</div>
+</div>
+<div class="modal-section">
+<h3>原文抓取来源</h3>
+<table class="modal-table"><tr><th>来源类型</th><th>原文获取方式</th></tr>
+<tr><td style="white-space:nowrap;font-weight:bold">X / Twitter</td><td style="font-size:12px">fetch_twitter.py 抓取时直接存推文正文</td></tr>
+<tr><td style="white-space:nowrap;font-weight:bold">arXiv</td><td style="font-size:12px">arXiv 官方 API 获取作者列表 + 论文摘要</td></tr>
+<tr><td style="white-space:nowrap;font-weight:bold">Hacker News</td><td style="font-size:12px">Jina Reader 抓取外链文章正文</td></tr>
+<tr><td style="white-space:nowrap;font-weight:bold">HF / DeepMind</td><td style="font-size:12px">trafilatura 抓取（Jina 被 Cloudflare 限速时降级）</td></tr>
+<tr><td style="white-space:nowrap;font-weight:bold">其他博客</td><td style="font-size:12px">Miniflux RSS 自带 content</td></tr>
+</table></div>
+<div class="modal-section">
+<h3>相关度评分规则（默认阈值 70 分，X 平台单独阈值 60 分）</h3>
 <div class="modal-note">【收录范围】只收录以下方向的内容，其他一律给低分（&lt;40）过滤：
 - AI 芯片与硬件：GPU/NPU/TPU设计、AI数据中心、芯片互联、芯片产品发布
 - AI 芯片软件栈：CUDA/ROCm/XLA、编译器、算子库、Kernel优化、芯片软件适配
@@ -553,6 +575,13 @@ cs.CV过滤：传统图像分类/目标检测/医学影像 → ≤35分；文生
 <tr><td>AI Chip</td><td style="text-align:center">2.5</td><td style="font-size:11px;color:#666">—</td></tr>
 <tr><td>AI Tools</td><td style="text-align:center">2.0</td><td style="font-size:11px;color:#666">—</td></tr>
 </table></div>
+<div class="modal-section">
+<h3>数据更新与保留</h3>
+<div class="modal-note">· 每日抓取时间：UTC 07:00 / 北京时间 15:00（GitHub Actions 可能延迟 1-3 小时）
+· 数据保留：自动保留最近 30 天的文章，旧文章自动删除并 VACUUM 回收空间
+· 文章采集窗口：每次只处理最近 2 天内发布的未读文章
+· 网页时间显示：客户端基于 ISO 时间戳实时计算，使用浏览器本地时区</div>
+</div>
     </div>
   </div>
 </div>
@@ -562,12 +591,12 @@ cs.CV过滤：传统图像分类/目标检测/医学影像 → ≤35分；文生
     <!-- 日期 -->
     <div class="filter-row">
       <span class="filter-label">日期：</span>
-      <button class="filter-btn range-btn active" data-date="all" onclick="filterDate(this)">全部</button>
-      <button class="filter-btn range-btn" data-date="0"  onclick="filterDate(this)">今天</button>
-      <button class="filter-btn range-btn" data-date="1"  onclick="filterDate(this)">昨天</button>
-      <button class="filter-btn range-btn" data-date="3"  onclick="filterDate(this)">近3天</button>
-      <button class="filter-btn range-btn" data-date="7"  onclick="filterDate(this)">近7天</button>
-      <button class="filter-btn range-btn" data-date="30" onclick="filterDate(this)">近30天</button>
+      <button class="filter-btn range-btn active" data-date="all" onclick="filterDate(this)">全部 <span class="btn-count">0</span></button>
+      <button class="filter-btn range-btn" data-date="0"  onclick="filterDate(this)">今天 <span class="btn-count">0</span></button>
+      <button class="filter-btn range-btn" data-date="1"  onclick="filterDate(this)">昨天 <span class="btn-count">0</span></button>
+      <button class="filter-btn range-btn" data-date="3"  onclick="filterDate(this)">近3天 <span class="btn-count">0</span></button>
+      <button class="filter-btn range-btn" data-date="7"  onclick="filterDate(this)">近7天 <span class="btn-count">0</span></button>
+      <button class="filter-btn range-btn" data-date="30" onclick="filterDate(this)">近30天 <span class="btn-count">0</span></button>
       <select id="date-select" onchange="filterExactDate(this)">
         <option value="">指定日期...</option>
 <option value="2026-05-19">05-19（69篇）</option>
@@ -1067,6 +1096,7 @@ Fixes &amp;amp; upgrades are dropping every day.</div>
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-18T07:55:15+00:00">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -1089,6 +1119,7 @@ Fixes &amp;amp; upgrades are dropping every day.</div>
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-18T07:25:39+00:00">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -1111,6 +1142,7 @@ Fixes &amp;amp; upgrades are dropping every day.</div>
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-18T07:22:10+00:00">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -1133,6 +1165,7 @@ Fixes &amp;amp; upgrades are dropping every day.</div>
                     <span class="dot">·</span>
                     <span class="score">相关度 65%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:01:57+00:00">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -1155,6 +1188,7 @@ Fixes &amp;amp; upgrades are dropping every day.</div>
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-18T03:03:27+00:00">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -1181,6 +1215,7 @@ Already more than 1 billion images created there; awesome to see.</div>
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-18T00:11:24+00:00">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -1203,6 +1238,7 @@ Already more than 1 billion images created there; awesome to see.</div>
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-17T22:26:44+00:00">2026-05-17</span>
                 </div>
             </td>
         </tr>
@@ -1225,6 +1261,7 @@ Already more than 1 billion images created there; awesome to see.</div>
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-17T16:19:01+00:00">2026-05-17</span>
                 </div>
             </td>
         </tr>
@@ -1247,6 +1284,7 @@ Already more than 1 billion images created there; awesome to see.</div>
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-17T07:23:22+00:00">2026-05-17</span>
                 </div>
             </td>
         </tr>
@@ -1269,6 +1307,7 @@ Already more than 1 billion images created there; awesome to see.</div>
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-17T05:24:41+00:00">2026-05-17</span>
                 </div>
             </td>
         </tr>
@@ -1309,6 +1348,7 @@ Another, more sophisticated way you might do this is to train a second model to 
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-17T05:07:42.599399Z">2026-05-17</span>
                 </div>
             </td>
         </tr>
@@ -1381,6 +1421,7 @@ Inst</div>
                     <span class="dot">·</span>
                     <span class="score">相关度 78%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-17T05:07:42.599184Z">2026-05-17</span>
                 </div>
             </td>
         </tr>
@@ -1514,6 +1555,7 @@ model = AutoModelForCausalLM.from_pretrained(
                     <span class="dot">·</span>
                     <span class="score">相关度 88%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-17T03:07:42.87644Z">2026-05-17</span>
                 </div>
             </td>
         </tr>
@@ -1558,6 +1600,7 @@ Perhaps you were hopeful that OpenAI was going to stick to its preferred method 
                     <span class="dot">·</span>
                     <span class="score">相关度 82%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-17T01:07:42.696818Z">2026-05-17</span>
                 </div>
             </td>
         </tr>
@@ -1580,6 +1623,7 @@ Perhaps you were hopeful that OpenAI was going to stick to its preferred method 
                     <span class="dot">·</span>
                     <span class="score">相关度 78%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-16T23:25:20+00:00">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -1602,6 +1646,7 @@ Perhaps you were hopeful that OpenAI was going to stick to its preferred method 
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-16T22:17:27+00:00">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -1676,6 +1721,7 @@ We introduce SANA-WM, an efficient 2.6B-parameter open-source world model native
                     <span class="dot">·</span>
                     <span class="score">相关度 92%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-16T21:07:42.837492Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -1734,6 +1780,7 @@ Claude Code navigates a codebase the way a sof</div>
                     <span class="dot">·</span>
                     <span class="score">相关度 78%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-16T19:07:42.903646Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -1756,6 +1803,7 @@ Claude Code navigates a codebase the way a sof</div>
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-16T18:25:16+00:00">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -1809,6 +1857,7 @@ Third place goes</div>
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-16T17:07:43.182002Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -1831,6 +1880,7 @@ Third place goes</div>
                     <span class="dot">·</span>
                     <span class="score">相关度 70%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-16T13:49:51+00:00">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -1861,6 +1911,7 @@ Link: https://t.co/KO81y3kTH7 https://t.co/wTx51QpQu4</div>
                     <span class="dot">·</span>
                     <span class="score">相关度 88%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-16T13:10:47+00:00">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -1887,6 +1938,7 @@ https://t.co/UYKGws8zzH https://t.co/myqsaSq4k3</div>
                     <span class="dot">·</span>
                     <span class="score">相关度 78%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-15T19:52:03+00:00">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -1909,6 +1961,7 @@ https://t.co/UYKGws8zzH https://t.co/myqsaSq4k3</div>
                     <span class="dot">·</span>
                     <span class="score">相关度 70%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-15T18:35:39+00:00">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -1931,6 +1984,7 @@ https://t.co/UYKGws8zzH https://t.co/myqsaSq4k3</div>
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-15T17:56:57+00:00">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -1957,6 +2011,7 @@ A further step towards ChatGPT becoming your personal agent, operating on your b
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-15T17:11:51+00:00">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -1979,6 +2034,7 @@ A further step towards ChatGPT becoming your personal agent, operating on your b
                     <span class="dot">·</span>
                     <span class="score">相关度 70%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-15T13:55:08+00:00">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -2010,6 +2066,7 @@ It is the first time since I play with local inference (I play with it since the
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-15T05:07:42.64688Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -2032,6 +2089,7 @@ It is the first time since I play with local inference (I play with it since the
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:24:44+00:00">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -2054,6 +2112,7 @@ It is the first time since I play with local inference (I play with it since the
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-14T21:16:10+00:00">2026-05-14</span>
                 </div>
             </td>
         </tr>
@@ -2080,6 +2139,7 @@ Huge step forward for universal usage of agents.</div>
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-14T21:15:00+00:00">2026-05-14</span>
                 </div>
             </td>
         </tr>
@@ -2102,6 +2162,7 @@ Huge step forward for universal usage of agents.</div>
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-14T19:42:26+00:00">2026-05-14</span>
                 </div>
             </td>
         </tr>
@@ -2132,6 +2193,7 @@ Try it at https://t.co/bpTHpjivWD https://t.co/Rlg4qMLkrv</div>
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-14T18:32:33+00:00">2026-05-14</span>
                 </div>
             </td>
         </tr>
@@ -2158,6 +2220,7 @@ The US and democratic allies hold the lead in frontier AI today. Read more on wh
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-14T18:09:21+00:00">2026-05-14</span>
                 </div>
             </td>
         </tr>
@@ -2184,6 +2247,7 @@ Jensen Huang to @CarnegieMellon Class of 2026: You’re standing at the starting
                     <span class="dot">·</span>
                     <span class="score">相关度 70%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-14T18:00:00+00:00">2026-05-14</span>
                 </div>
             </td>
         </tr>
@@ -2210,6 +2274,7 @@ Read more: https://t.co/eqCrLKtNCq</div>
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-14T15:08:23+00:00">2026-05-14</span>
                 </div>
             </td>
         </tr>
@@ -2232,6 +2297,7 @@ Read more: https://t.co/eqCrLKtNCq</div>
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-13T23:47:28+00:00">2026-05-13</span>
                 </div>
             </td>
         </tr>
@@ -2262,6 +2328,7 @@ i wonder if we should focus more on a price/speed tradeoff relative to a price/i
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-13T18:17:29+00:00">2026-05-13</span>
                 </div>
             </td>
         </tr>
@@ -2288,6 +2355,7 @@ for the next 30 days, we are giving companies that want to try switching over tw
                     <span class="dot">·</span>
                     <span class="score">相关度 78%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-13T18:13:58+00:00">2026-05-13</span>
                 </div>
             </td>
         </tr>
@@ -2310,6 +2378,7 @@ for the next 30 days, we are giving companies that want to try switching over tw
                     <span class="dot">·</span>
                     <span class="score">相关度 70%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-13T17:51:43+00:00">2026-05-13</span>
                 </div>
             </td>
         </tr>
@@ -2336,6 +2405,7 @@ https://t.co/crKd2l9xGg</div>
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-13T16:38:48+00:00">2026-05-13</span>
                 </div>
             </td>
         </tr>
@@ -2483,6 +2553,7 @@ d=512, 8H/4KV, BPE=8192
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-12T23:07:42.863242Z">2026-05-12</span>
                 </div>
             </td>
         </tr>
@@ -2505,6 +2576,7 @@ d=512, 8H/4KV, BPE=8192
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-12T22:22:46+00:00">2026-05-12</span>
                 </div>
             </td>
         </tr>
@@ -2527,6 +2599,7 @@ d=512, 8H/4KV, BPE=8192
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-12T20:46:19+00:00">2026-05-12</span>
                 </div>
             </td>
         </tr>
@@ -2549,6 +2622,7 @@ d=512, 8H/4KV, BPE=8192
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-12T20:40:47+00:00">2026-05-12</span>
                 </div>
             </td>
         </tr>
@@ -3198,6 +3272,7 @@ Community</div>
                     <span class="dot">·</span>
                     <span class="score">相关度 78%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-12T19:07:42.596228Z">2026-05-12</span>
                 </div>
             </td>
         </tr>
@@ -3224,6 +3299,7 @@ At @CarnegieMellon 2026 commencement, our CEO Jensen Huang shared why AI calls f
                     <span class="dot">·</span>
                     <span class="score">相关度 82%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-12T18:50:59+00:00">2026-05-12</span>
                 </div>
             </td>
         </tr>
@@ -3250,6 +3326,7 @@ We’re looking for supercomputing engineers to build the infrastructure behind 
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-12T17:12:08+00:00">2026-05-12</span>
                 </div>
             </td>
         </tr>
@@ -3272,6 +3349,7 @@ We’re looking for supercomputing engineers to build the infrastructure behind 
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-12T15:30:33+00:00">2026-05-12</span>
                 </div>
             </td>
         </tr>
@@ -3325,6 +3403,7 @@ Autonomous interfaces are valuable, but in most real work, users can’t fully s
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-12T09:07:42.615681Z">2026-05-12</span>
                 </div>
             </td>
         </tr>
@@ -3347,6 +3426,7 @@ Autonomous interfaces are valuable, but in most real work, users can’t fully s
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-12T06:53:42+00:00">2026-05-12</span>
                 </div>
             </td>
         </tr>
@@ -3369,6 +3449,7 @@ Autonomous interfaces are valuable, but in most real work, users can’t fully s
                     <span class="dot">·</span>
                     <span class="score">相关度 70%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-12T05:01:49+00:00">2026-05-12</span>
                 </div>
             </td>
         </tr>
@@ -3391,6 +3472,7 @@ Autonomous interfaces are valuable, but in most real work, users can’t fully s
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-11T22:51:54+00:00">2026-05-11</span>
                 </div>
             </td>
         </tr>
@@ -3417,6 +3499,7 @@ a superapp?</div>
                     <span class="dot">·</span>
                     <span class="score">相关度 60%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-11T22:49:10+00:00">2026-05-11</span>
                 </div>
             </td>
         </tr>
@@ -3439,6 +3522,7 @@ a superapp?</div>
                     <span class="dot">·</span>
                     <span class="score">相关度 72%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-11T21:00:48+00:00">2026-05-11</span>
                 </div>
             </td>
         </tr>
@@ -3477,6 +3561,7 @@ Here&#x27;s a preview:</div>
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-11T20:48:02+00:00">2026-05-11</span>
                 </div>
             </td>
         </tr>
@@ -3507,6 +3592,7 @@ Listen at https://t.co/dKMfpeOblm https://t.co/792RQ4sAxc</div>
                     <span class="dot">·</span>
                     <span class="score">相关度 82%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-11T16:56:01+00:00">2026-05-11</span>
                 </div>
             </td>
         </tr>
@@ -3533,6 +3619,7 @@ More generally, imo audio is the</div>
                     <span class="dot">·</span>
                     <span class="score">相关度 78%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-11T16:20:21+00:00">2026-05-11</span>
                 </div>
             </td>
         </tr>
@@ -3559,6 +3646,7 @@ Lot&#x27;s of people today in AI are underselling the value of going through the
                     <span class="dot">·</span>
                     <span class="score">相关度 60%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-11T15:28:52+00:00">2026-05-11</span>
                 </div>
             </td>
         </tr>
@@ -3581,6 +3669,7 @@ Lot&#x27;s of people today in AI are underselling the value of going through the
                     <span class="dot">·</span>
                     <span class="score">相关度 60%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-11T06:21:33+00:00">2026-05-11</span>
                 </div>
             </td>
         </tr>
@@ -3603,6 +3692,7 @@ Lot&#x27;s of people today in AI are underselling the value of going through the
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-11T00:41:57+00:00">2026-05-11</span>
                 </div>
             </td>
         </tr>
@@ -3629,6 +3719,7 @@ almost worth it to make you all happy...</div>
                     <span class="dot">·</span>
                     <span class="score">相关度 70%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-10T20:28:20+00:00">2026-05-10</span>
                 </div>
             </td>
         </tr>
@@ -3651,6 +3742,7 @@ almost worth it to make you all happy...</div>
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-09T23:29:04+00:00">2026-05-09</span>
                 </div>
             </td>
         </tr>
@@ -3673,6 +3765,7 @@ almost worth it to make you all happy...</div>
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-09T21:11:44+00:00">2026-05-09</span>
                 </div>
             </td>
         </tr>
@@ -3695,6 +3788,7 @@ almost worth it to make you all happy...</div>
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-09T19:12:17+00:00">2026-05-09</span>
                 </div>
             </td>
         </tr>
@@ -3717,6 +3811,7 @@ almost worth it to make you all happy...</div>
                     <span class="dot">·</span>
                     <span class="score">相关度 65%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-09T17:46:19+00:00">2026-05-09</span>
                 </div>
             </td>
         </tr>
@@ -3739,6 +3834,7 @@ almost worth it to make you all happy...</div>
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★★</span>
+                    <span class="pub-date" data-iso="2026-05-09T15:27:56+00:00">2026-05-09</span>
                 </div>
             </td>
         </tr>
@@ -3847,6 +3943,7 @@ Watch here: https://t.co/WItwKxkEc5 https://t.co/shxtYCQZiy</div>
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T01:33:12+00:00">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -3869,6 +3966,7 @@ Watch here: https://t.co/WItwKxkEc5 https://t.co/shxtYCQZiy</div>
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T17:04:43+00:00">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -3891,6 +3989,7 @@ Watch here: https://t.co/WItwKxkEc5 https://t.co/shxtYCQZiy</div>
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T16:55:32+00:00">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -3913,6 +4012,7 @@ Watch here: https://t.co/WItwKxkEc5 https://t.co/shxtYCQZiy</div>
                     <span class="dot">·</span>
                     <span class="score">相关度 82%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T23:54:28+00:00">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -3935,6 +4035,7 @@ Watch here: https://t.co/WItwKxkEc5 https://t.co/shxtYCQZiy</div>
                     <span class="dot">·</span>
                     <span class="score">相关度 65%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T14:27:21+00:00">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -3957,6 +4058,7 @@ Watch here: https://t.co/WItwKxkEc5 https://t.co/shxtYCQZiy</div>
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★☆</span>
+                    <span class="pub-date" data-iso="2026-05-14T02:04:51+00:00">2026-05-14</span>
                 </div>
             </td>
         </tr>
@@ -3979,6 +4081,7 @@ Watch here: https://t.co/WItwKxkEc5 https://t.co/shxtYCQZiy</div>
                     <span class="dot">·</span>
                     <span class="score">相关度 78%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★☆</span>
+                    <span class="pub-date" data-iso="2026-05-13T18:39:10+00:00">2026-05-13</span>
                 </div>
             </td>
         </tr>
@@ -4001,6 +4104,7 @@ Watch here: https://t.co/WItwKxkEc5 https://t.co/shxtYCQZiy</div>
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★☆</span>
+                    <span class="pub-date" data-iso="2026-05-13T14:18:37+00:00">2026-05-13</span>
                 </div>
             </td>
         </tr>
@@ -4025,6 +4129,7 @@ Our engineers have teamed up to explore how to create the training pipeline that
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★☆</span>
+                    <span class="pub-date" data-iso="2026-05-13T13:05:01+00:00">2026-05-13</span>
                 </div>
             </td>
         </tr>
@@ -4051,6 +4156,7 @@ I.e., one can use it during most of training, switch back to vanilla attention n
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★☆</span>
+                    <span class="pub-date" data-iso="2026-05-13T12:47:08+00:00">2026-05-13</span>
                 </div>
             </td>
         </tr>
@@ -4081,6 +4187,7 @@ We’re early in companies figuring out how to leverage this successfully.</div>
                     <span class="dot">·</span>
                     <span class="score">相关度 72%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★☆</span>
+                    <span class="pub-date" data-iso="2026-05-12T16:07:32+00:00">2026-05-12</span>
                 </div>
             </td>
         </tr>
@@ -4111,6 +4218,7 @@ Onwards to the next million 🚀 https://t.co/PV6knP3XlJ</div>
                     <span class="dot">·</span>
                     <span class="score">相关度 78%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★☆</span>
+                    <span class="pub-date" data-iso="2026-05-12T15:26:10+00:00">2026-05-12</span>
                 </div>
             </td>
         </tr>
@@ -4137,6 +4245,7 @@ Congrats on the release @thinkymachines</div>
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★☆</span>
+                    <span class="pub-date" data-iso="2026-05-11T22:54:41+00:00">2026-05-11</span>
                 </div>
             </td>
         </tr>
@@ -4163,6 +4272,7 @@ Btw, are there any major architectures I missed below? https://t.co/HEhXUjxaDY</
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★☆</span>
+                    <span class="pub-date" data-iso="2026-05-10T15:30:31+00:00">2026-05-10</span>
                 </div>
             </td>
         </tr>
@@ -4227,6 +4337,7 @@ Using billed costs from requests in the switcher cohort, we calculated the</div>
                     <span class="dot">·</span>
                     <span class="score">相关度 72%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★☆</span>
+                    <span class="pub-date" data-iso="2026-05-09T19:07:42.965279Z">2026-05-09</span>
                 </div>
             </td>
         </tr>
@@ -4250,6 +4361,7 @@ Using billed costs from requests in the switcher cohort, we calculated the</div>
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★☆</span>
+                    <span class="pub-date" data-iso="2026-05-09T19:07:42.965233Z">2026-05-09</span>
                 </div>
             </td>
         </tr>
@@ -4280,6 +4392,7 @@ paper: https://t.co/wO3yzw0c2o https://t.co/VmxJh8qfl0</div>
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★☆</span>
+                    <span class="pub-date" data-iso="2026-05-09T18:19:11+00:00">2026-05-09</span>
                 </div>
             </td>
         </tr>
@@ -4323,6 +4436,7 @@ However, it is possible to do principled alignment training that generalizes OOD
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★☆</span>
+                    <span class="pub-date" data-iso="2026-05-09T17:07:42.928698Z">2026-05-09</span>
                 </div>
             </td>
         </tr>
@@ -4375,6 +4489,7 @@ I would go so far as to say that there is almost no set of information that Clau
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★☆</span>
+                    <span class="pub-date" data-iso="2026-05-09T15:07:42.730103Z">2026-05-09</span>
                 </div>
             </td>
         </tr>
@@ -4404,10 +4519,11 @@ I decided to try something a lit</div>
                     <span class="source-cat" style="color:#ea580c">Hacker News</span>
                     <span class="source">Hacker News</span>
                     <span class="dot">·</span>
-                    <span class="time">9 天前</span>
+                    <span class="time" data-iso="2026-05-09T11:07:42.737868Z">9 天前</span>
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★★☆</span>
+                    <span class="pub-date" data-iso="2026-05-09T11:07:42.737868Z">2026-05-09</span>
                 </div>
             </td>
         </tr>
@@ -4430,6 +4546,7 @@ I decided to try something a lit</div>
                     <span class="dot">·</span>
                     <span class="score">相关度 82%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T17:00:11Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -4448,10 +4565,11 @@ I decided to try something a lit</div>
                     <span class="source-cat" style="color:#4f46e5">Newsletter</span>
                     <span class="source">Ahead of AI</span>
                     <span class="dot">·</span>
-                    <span class="time">2 天前</span>
+                    <span class="time" data-iso="2026-05-16T11:33:51Z">2 天前</span>
                     <span class="dot">·</span>
                     <span class="score">相关度 90%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T11:33:51Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -4474,6 +4592,7 @@ I decided to try something a lit</div>
                     <span class="dot">·</span>
                     <span class="score">相关度 82%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-12T15:54:47Z">2026-05-12</span>
                 </div>
             </td>
         </tr>
@@ -4515,6 +4634,7 @@ Oncology is one of the most information-dense and cognitively demanding domains 
                     <span class="dot">·</span>
                     <span class="score">相关度 78%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★★☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-09T18:09:28Z">2026-05-09</span>
                 </div>
             </td>
         </tr>
@@ -6101,6 +6221,7 @@ Abstract: Reinforcement learning (RL) is increasingly used to improve the reason
                     <span class="dot">·</span>
                     <span class="score">相关度 90%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -6124,6 +6245,7 @@ Abstract: Mixture-of-Experts (MoE) models rely on balanced expert utilization to
                     <span class="dot">·</span>
                     <span class="score">相关度 88%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -6147,6 +6269,7 @@ Abstract: Safety alignment often improves robustness to harmful queries at the c
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -6170,6 +6293,7 @@ Abstract: Multi-head Latent Attention (MLA), the attention used in DeepSeek-V2/V
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -6193,6 +6317,7 @@ Abstract: Hyperparameter transfer across model architectures dramatically reduce
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -6216,6 +6341,7 @@ Abstract: Clinical decision support systems (CDSS) require scrutable, auditable 
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -6239,6 +6365,7 @@ Abstract: We examine one particular dimension of AI governance: how to monitor a
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -6262,6 +6389,7 @@ Abstract: Evaluation leaderboards such as LMArena play a central role in benchma
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -6285,6 +6413,7 @@ Abstract: Large vision-language models have significantly advanced GUI agents, e
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -6308,6 +6437,7 @@ Abstract: Recent advances in Large Language Models (LLMs) have catalyzed the dev
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -6331,6 +6461,7 @@ Abstract: Toward recursive self-improvement, we investigate LLM agents autonomou
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -6354,6 +6485,7 @@ Abstract: Reinforcement learning with verifiable rewards (RLVR) has emerged as a
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -6377,6 +6509,7 @@ Abstract: Deploying large language model (LLM)-driven conversational agents in e
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -6400,6 +6533,7 @@ Abstract: Modern RL post-training methods such as GRPO and DAPO train on $N$ res
                     <span class="dot">·</span>
                     <span class="score">相关度 82%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -6423,6 +6557,7 @@ Abstract: Reinforcement learning (RL) allows vision-language-action (VLA) polici
                     <span class="dot">·</span>
                     <span class="score">相关度 82%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -6446,6 +6581,7 @@ Abstract: For a fixed flow-based generative model under a small inference budget
                     <span class="dot">·</span>
                     <span class="score">相关度 82%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -6469,6 +6605,7 @@ Abstract: Why does a Transformer that has memorized its training set wait thousa
                     <span class="dot">·</span>
                     <span class="score">相关度 82%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -6492,6 +6629,7 @@ Abstract: Computer-Using Agents (CUAs) are rapidly extending large language mode
                     <span class="dot">·</span>
                     <span class="score">相关度 82%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -6515,6 +6653,7 @@ Abstract: Data selection seeks to identify a compact yet informative subset from
                     <span class="dot">·</span>
                     <span class="score">相关度 82%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -6538,6 +6677,7 @@ Abstract: Large language models deliver strong performance across language and r
                     <span class="dot">·</span>
                     <span class="score">相关度 82%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -6561,6 +6701,7 @@ Abstract: GUI agents powered by Multimodal Large Language Models (MLLMs) have de
                     <span class="dot">·</span>
                     <span class="score">相关度 82%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -6584,6 +6725,7 @@ Abstract: Parallel reasoning, where a generator samples many candidate solutions
                     <span class="dot">·</span>
                     <span class="score">相关度 82%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -6607,6 +6749,7 @@ Abstract: In enterprise operations, the context required for an AI agent task is
                     <span class="dot">·</span>
                     <span class="score">相关度 82%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -6630,6 +6773,7 @@ Abstract: Multi-agent LLM systems have shown promise for complex reasoning, yet 
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -6653,6 +6797,7 @@ Abstract: Memory plays a central role in enabling large language models (LLMs) t
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -6676,6 +6821,7 @@ Abstract: As large language models (LLMs) are increasingly deployed to perform t
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -6700,6 +6846,7 @@ Abstract: In GFlowNets and variational inference, it has been shown that the mea
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -6723,6 +6870,7 @@ Abstract: Always-on AI applications, from environmental sensors to biomedical im
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -6746,6 +6894,7 @@ Abstract: Vision-language-action models have advanced rapidly, but robot traject
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -6769,6 +6918,7 @@ Abstract: We ask whether agentic AI systems built for software engineering trans
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -6792,6 +6942,7 @@ Abstract: Can LLM agents improve decision-making through self-generated memory w
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -6815,6 +6966,7 @@ Abstract: Multimodal alignment is commonly learned from isolated image-text pair
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -6838,6 +6990,7 @@ Abstract: We study event-graph substrates: a class of world models that represen
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -6861,6 +7014,7 @@ Abstract: Influence functions approximate how removing a training example change
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -6884,6 +7038,7 @@ Abstract: As AI systems are increasingly deployed in autonomous agentic settings
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -6907,6 +7062,7 @@ Abstract: Modern quantitative trading increasingly relies on systematic models t
                     <span class="dot">·</span>
                     <span class="score">相关度 78%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -6931,6 +7087,7 @@ Abstract: When researchers ask whether two transformer layers are &amp;#34;equiv
                     <span class="dot">·</span>
                     <span class="score">相关度 78%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -6955,6 +7112,7 @@ Abstract: Large language models are increasingly used for code generation, but m
                     <span class="dot">·</span>
                     <span class="score">相关度 78%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -6978,6 +7136,7 @@ Abstract: Deploying compound LLM agents in adversarial, partially observable seq
                     <span class="dot">·</span>
                     <span class="score">相关度 78%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -7001,6 +7160,7 @@ Abstract: LLMs have shown impressive success in program synthesis, discovering p
                     <span class="dot">·</span>
                     <span class="score">相关度 78%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -7024,6 +7184,7 @@ Abstract: Transformer models are rapidly becoming a cornerstone of modern Intern
                     <span class="dot">·</span>
                     <span class="score">相关度 78%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -7047,6 +7208,7 @@ Abstract: This position paper argues for metacognition as a general design princ
                     <span class="dot">·</span>
                     <span class="score">相关度 78%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -7070,6 +7232,7 @@ Abstract: Modern language models often need to optimize a primary accuracy objec
                     <span class="dot">·</span>
                     <span class="score">相关度 78%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -7094,6 +7257,7 @@ Abstract: Autonomous agents powered by large language models (LLMs) are increasi
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -7117,6 +7281,7 @@ Abstract: Large Language Models are routinely compressed via post-training quant
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -7140,6 +7305,7 @@ Abstract: Chain-of-thought (CoT) monitoring is one of the most promising tools w
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -7163,6 +7329,7 @@ Abstract: Joint-embedding predictive architectures (JEPAs) propose that a model 
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -7186,6 +7353,7 @@ Abstract: Despite the remarkable success of transformer architectures in natural
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -7209,6 +7377,7 @@ Abstract: LLM-driven program evolution has emerged as a powerful tool for automa
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -7232,6 +7401,7 @@ Abstract: We present PanoWorld, a panoramic video world model that generates geo
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -7255,6 +7425,7 @@ Abstract: Data mixing decides how to combine different sources or types of data 
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -7278,6 +7449,7 @@ Abstract: Sharpness-aware minimization (SAM) encourages flat minima by perturbin
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -7301,6 +7473,7 @@ Abstract: Accelerating applications through the design of hardware accelerators 
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -7324,6 +7497,7 @@ Abstract: We introduce Agent4POI, the first POI recommendation framework that ge
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -7347,6 +7521,7 @@ Abstract: Parameter-efficient fine-tuning (PEFT) has emerged as an critical tech
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -7371,6 +7546,7 @@ Abstract: Robust aggregation is the core operation in Byzantine-tolerant federat
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -7394,6 +7570,7 @@ Abstract: Manufacturable chip layouts must satisfy thousands of geometry-based d
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -7417,6 +7594,7 @@ Abstract: Developing effective surrogates (performance predictors) for Neural Ar
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -7440,6 +7618,7 @@ Abstract: Zeroth-order (ZO) optimization, learning from finite differences of fu
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -7463,6 +7642,7 @@ Abstract: Training large-scale deep neural networks (DNNs) is resource-intensive
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -7486,6 +7666,7 @@ Abstract: Jung et al. (2025) introduce a hypothesis testing framework for guaran
                     <span class="dot">·</span>
                     <span class="score">相关度 72%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -7510,6 +7691,7 @@ Abstract: LLM-based root cause analysis (RCA) agents have recently emerged as a 
                     <span class="dot">·</span>
                     <span class="score">相关度 72%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -7547,6 +7729,7 @@ Abstract: Existing code benchmarks measure whether an agent can produce any test
                     <span class="dot">·</span>
                     <span class="score">相关度 71%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -7570,6 +7753,7 @@ Abstract: Flow matching trains a neural velocity field by regression against a t
                     <span class="dot">·</span>
                     <span class="score">相关度 70%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -7593,6 +7777,7 @@ Abstract: Neural architecture search (NAS) is a powerful approach for automating
                     <span class="dot">·</span>
                     <span class="score">相关度 70%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -7616,6 +7801,7 @@ Abstract: AlphaEvolve and FunSearch have demonstrated the potential of combining
                     <span class="dot">·</span>
                     <span class="score">相关度 70%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -7639,6 +7825,7 @@ Abstract: In this paper, we present CT-AGD (Curvature-Tuned Accelerated Gradient
                     <span class="dot">·</span>
                     <span class="score">相关度 70%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-18T04:00:00Z">2026-05-18</span>
                 </div>
             </td>
         </tr>
@@ -7662,6 +7849,7 @@ Abstract: Chain-of-Thought (CoT) reasoning has become a foundation for eliciting
                     <span class="dot">·</span>
                     <span class="score">相关度 95%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -7685,6 +7873,7 @@ Abstract: Mixture-of-Experts (MoE) architectures enhance the efficiency of large
                     <span class="dot">·</span>
                     <span class="score">相关度 92%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -7708,6 +7897,7 @@ Abstract: While synthetic data generation with large language models (LLMs) is w
                     <span class="dot">·</span>
                     <span class="score">相关度 90%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -7731,6 +7921,7 @@ Abstract: Multi-step LLM reasoning over structured tables fails because planning
                     <span class="dot">·</span>
                     <span class="score">相关度 90%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -7754,6 +7945,7 @@ Abstract: Hallucination detection in large language models (LLMs) requires balan
                     <span class="dot">·</span>
                     <span class="score">相关度 90%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -7777,6 +7969,7 @@ Abstract: Large Language Models (LLMs) have demonstrated remarkable abilities in
                     <span class="dot">·</span>
                     <span class="score">相关度 90%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -7800,6 +7993,7 @@ Abstract: Agentic modeling aims to transform LLMs into autonomous agents capable
                     <span class="dot">·</span>
                     <span class="score">相关度 90%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -7823,6 +8017,7 @@ Abstract: Mixture-of-Experts (MoE) models scale neural networks by conditionally
                     <span class="dot">·</span>
                     <span class="score">相关度 90%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -7846,6 +8041,7 @@ Abstract: LLM quantization has become essential for memory-efficient deployment.
                     <span class="dot">·</span>
                     <span class="score">相关度 90%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -7869,6 +8065,7 @@ Abstract: Agentic LLM frameworks that rely on prompted orchestration, where the 
                     <span class="dot">·</span>
                     <span class="score">相关度 88%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -7892,6 +8089,7 @@ Abstract: Negotiation is a central mechanism of economic exchange, shaping marke
                     <span class="dot">·</span>
                     <span class="score">相关度 88%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -7915,6 +8113,7 @@ Abstract: Speculative Decoding promises to accelerate the inference of Large Lan
                     <span class="dot">·</span>
                     <span class="score">相关度 88%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -7938,6 +8137,7 @@ Abstract: Maximizing performance on available GPU hardware is an ongoing challen
                     <span class="dot">·</span>
                     <span class="score">相关度 88%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -7961,6 +8161,7 @@ Abstract: KV cache compression promises increased throughput and efficiency with
                     <span class="dot">·</span>
                     <span class="score">相关度 88%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -7984,6 +8185,7 @@ Abstract: Scaling Scientific Machine Learning (SciML) toward universal foundatio
                     <span class="dot">·</span>
                     <span class="score">相关度 88%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -8008,6 +8210,7 @@ Abstract: We present Pelican-Unified 1.0, the first embodied foundation model tr
                     <span class="dot">·</span>
                     <span class="score">相关度 88%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -8031,6 +8234,7 @@ Abstract: Reinforcement learning (RL) has been effective for post-training autor
                     <span class="dot">·</span>
                     <span class="score">相关度 87%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -8054,6 +8258,7 @@ Abstract: Generative models are often trained with a next-token prediction objec
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -8077,6 +8282,7 @@ Abstract: In recent years, a variety of powerful LLM-based agentic systems have 
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -8100,6 +8306,7 @@ Abstract: Deploying AI agents for repetitive periodic tasks exposes a critical t
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -8123,6 +8330,7 @@ Abstract: Large language models (LLMs) have become a strong foundation for multi
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -8146,6 +8354,7 @@ Abstract: Large Language Models (LLMs) are increasingly deployed for knowledge s
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -8185,6 +8394,7 @@ Abstract: The Context-Compliance Regime in Retrieval-Augmented Generation (RAG) 
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -8208,6 +8418,7 @@ Abstract: &amp;#34;Oh-Oh, yes, I&amp;#39;m the great pretender. Pretending that 
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -8231,6 +8442,7 @@ Abstract: We present Darwin Family, a framework for training-free evolutionary m
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -8254,6 +8466,7 @@ Abstract: Continuous diffusion language models lag behind autoregressive transfo
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -8277,6 +8490,7 @@ Abstract: Long-horizon personalization requires dialogue assistants to retrieve 
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -8300,6 +8514,7 @@ Abstract: Code agents must both reason over long-horizon repository state and ob
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -8323,6 +8538,7 @@ Abstract: State space models (SSMs) like Mamba offer efficient alternatives to T
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -8346,6 +8562,7 @@ Abstract: Retrieval-Augmented Generation can improve factuality by grounding ans
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -8369,6 +8586,7 @@ Abstract: Tool use extends large language models beyond parametric knowledge, bu
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -8392,6 +8610,7 @@ Abstract: Direct Preference Optimization (DPO) is a widely used RL-free method f
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -8415,6 +8634,7 @@ Abstract: Omni-modal language models are intended to jointly understand audio, v
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -8438,6 +8658,7 @@ Abstract: Diffusion-based Large Language Models (D-LLMs) represent a promising f
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -8461,6 +8682,7 @@ Abstract: Multimodal large language models (MLLMs) achieve ever-stronger perform
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -8484,6 +8706,7 @@ Abstract: Transformers are highly parallel but are limited to computations in th
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -8507,6 +8730,7 @@ Abstract: Large Reasoning Models (LRMs) achieve impressive performance on comple
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -8530,6 +8754,7 @@ Abstract: Machine unlearning for large language models often faces a privacy dil
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -8553,6 +8778,7 @@ Abstract: Reinforcement Learning with Verifiable Rewards (RLVR) has emerged as a
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -8577,6 +8803,7 @@ Abstract: Research in AI4Science has shown promise in many science applications,
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -8600,6 +8827,7 @@ Abstract: Large Language Models (LLMs) are widely applied in real world scenario
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -8623,6 +8851,7 @@ Abstract: Continual Visual Instruction Tuning (CVIT) enables Multimodal Large La
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -8646,6 +8875,7 @@ Abstract: The evolution of Large Language Model (LLM) agents towards System~2 re
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -8669,6 +8899,7 @@ Abstract: Large reasoning models enhanced by reinforcement learning with verifia
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -8692,6 +8923,7 @@ Abstract: The rapid integration of Large Language Models (LLMs) into high-stakes
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -8715,6 +8947,7 @@ Abstract: Interactive agent benchmarks face a tension between scalable construct
                     <span class="dot">·</span>
                     <span class="score">相关度 82%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -8739,6 +8972,7 @@ Abstract: We study learning when the learned object is executable solver code ra
                     <span class="dot">·</span>
                     <span class="score">相关度 82%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -8762,6 +8996,7 @@ Abstract: Can a committee of weak reasoning-model calls reach the performance of
                     <span class="dot">·</span>
                     <span class="score">相关度 82%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -8785,6 +9020,7 @@ Abstract: The key problem facing ChatGPT-like AI&amp;#39;s use across society is
                     <span class="dot">·</span>
                     <span class="score">相关度 82%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -8808,6 +9044,7 @@ Abstract: Omni-modal large language models have demonstrated remarkable potentia
                     <span class="dot">·</span>
                     <span class="score">相关度 82%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -8831,6 +9068,7 @@ Abstract: Diffusion-based video generation has advanced substantially in visual 
                     <span class="dot">·</span>
                     <span class="score">相关度 82%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -8854,6 +9092,7 @@ Abstract: AI agents execute complex multi-step processes, but current evaluation
                     <span class="dot">·</span>
                     <span class="score">相关度 82%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -8877,6 +9116,7 @@ Abstract: Recent GPU generations deliver significantly higher FLOPs using lower-
                     <span class="dot">·</span>
                     <span class="score">相关度 82%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -8900,6 +9140,7 @@ Abstract: Activation steering controls language model behavior by adding directi
                     <span class="dot">·</span>
                     <span class="score">相关度 82%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -8923,6 +9164,7 @@ Abstract: Autoregressive video generation paradigms offer theoretical promise fo
                     <span class="dot">·</span>
                     <span class="score">相关度 82%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -8946,6 +9188,7 @@ Abstract: Diffusion-based generative models have reformed generative AI, and als
                     <span class="dot">·</span>
                     <span class="score">相关度 82%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -8969,6 +9212,7 @@ Abstract: Recent works show that image and video generators exhibit zero-shot vi
                     <span class="dot">·</span>
                     <span class="score">相关度 82%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -8992,6 +9236,7 @@ Abstract: Generative Retrieval (GR) has emerged as a promising paradigm for mode
                     <span class="dot">·</span>
                     <span class="score">相关度 82%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -9015,6 +9260,7 @@ Abstract: Generating music that temporally aligns with video events is challengi
                     <span class="dot">·</span>
                     <span class="score">相关度 82%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -9038,6 +9284,7 @@ Abstract: Self-attention in Transformers relies on globally normalized softmax w
                     <span class="dot">·</span>
                     <span class="score">相关度 82%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -9061,6 +9308,7 @@ Abstract: Speech brain-computer interfaces (BCIs) aim to restore communication f
                     <span class="dot">·</span>
                     <span class="score">相关度 82%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -9084,6 +9332,7 @@ Abstract: Due to the scarcity of high-quality data, large language models (LLMs)
                     <span class="dot">·</span>
                     <span class="score">相关度 82%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -9107,6 +9356,7 @@ Abstract: In many real-world settings, machine learning models and interactive s
                     <span class="dot">·</span>
                     <span class="score">相关度 82%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -9130,6 +9380,7 @@ Abstract: Generative artificial intelligence (AI) facilitates content production
                     <span class="dot">·</span>
                     <span class="score">相关度 82%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -9153,6 +9404,7 @@ Abstract: Real-world dialogue usually unfolds as an infinite stream. It thus req
                     <span class="dot">·</span>
                     <span class="score">相关度 82%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -9176,6 +9428,7 @@ Abstract: Reasoning Large Language Models (LLMs) enable test-time scaling, with 
                     <span class="dot">·</span>
                     <span class="score">相关度 82%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -9199,6 +9452,7 @@ Abstract: In recent years, agentic workflows have been widely applied to solve c
                     <span class="dot">·</span>
                     <span class="score">相关度 82%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -9222,6 +9476,7 @@ Abstract: Large language model (LLM) based multi-turn dialogue systems often str
                     <span class="dot">·</span>
                     <span class="score">相关度 82%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -9245,6 +9500,7 @@ Abstract: Achieving robust perception-reasoning synergy is a central goal for ad
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -9268,6 +9524,7 @@ Abstract: The primary way to establish and compare competencies in foundation an
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -9291,6 +9548,7 @@ Abstract: Applying Large Language Models (LLMs) to heterogeneous enterprise syst
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -9314,6 +9572,7 @@ Abstract: We introduce \textsc{Cattle Trade, a multi-agent benchmark for evaluat
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -9337,6 +9596,7 @@ Abstract: Large language models (LLMs) often fail to reason under temporal cutof
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -9360,6 +9620,7 @@ Abstract: Prompt engineering has become central to eliciting the capabilities of
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -9383,6 +9644,7 @@ Abstract: Context window efficiency is a practical constraint in large language 
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -9406,6 +9668,7 @@ Abstract: Retrieval-Augmented Generation (RAG) has become a powerful and widely 
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -9432,6 +9695,7 @@ Abstract: Exploitation is not a binary event. It is a ladder of acquiring progre
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -9455,6 +9719,7 @@ Abstract: Test-time compute scaling is a primary axis for improving LLM reasonin
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -9478,6 +9743,7 @@ Abstract: LLM-based autonomous agents have demonstrated strong capabilities in r
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -9501,6 +9767,7 @@ Abstract: LLM-as-a-Judge has become a dominant approach in automated evaluation 
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -9524,6 +9791,7 @@ Abstract: Large language models (LLMs) often produce confident yet incorrect ans
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -9547,6 +9815,7 @@ Abstract: Generating clinical reports that summarize abnormal patterns, diagnost
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -9570,6 +9839,7 @@ Abstract: The path to higher network autonomy in 6G lies beyond the mere optimiz
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -9593,6 +9863,7 @@ Abstract: Hallucination remains a major challenge for the safe and trustworthy d
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -9616,6 +9887,7 @@ Abstract: Agents powered by advanced large language models (LLMs) have demonstra
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -9639,6 +9911,7 @@ Abstract: Outcome-only evaluation under-specifies whether an evaluated agent pro
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -9662,6 +9935,7 @@ Abstract: Large multimodal model-based Multi-Agent Systems (MASs) enable collabo
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -9686,6 +9960,7 @@ Abstract: Large language models (LLMs) achieve strong performance in long-horizo
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -9709,6 +9984,7 @@ Abstract: Multi-shot video generation extends single-shot generation to coherent
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -9732,6 +10008,7 @@ Abstract: Reinforcement learning (RL) has emerged as a central paradigm for post
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -9758,6 +10035,7 @@ Abstract: Continually pre-training a large language model on heterogeneous text 
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -9781,6 +10059,7 @@ Abstract: Reinforcement Learning with Verifiable Rewards (RLVR) has achieved gre
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -9804,6 +10083,7 @@ Abstract: Agent memory is typically constructed either offline from curated demo
                     <span class="dot">·</span>
                     <span class="score">相关度 78%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -9827,6 +10107,7 @@ Abstract: In long conversations, an LLM can produce a next utterance that sounds
                     <span class="dot">·</span>
                     <span class="score">相关度 78%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -9850,6 +10131,7 @@ Abstract: LLM-based web agents can navigate live storefronts, yet they often col
                     <span class="dot">·</span>
                     <span class="score">相关度 78%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -9873,6 +10155,7 @@ Abstract: Automatic multi-agent systems aim to instantiate agent workflows witho
                     <span class="dot">·</span>
                     <span class="score">相关度 78%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -9896,6 +10179,7 @@ Abstract: We pursue a vision for self-improving language models in which the mod
                     <span class="dot">·</span>
                     <span class="score">相关度 78%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -9919,6 +10203,7 @@ Abstract: Holistic evaluation scores capture overall output quality but do not d
                     <span class="dot">·</span>
                     <span class="score">相关度 78%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -9942,6 +10227,7 @@ Abstract: Diffusion Transformers (DiTs) and related flow-based architectures are
                     <span class="dot">·</span>
                     <span class="score">相关度 78%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -9965,6 +10251,7 @@ Abstract: Autonomous multi-agent systems based on large language models (LLMs) h
                     <span class="dot">·</span>
                     <span class="score">相关度 78%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -9990,6 +10277,7 @@ Abstract: GraphFlow is a visual workflow system designed to improve the reliabil
                     <span class="dot">·</span>
                     <span class="score">相关度 78%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -10013,6 +10301,7 @@ Abstract: Large language models often suffer from fact loss, timeline confusion,
                     <span class="dot">·</span>
                     <span class="score">相关度 78%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -10037,6 +10326,7 @@ Abstract: Code generation has emerged as one of AI&amp;#39;s highest-impact use 
                     <span class="dot">·</span>
                     <span class="score">相关度 78%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -10060,6 +10350,7 @@ Abstract: Recent advances in multimodal large language models (LLMs) have enable
                     <span class="dot">·</span>
                     <span class="score">相关度 78%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -10083,6 +10374,7 @@ Abstract: Autoregressive large language models (LLMs) have achieved remarkable i
                     <span class="dot">·</span>
                     <span class="score">相关度 78%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -10106,6 +10398,7 @@ Abstract: Humans learn by observing, interacting with environments, and internal
                     <span class="dot">·</span>
                     <span class="score">相关度 78%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -10129,6 +10422,7 @@ Abstract: Visual reasoning, often interleaved with intermediate visual states, h
                     <span class="dot">·</span>
                     <span class="score">相关度 78%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -10152,6 +10446,7 @@ Abstract: The development of high-quality text embeddings is increasingly drifti
                     <span class="dot">·</span>
                     <span class="score">相关度 78%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -10175,6 +10470,7 @@ Abstract: Shapley value and its priority-aware extensions are widely used for va
                     <span class="dot">·</span>
                     <span class="score">相关度 78%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -10198,6 +10494,7 @@ Abstract: Wide applications of LLM-based agents require strong alignment with hu
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -10221,6 +10518,7 @@ Abstract: Large language models (LLMs) increasingly act as autonomous agents tha
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -10244,6 +10542,7 @@ Abstract: Industrial LLM agent systems often separate planning from execution, y
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -10267,6 +10566,7 @@ Abstract: Large Language Models (LLMs) augmented with Retrieval-Augmented Genera
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -10290,6 +10590,7 @@ Abstract: Long-horizon household tasks demand robust high-level planning and sus
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -10313,6 +10614,7 @@ Abstract: A skilled live-commerce host is not merely a narrator, but a sales age
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -10336,6 +10638,7 @@ Abstract: Multi-run chain-of-thought reasoning is usually collapsed to final-ans
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -10359,6 +10662,7 @@ Abstract: The rise of personal assistant agents, e.g., OpenClaw, highlights the 
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -10382,6 +10686,7 @@ Abstract: Inpatient medication recommendation requires clinicians to repeatedly 
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -10405,6 +10710,7 @@ Abstract: Coding agents powered by large language models are increasingly expect
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -10428,6 +10734,7 @@ Abstract: Memory-augmented LLM agents have advanced personalized recommendation,
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -10451,6 +10758,7 @@ Abstract: Generating realistic human motion is a central yet unsolved challenge 
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -10475,6 +10783,7 @@ Abstract: Safety evaluations for large language models (LLMs) increasingly targe
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -10498,6 +10807,7 @@ Abstract: Parameter-Efficient Fine-Tuning (PEFT) is widely used for adapting Lar
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -10521,6 +10831,7 @@ Abstract: Generative AI increasingly supports educational design tasks, e.g., th
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -10544,6 +10855,7 @@ Abstract: Harmonized System (HS) tariff classification is a high-stakes, expert-
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -10567,6 +10879,7 @@ Abstract: LLM-based multi-agent systems are increasingly deployed on long-horizo
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -10590,6 +10903,7 @@ Abstract: Training foundation models is computationally intensive and often slow
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -10613,6 +10927,7 @@ Abstract: Claw-style environments support multi-step workflows over local files,
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -10636,6 +10951,7 @@ Abstract: Recent advances in large-scale video world models have enabled increas
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -10659,6 +10975,7 @@ Abstract: Recent work has made clear that the residual pathway is not mere optim
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -10682,6 +10999,7 @@ Abstract: Adapting pretrained multi-modal models to evolving test-time distribut
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -10705,6 +11023,7 @@ Abstract: We investigate the capabilities and scalability of Large Language Mode
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -10728,6 +11047,7 @@ Abstract: Large language models (LLMs) increasingly operate in social contexts, 
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -10751,6 +11071,7 @@ Abstract: Pretrained vision foundation models (VFMs) advance robotic learning vi
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -10774,6 +11095,7 @@ Abstract: Existing alignment research is dominated by concerns about safety and 
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -10797,6 +11119,7 @@ Abstract: Teaching language models to use search tools is not only a question of
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -10820,6 +11143,7 @@ Abstract: Workspace learning requires AI agents to identify, reason over, exploi
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -10843,6 +11167,7 @@ Abstract: Logical reasoning encompasses deduction, induction, and abduction. How
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -10866,6 +11191,7 @@ Abstract: Reinforcement-learned reasoning has powered recent AI leaps on verifia
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -10889,6 +11215,7 @@ Abstract: We propose a minimal agentic baseline that enables systematic comparis
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -10912,6 +11239,7 @@ Abstract: Although recent tool-augmented benchmarks involve complex requests, ev
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -10935,6 +11263,7 @@ Abstract: Geometry problem solving (GPS) poses significant challenges for Multim
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -10958,6 +11287,7 @@ Abstract: Generative video models are increasingly studied as implicit world mod
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -10981,6 +11311,7 @@ Abstract: We propose EverAnimate, an efficient post-training method for long-hor
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -11004,6 +11335,7 @@ Abstract: As large language models empower healthcare, intelligent clinical deci
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -11027,6 +11359,7 @@ Abstract: A fundamental limitation of Text-to-Code is that no guarantee can be o
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -11050,6 +11383,7 @@ Abstract: Generative modeling has emerged as a promising approach for crystal st
                     <span class="dot">·</span>
                     <span class="score">相关度 72%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -11073,6 +11407,7 @@ Abstract: Current Large Language Models (LLMs) typically rely on coarse-grained 
                     <span class="dot">·</span>
                     <span class="score">相关度 72%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -11096,6 +11431,7 @@ Abstract: An AI system for professional floor plan design must precisely control
                     <span class="dot">·</span>
                     <span class="score">相关度 72%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -11119,6 +11455,7 @@ Abstract: The application of Large Language Models to Question Answering has sho
                     <span class="dot">·</span>
                     <span class="score">相关度 72%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -11142,6 +11479,7 @@ Abstract: Current language model systems remain fundamentally stateless across s
                     <span class="dot">·</span>
                     <span class="score">相关度 72%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -11165,6 +11503,7 @@ Abstract: We introduce Evolutionary Ensemble (EvE), a decentralized framework th
                     <span class="dot">·</span>
                     <span class="score">相关度 72%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -11189,6 +11528,7 @@ Abstract: Existing frameworks for LLM-based agent architectures describe systems
                     <span class="dot">·</span>
                     <span class="score">相关度 70%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -11212,6 +11552,7 @@ Abstract: Legal reasoning is not semantic similarity search. A court judgment en
                     <span class="dot">·</span>
                     <span class="score">相关度 70%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -11235,6 +11576,7 @@ Abstract: Accurately predicting individual aesthetic evaluation for images is a 
                     <span class="dot">·</span>
                     <span class="score">相关度 70%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -11258,6 +11600,7 @@ Abstract: Autoregressive video diffusion models support real-time synthesis but 
                     <span class="dot">·</span>
                     <span class="score">相关度 70%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -11281,6 +11624,7 @@ Abstract: ReAct has become the default architecture across LLM agents, and many 
                     <span class="dot">·</span>
                     <span class="score">相关度 70%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -11304,6 +11648,7 @@ Abstract: Task planning for robotic manipulation with large language models (LLM
                     <span class="dot">·</span>
                     <span class="score">相关度 70%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -11327,6 +11672,7 @@ Abstract: Online OS tuning can improve long-running services, but existing contr
                     <span class="dot">·</span>
                     <span class="score">相关度 70%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-16T04:00:00Z">2026-05-16</span>
                 </div>
             </td>
         </tr>
@@ -11350,6 +11696,7 @@ Abstract: Large language models (LLMs) often expose useful signals of self-monit
                     <span class="dot">·</span>
                     <span class="score">相关度 90%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:00:00Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -11373,6 +11720,7 @@ Abstract: Tabular data underpins most high-value prediction problems in science 
                     <span class="dot">·</span>
                     <span class="score">相关度 90%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:00:00Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -11396,6 +11744,7 @@ Abstract: Recent advances in multimodal large language models have driven growin
                     <span class="dot">·</span>
                     <span class="score">相关度 90%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:00:00Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -11419,6 +11768,7 @@ Abstract: Spiking Neural Networks (SNNs) offer promising energy-efficient altern
                     <span class="dot">·</span>
                     <span class="score">相关度 90%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:00:00Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -11442,6 +11792,7 @@ Abstract: Speculative decoding has become a widely adopted technique for acceler
                     <span class="dot">·</span>
                     <span class="score">相关度 88%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:00:00Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -11465,6 +11816,7 @@ Abstract: Quantization is essential for efficient large language model (LLM) inf
                     <span class="dot">·</span>
                     <span class="score">相关度 88%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:00:00Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -11488,6 +11840,7 @@ Abstract: The rapid evolution of Embodied AI has enabled Vision-Language-Action 
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:00:00Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -11511,6 +11864,7 @@ Abstract: Diffusion language models are a promising alternative to autoregressiv
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:00:00Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -11534,6 +11888,7 @@ Abstract: Recent frontier large language models predominantly rely on Mixture-of
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:00:00Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -11557,6 +11912,7 @@ Abstract: Large language models (LLMs) have revolutionized natural language proc
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:00:00Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -11581,6 +11937,7 @@ Abstract: Under modern test-time compute and agentic paradigms, language models 
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:00:00Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -11604,6 +11961,7 @@ Abstract: Large Reasoning Models (LRMs) are becoming integral to many AI inferen
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:00:00Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -11627,6 +11985,7 @@ Abstract: Accurate uncertainty quantification in large language models (LLMs) is
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:00:00Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -11650,6 +12009,7 @@ Abstract: Extending large language models (LLMs) to low-resource languages often
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:00:00Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -11673,6 +12033,7 @@ Abstract: Modern edge devices increasingly rely on neural networks for intellige
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:00:00Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -11696,6 +12057,7 @@ Abstract: Chain-of-thought (CoT) reasoning with self-consistency improves perfor
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:00:00Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -11719,6 +12081,7 @@ Abstract: We introduce CurveBench, a benchmark for hierarchical topological reas
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:00:00Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -11744,6 +12107,7 @@ Abstract: In current Large Language Models we can trust the production of smooth
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:00:00Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -11768,6 +12132,7 @@ Abstract: Reinforcement learning (RL) for large language models (LLMs) is domina
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:00:00Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -11791,6 +12156,7 @@ Abstract: Recent advancements in generative AI facilitate large-scale synthetic 
                     <span class="dot">·</span>
                     <span class="score">相关度 82%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:00:00Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -11814,6 +12180,7 @@ Abstract: We present EnergyLens, an end-to-end framework for energy-aware large 
                     <span class="dot">·</span>
                     <span class="score">相关度 82%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:00:00Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -11837,6 +12204,7 @@ Abstract: Zeroth-order optimization has emerged as a promising approach for fine
                     <span class="dot">·</span>
                     <span class="score">相关度 82%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:00:00Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -11860,6 +12228,7 @@ Abstract: Large language models (LLMs) are typically deployed with fixed paramet
                     <span class="dot">·</span>
                     <span class="score">相关度 82%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:00:00Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -11883,6 +12252,7 @@ Abstract: Large Reasoning Models (LRMs) are increasingly integrated into systems
                     <span class="dot">·</span>
                     <span class="score">相关度 82%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:00:00Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -11906,6 +12276,7 @@ Abstract: Long-term memory is essential for LLM agents that operate across multi
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:00:00Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -11929,6 +12300,7 @@ Abstract: Vector quantization is a fundamental tool for compressing high-dimensi
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:00:00Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -11953,6 +12325,7 @@ Abstract: We introduce Exemplar Partitioning (EP), an unsupervised method for co
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:00:00Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -11976,6 +12349,7 @@ Abstract: We investigate the temporal concatenation of sub-policies in Markov De
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:00:00Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -11999,6 +12373,7 @@ Abstract: Large language models are remarkably capable, yet how computation prop
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:00:00Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -12022,6 +12397,7 @@ Abstract: Tool-augmented LLM agents increasingly access the same tool type throu
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:00:00Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -12045,6 +12421,7 @@ Abstract: Large language models can now be personalised efficiently at scale usi
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:00:00Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -12068,6 +12445,7 @@ Abstract: Large language models (LLMs) achieve strong performance across a wide 
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:00:00Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -12091,6 +12469,7 @@ Abstract: Function calling, also known as tool use, is a core capability of mode
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:00:00Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -12115,6 +12494,7 @@ Abstract: The shift toward interacting with frozen, &amp;#34;black-box&amp;#34; 
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:00:00Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -12139,6 +12519,7 @@ Abstract: The recent success of large language models (LLMs) has been largely dr
                     <span class="dot">·</span>
                     <span class="score">相关度 78%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:00:00Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -12162,6 +12543,7 @@ Abstract: KV-cache compression at small budgets is a crowded design space spanni
                     <span class="dot">·</span>
                     <span class="score">相关度 78%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:00:00Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -12185,6 +12567,7 @@ Abstract: Pairwise Ranking Prompting (PRP) elicits pairwise preference judgments
                     <span class="dot">·</span>
                     <span class="score">相关度 78%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:00:00Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -12208,6 +12591,7 @@ Abstract: Modern LLM RL systems separate rollout generation from policy optimiza
                     <span class="dot">·</span>
                     <span class="score">相关度 78%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:00:00Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -12231,6 +12615,7 @@ Abstract: Sparse Mixture-of-Experts (MoE) layers route tokens through a handful 
                     <span class="dot">·</span>
                     <span class="score">相关度 78%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:00:00Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -12254,6 +12639,7 @@ Abstract: Video generation powers a vast array of downstream applications. Howev
                     <span class="dot">·</span>
                     <span class="score">相关度 78%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:00:00Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -12277,6 +12663,7 @@ Abstract: Pluralistic alignment is typically operationalised as preference aggre
                     <span class="dot">·</span>
                     <span class="score">相关度 78%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:00:00Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -12300,6 +12687,7 @@ Abstract: Training deep neural networks at scale can benefit from domain decompo
                     <span class="dot">·</span>
                     <span class="score">相关度 78%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:00:00Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -12323,6 +12711,7 @@ Abstract: As LLM-based agents increasingly browse the web on users&amp;#39; beha
                     <span class="dot">·</span>
                     <span class="score">相关度 78%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:00:00Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -12346,6 +12735,7 @@ Abstract: Model providers increasingly release open weights or allow users to fi
                     <span class="dot">·</span>
                     <span class="score">相关度 78%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:00:00Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -12369,6 +12759,7 @@ Abstract: Language models often generate long chain-of-thought traces, but it re
                     <span class="dot">·</span>
                     <span class="score">相关度 78%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:00:00Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -12392,6 +12783,7 @@ Abstract: Large Language Models (LLMs), when trained on web-scale corpora, inher
                     <span class="dot">·</span>
                     <span class="score">相关度 78%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:00:00Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -12415,6 +12807,7 @@ Abstract: We present a covariance-aware sampler that improves the quality of pix
                     <span class="dot">·</span>
                     <span class="score">相关度 78%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:00:00Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -12438,6 +12831,7 @@ Abstract: Fast Healthcare Interoperability Resources (FHIR) is the dominant stan
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:00:00Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -12461,6 +12855,7 @@ Abstract: The performance of an LLM depends heavily on the relevance of its trai
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:00:00Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -12484,6 +12879,7 @@ Abstract: Sepsis management in the ICU requires sequential treatment decisions u
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:00:00Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -12507,6 +12903,7 @@ Abstract: Machine unlearning in Vision-Language Models (VLMs) is typically perfo
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:00:00Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -12530,6 +12927,7 @@ Abstract: The rapid advancement of Large Vision-Language Models (LVLMs) is incre
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:00:00Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -12553,6 +12951,7 @@ Abstract: Diffusion models generate samples by denoising along the score of a pe
                     <span class="dot">·</span>
                     <span class="score">相关度 75%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:00:00Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -12576,6 +12975,7 @@ Abstract: Test-Time Scaling (TTS), which samples multiple candidate actions and 
                     <span class="dot">·</span>
                     <span class="score">相关度 72%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:00:00Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -12599,6 +12999,7 @@ Abstract: Mixture-of-Experts (MoE) models scale capacity by combining specialize
                     <span class="dot">·</span>
                     <span class="score">相关度 72%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:00:00Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -12622,6 +13023,7 @@ Abstract: The rise in deployment of large language models has driven a surge in 
                     <span class="dot">·</span>
                     <span class="score">相关度 72%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:00:00Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -12645,6 +13047,7 @@ Abstract: Federated Learning (FL) enables the utilization of vast, previously in
                     <span class="dot">·</span>
                     <span class="score">相关度 72%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:00:00Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -12668,6 +13071,7 @@ Abstract: Continual learning requires models to adapt to new data while preservi
                     <span class="dot">·</span>
                     <span class="score">相关度 70%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:00:00Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -12691,6 +13095,7 @@ Abstract: Geospatial foundation models compress multispectral observations into 
                     <span class="dot">·</span>
                     <span class="score">相关度 70%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:00:00Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -12714,6 +13119,7 @@ Abstract: Intervention is one of the most representative and widely used methods
                     <span class="dot">·</span>
                     <span class="score">相关度 70%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:00:00Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -12737,6 +13143,7 @@ Abstract: Large Language Models have demonstrated remarkable capabilities in gen
                     <span class="dot">·</span>
                     <span class="score">相关度 70%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-15T04:00:00Z">2026-05-15</span>
                 </div>
             </td>
         </tr>
@@ -12760,6 +13167,7 @@ Abstract: Recent progress in reasoning models has substantially advanced long-ho
                     <span class="dot">·</span>
                     <span class="score">相关度 92%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-14T04:00:00Z">2026-05-14</span>
                 </div>
             </td>
         </tr>
@@ -12783,6 +13191,7 @@ Abstract: Long-horizon LM agents learn from multi-turn interaction, where a sing
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-14T04:00:00Z">2026-05-14</span>
                 </div>
             </td>
         </tr>
@@ -12806,6 +13215,7 @@ Abstract: Multi-agent systems provide a powerful way to extend large language mo
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-14T04:00:00Z">2026-05-14</span>
                 </div>
             </td>
         </tr>
@@ -12829,6 +13239,7 @@ Abstract: Masked diffusion models (MDMs) have emerged as a promising alternative
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-14T04:00:00Z">2026-05-14</span>
                 </div>
             </td>
         </tr>
@@ -12852,6 +13263,7 @@ Abstract: Improving the inference efficiency of autoregressive transformers typi
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-14T04:00:00Z">2026-05-14</span>
                 </div>
             </td>
         </tr>
@@ -12875,6 +13287,7 @@ Abstract: Frontier LLMs are increasingly deployed as agents that pick the next a
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-14T04:00:00Z">2026-05-14</span>
                 </div>
             </td>
         </tr>
@@ -12898,6 +13311,7 @@ Abstract: Linear attention and state-space models offer constant-memory alternat
                     <span class="dot">·</span>
                     <span class="score">相关度 85%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-14T04:00:00Z">2026-05-14</span>
                 </div>
             </td>
         </tr>
@@ -12921,6 +13335,7 @@ Abstract: As language models scale, the amount of data they require grows -- yet
                     <span class="dot">·</span>
                     <span class="score">相关度 82%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-14T04:00:00Z">2026-05-14</span>
                 </div>
             </td>
         </tr>
@@ -12944,6 +13359,7 @@ Abstract: Enabling Large Language Models (LLMs) to continuously improve from env
                     <span class="dot">·</span>
                     <span class="score">相关度 82%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-14T04:00:00Z">2026-05-14</span>
                 </div>
             </td>
         </tr>
@@ -12967,6 +13383,7 @@ Abstract: Large Language Models memorize vast amounts of training data, raising 
                     <span class="dot">·</span>
                     <span class="score">相关度 82%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-14T04:00:00Z">2026-05-14</span>
                 </div>
             </td>
         </tr>
@@ -12990,6 +13407,7 @@ Abstract: We introduce WriteSAE, the first sparse autoencoder that decomposes an
                     <span class="dot">·</span>
                     <span class="score">相关度 82%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-14T04:00:00Z">2026-05-14</span>
                 </div>
             </td>
         </tr>
@@ -13013,6 +13431,7 @@ Abstract: We introduce Orthrus, a simple and efficient dual-architecture framewo
                     <span class="dot">·</span>
                     <span class="score">相关度 82%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-14T04:00:00Z">2026-05-14</span>
                 </div>
             </td>
         </tr>
@@ -13036,6 +13455,7 @@ Abstract: Model merging aims to combine multiple task-specific expert models int
                     <span class="dot">·</span>
                     <span class="score">相关度 82%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-14T04:00:00Z">2026-05-14</span>
                 </div>
             </td>
         </tr>
@@ -13059,6 +13479,7 @@ Abstract: Doubly-stochastic attention has emerged as a transport-based alternati
                     <span class="dot">·</span>
                     <span class="score">相关度 82%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-14T04:00:00Z">2026-05-14</span>
                 </div>
             </td>
         </tr>
@@ -13082,6 +13503,7 @@ Abstract: Supervised fine-tuning (SFT) data selection is commonly formulated as 
                     <span class="dot">·</span>
                     <span class="score">相关度 82%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-14T04:00:00Z">2026-05-14</span>
                 </div>
             </td>
         </tr>
@@ -13106,6 +13528,7 @@ Abstract: Do large language models internally encode ontological relations in a 
                     <span class="dot">·</span>
                     <span class="score">相关度 82%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-14T04:00:00Z">2026-05-14</span>
                 </div>
             </td>
         </tr>
@@ -13129,6 +13552,7 @@ Abstract: RLVR has become a widely adopted paradigm for improving LLMs&amp;#39; 
                     <span class="dot">·</span>
                     <span class="score">相关度 82%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-14T04:00:00Z">2026-05-14</span>
                 </div>
             </td>
         </tr>
@@ -13152,6 +13576,7 @@ Abstract: Agent benchmarks have become the de facto measure of frontier AI compe
                     <span class="dot">·</span>
                     <span class="score">相关度 82%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-14T04:00:00Z">2026-05-14</span>
                 </div>
             </td>
         </tr>
@@ -13175,6 +13600,7 @@ Abstract: Parameter-Efficient Fine-Tuning (PEFT), particularly Low-Rank Adaptati
                     <span class="dot">·</span>
                     <span class="score">相关度 82%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-14T04:00:00Z">2026-05-14</span>
                 </div>
             </td>
         </tr>
@@ -13198,6 +13624,7 @@ Abstract: Sparse Mixture-of-Experts (MoE) models offer a powerful way to scale m
                     <span class="dot">·</span>
                     <span class="score">相关度 82%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-14T04:00:00Z">2026-05-14</span>
                 </div>
             </td>
         </tr>
@@ -13221,6 +13648,7 @@ Abstract: Large language models can follow complex instructions in a single turn
                     <span class="dot">·</span>
                     <span class="score">相关度 82%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-14T04:00:00Z">2026-05-14</span>
                 </div>
             </td>
         </tr>
@@ -13244,6 +13672,7 @@ Abstract: Multi-turn tool calling is essential for LLMs to function as autonomou
                     <span class="dot">·</span>
                     <span class="score">相关度 82%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-14T04:00:00Z">2026-05-14</span>
                 </div>
             </td>
         </tr>
@@ -13267,6 +13696,7 @@ Abstract: When an omnimodal large language model accepts a question whose textua
                     <span class="dot">·</span>
                     <span class="score">相关度 82%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-14T04:00:00Z">2026-05-14</span>
                 </div>
             </td>
         </tr>
@@ -13290,6 +13720,7 @@ Abstract: Asynchronous stochastic gradient descent (ASGD) is a standard way to e
                     <span class="dot">·</span>
                     <span class="score">相关度 82%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-14T04:00:00Z">2026-05-14</span>
                 </div>
             </td>
         </tr>
@@ -13313,6 +13744,7 @@ Abstract: Hidden states change substantially across the layers of modern languag
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-14T04:00:00Z">2026-05-14</span>
                 </div>
             </td>
         </tr>
@@ -13336,6 +13768,7 @@ Abstract: LoRA is widely adopted for continual fine-tuning of Large Language Mod
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-14T04:00:00Z">2026-05-14</span>
                 </div>
             </td>
         </tr>
@@ -13359,6 +13792,7 @@ Abstract: Despite the recent success of Multimodal Foundation Models (FMs), thei
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-14T04:00:00Z">2026-05-14</span>
                 </div>
             </td>
         </tr>
@@ -13382,6 +13816,7 @@ Abstract: Data selection during supervised fine-tuning (SFT) can critically chan
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-14T04:00:00Z">2026-05-14</span>
                 </div>
             </td>
         </tr>
@@ -13405,6 +13840,7 @@ Abstract: Modern language models have historically relied on two dominant design
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-14T04:00:00Z">2026-05-14</span>
                 </div>
             </td>
         </tr>
@@ -13428,6 +13864,7 @@ Abstract: Model merging combines task experts into one model and avoids joint tr
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-14T04:00:00Z">2026-05-14</span>
                 </div>
             </td>
         </tr>
@@ -13451,6 +13888,7 @@ Abstract: For most languages of the world, language model pre-training operates 
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-14T04:00:00Z">2026-05-14</span>
                 </div>
             </td>
         </tr>
@@ -13474,6 +13912,7 @@ Abstract: Intensive care units (ICU) generate long, dense and evolving streams o
                     <span class="dot">·</span>
                     <span class="score">相关度 80%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-14T04:00:00Z">2026-05-14</span>
                 </div>
             </td>
         </tr>
@@ -13497,6 +13936,7 @@ Abstract: Continuous diffusion is a natural framework for non-autoregressive gen
                     <span class="dot">·</span>
                     <span class="score">相关度 78%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-14T04:00:00Z">2026-05-14</span>
                 </div>
             </td>
         </tr>
@@ -13520,6 +13960,7 @@ Abstract: Tabular foundation models (TFMs) have emerged as a powerful paradigm f
                     <span class="dot">·</span>
                     <span class="score">相关度 78%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-14T04:00:00Z">2026-05-14</span>
                 </div>
             </td>
         </tr>
@@ -13543,6 +13984,7 @@ Abstract: Building generalist embodied agents capable of solving complex real-wo
                     <span class="dot">·</span>
                     <span class="score">相关度 78%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-14T04:00:00Z">2026-05-14</span>
                 </div>
             </td>
         </tr>
@@ -13566,6 +14008,7 @@ Abstract: Training language models to produce both correct answers and sound rea
                     <span class="dot">·</span>
                     <span class="score">相关度 78%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-14T04:00:00Z">2026-05-14</span>
                 </div>
             </td>
         </tr>
@@ -13589,6 +14032,7 @@ Abstract: Flow Language Models (FLMs) are a recently introduced class of languag
                     <span class="dot">·</span>
                     <span class="score">相关度 78%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-14T04:00:00Z">2026-05-14</span>
                 </div>
             </td>
         </tr>
@@ -13612,6 +14056,7 @@ Abstract: Vision-language models (VLMs) are often deployed on text-only inputs, 
                     <span class="dot">·</span>
                     <span class="score">相关度 78%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-14T04:00:00Z">2026-05-14</span>
                 </div>
             </td>
         </tr>
@@ -13636,6 +14081,7 @@ Abstract: Transformers predict over a representation of a sequence. The same dat
                     <span class="dot">·</span>
                     <span class="score">相关度 78%</span>
                     <span class="hotness-label">热度</span><span class="stars">★★☆☆☆</span>
+                    <span class="pub-date" data-iso="2026-05-14T04:00:00Z">2026-05-14</span>
                 </div>
             </td>
         </tr>
@@ -13672,8 +14118,28 @@ Abstract: Transformers predict over a representation of a sequence. The same dat
   function getLocalDateStr(daysAgo) {
     const d = new Date();
     d.setDate(d.getDate() - daysAgo);
-    return d.toISOString().slice(0, 10);
+    // 用本地时区年-月-日（不要用 toISOString 那是 UTC）
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
   }
+
+  // 把 published_at 转为本地时区的 YYYY-MM-DD
+  function isoToLocalDate(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    if (isNaN(d)) return '';
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+
+  // 预先把每行的本地日期算好，存到 row.dataset.localDate
+  document.querySelectorAll('.item-row[data-iso]').forEach(r => {
+    r.dataset.localDate = isoToLocalDate(r.dataset.iso) || r.dataset.date;
+  });
 
   function getVisibleRows() {
     return allRows.filter(row => {
@@ -13683,10 +14149,11 @@ Abstract: Transformers predict over a representation of a sequence. The same dat
       const h         = parseInt(row.dataset.hotness || 0);
       const hotnessOk = h >= activeHotness && h <= activeHotnessMax;
       let dateOk = true;
+      const rowDate = row.dataset.localDate || row.dataset.date;
       if (activeExact) {
-        dateOk = row.dataset.date === activeExact;
+        dateOk = rowDate === activeExact;
       } else if (activeDays !== 'all') {
-        dateOk = row.dataset.date >= getLocalDateStr(parseInt(activeDays));
+        dateOk = rowDate >= getLocalDateStr(parseInt(activeDays));
       }
       return catOk && topicOk && scoreOk && hotnessOk && dateOk;
     });
@@ -13708,7 +14175,96 @@ Abstract: Transformers predict over a representation of a sequence. The same dat
     });
   }
 
+  function matchesBase(row) {
+    // 应用日期、相关度、热度（不应用来源/话题）
+    const scoreOk = parseInt(row.dataset.score || 0) >= activeScore;
+    const h = parseInt(row.dataset.hotness || 0);
+    const hotnessOk = h >= activeHotness && h <= activeHotnessMax;
+    let dateOk = true;
+    const rowDate = row.dataset.localDate || row.dataset.date;
+    if (activeExact) dateOk = rowDate === activeExact;
+    else if (activeDays !== 'all') dateOk = rowDate >= getLocalDateStr(parseInt(activeDays));
+    return scoreOk && hotnessOk && dateOk;
+  }
+
+  function updateFacetCounts() {
+    // 来源 count：忽略当前来源选择，应用其他筛选
+    const catCounts = {};
+    let catAllTotal = 0;
+    allRows.forEach(row => {
+      if (!matchesBase(row)) return;
+      if (activeTopic !== 'all') {
+        const topics = (row.dataset.topic || '').split(',').map(t => t.trim());
+        if (!topics.includes(activeTopic)) return;
+      }
+      const c = row.dataset.category;
+      catCounts[c] = (catCounts[c] || 0) + 1;
+      catAllTotal++;
+    });
+    document.querySelectorAll('#filter-bar [data-cat]').forEach(btn => {
+      const c = btn.dataset.cat;
+      const countEl = btn.querySelector('.btn-count');
+      const n = c === 'all' ? catAllTotal : (catCounts[c] || 0);
+      if (countEl) countEl.textContent = n;
+      if (c !== 'all') {
+        if (n === 0) btn.classList.add('btn-empty');
+        else btn.classList.remove('btn-empty');
+      }
+    });
+
+    // 日期 count：忽略当前日期选择，应用其他筛选
+    const dateBase = allRows.filter(row => {
+      const scoreOk = parseInt(row.dataset.score || 0) >= activeScore;
+      const h = parseInt(row.dataset.hotness || 0);
+      const hotnessOk = h >= activeHotness && h <= activeHotnessMax;
+      if (!scoreOk || !hotnessOk) return false;
+      if (activeCat !== 'all' && row.dataset.category !== activeCat) return false;
+      if (activeTopic !== 'all') {
+        const topics = (row.dataset.topic || '').split(',').map(t => t.trim());
+        if (!topics.includes(activeTopic)) return false;
+      }
+      return true;
+    });
+    document.querySelectorAll('.range-btn').forEach(btn => {
+      const d = btn.dataset.date;
+      const countEl = btn.querySelector('.btn-count');
+      if (!countEl) return;
+      let n;
+      if (d === 'all') n = dateBase.length;
+      else {
+        const cutoff = getLocalDateStr(parseInt(d));
+        n = dateBase.filter(row => (row.dataset.localDate || row.dataset.date) >= cutoff).length;
+      }
+      countEl.textContent = n;
+      if (d !== 'all') {
+        if (n === 0) btn.classList.add('btn-empty');
+        else btn.classList.remove('btn-empty');
+      }
+    });
+
+    // 话题 count：忽略当前话题选择，应用其他筛选
+    const topicCounts = {};
+    let topicAllTotal = 0;
+    allRows.forEach(row => {
+      if (!matchesBase(row)) return;
+      if (activeCat !== 'all' && row.dataset.category !== activeCat) return;
+      const topics = (row.dataset.topic || '').split(',').map(t => t.trim()).filter(Boolean);
+      if (topics.length) topicAllTotal++;
+      topics.forEach(t => { topicCounts[t] = (topicCounts[t] || 0) + 1; });
+    });
+    document.querySelectorAll('#filter-bar [data-topic]').forEach(btn => {
+      const t = btn.dataset.topic;
+      const countEl = btn.querySelector('.btn-count');
+      if (t === 'all') return;
+      const n = topicCounts[t] || 0;
+      if (countEl) countEl.textContent = n;
+      if (n === 0) btn.classList.add('btn-empty');
+      else btn.classList.remove('btn-empty');
+    });
+  }
+
   function render() {
+    updateFacetCounts();
     const visible  = sortedRows(getVisibleRows());
     const total    = visible.length;
     const pages    = Math.max(1, Math.ceil(total / PAGE_SIZE));
@@ -13820,6 +14376,7 @@ Abstract: Transformers predict over a representation of a sequence. The same dat
   }
 
   function filterDate(btn) {
+    if (btn.classList.contains('btn-empty')) return;
     document.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     activeDays  = btn.dataset.date;
@@ -13866,6 +14423,30 @@ Abstract: Transformers predict over a representation of a sequence. The same dat
     if (e.target === document.getElementById('modal-overlay')) closeModal();
   }
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+  // 实时更新"X小时前"和发布日期显示（基于 data-iso 时间戳，使用本地时区）
+  (function updateTimes() {
+    const now = Date.now();
+    document.querySelectorAll('.time[data-iso]').forEach(el => {
+      const t = new Date(el.dataset.iso).getTime();
+      if (isNaN(t)) return;
+      const diff = Math.floor((now - t) / 1000);
+      let text;
+      if (diff < 60) text = '刚刚';
+      else if (diff < 3600) text = `${Math.floor(diff/60)} 分钟前`;
+      else if (diff < 86400) text = `${Math.floor(diff/3600)} 小时前`;
+      else text = `${Math.floor(diff/86400)} 天前`;
+      el.textContent = text;
+    });
+    document.querySelectorAll('.pub-date[data-iso]').forEach(el => {
+      const d = new Date(el.dataset.iso);
+      if (isNaN(d)) return;
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      el.textContent = `${y}-${m}-${day}`;
+    });
+  })();
 
   // 累计浏览次数（counterapi.dev，免费免账号）
   fetch('https://api.counterapi.dev/v1/afeiadian-ai-news-bot/views/up')

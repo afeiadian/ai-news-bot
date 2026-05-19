@@ -88,11 +88,37 @@ def build_sources_modal():
                     f'<td>{_html.escape(t["description"])}</td></tr>')
     html.append('</table></div>')
 
+    # === 抓取策略 ===
+    html.append('<div class="modal-section">')
+    html.append('<h3>抓取策略：分类配额</h3>')
+    html.append('<div class="modal-note">每天 UTC 07:00（北京 15:00）自动抓取，每次最多 200 篇。'
+                '不是简单按时间倒序——arXiv 每天数百篇会挤掉其他来源，因此按分类配额：\n'
+                '· 优先抓全部 lab / tools / chip / newsletter / hackernews（每类上限 100，实际通常 &lt;30）\n'
+                '· 剩余配额给 arXiv（通常 140-150 篇）\n'
+                '保证 AI 公司官博、NVIDIA、PyTorch 等高价值来源不被海量论文挤掉。</div>')
+    html.append('</div>')
+
+    # === 原文抓取 ===
+    html.append('<div class="modal-section">')
+    html.append('<h3>原文抓取来源</h3>')
+    html.append('<table class="modal-table"><tr><th>来源类型</th><th>原文获取方式</th></tr>')
+    fetch_methods = [
+        ('X / Twitter', 'fetch_twitter.py 抓取时直接存推文正文'),
+        ('arXiv', 'arXiv 官方 API 获取作者列表 + 论文摘要'),
+        ('Hacker News', 'Jina Reader 抓取外链文章正文'),
+        ('HF / DeepMind', 'trafilatura 抓取（Jina 被 Cloudflare 限速时降级）'),
+        ('其他博客', 'Miniflux RSS 自带 content'),
+    ]
+    for src, method in fetch_methods:
+        html.append(f'<tr><td style="white-space:nowrap;font-weight:bold">{src}</td>'
+                    f'<td style="font-size:12px">{method}</td></tr>')
+    html.append('</table></div>')
+
     # === 评分规则 ===
     min_score = scoring.get('min_score', 70)
     quality_note = (scoring.get('quality_note') or '').strip()
     html.append('<div class="modal-section">')
-    html.append(f'<h3>相关度评分规则（收录阈值：{min_score} 分）</h3>')
+    html.append(f'<h3>相关度评分规则（默认阈值 {min_score} 分，X 平台单独阈值 60 分）</h3>')
     if quality_note:
         html.append(f'<div class="modal-note">{_html.escape(quality_note)}</div>')
     html.append('</div>')
@@ -113,6 +139,16 @@ def build_sources_modal():
     for name, base, bonus in base_scores:
         html.append(f'<tr><td>{name}</td><td style="text-align:center">{base}</td><td style="font-size:11px;color:#666">{bonus}</td></tr>')
     html.append('</table></div>')
+
+    # === 数据保留 ===
+    html.append('<div class="modal-section">')
+    html.append('<h3>数据更新与保留</h3>')
+    html.append('<div class="modal-note">'
+                '· 每日抓取时间：UTC 07:00 / 北京时间 15:00（GitHub Actions 可能延迟 1-3 小时）\n'
+                '· 数据保留：自动保留最近 30 天的文章，旧文章自动删除并 VACUUM 回收空间\n'
+                '· 文章采集窗口：每次只处理最近 2 天内发布的未读文章\n'
+                '· 网页时间显示：客户端基于 ISO 时间戳实时计算，使用浏览器本地时区</div>')
+    html.append('</div>')
 
     return '\n'.join(html)
 
@@ -245,7 +281,7 @@ def build_html(articles):
         )
 
         items_html += f'''
-        <tr class="item-row" data-category="{a["category"]}" data-topic="{topic_raw}" data-date="{date_str}" data-score="{a["score"]}" data-hotness="{hotness}">
+        <tr class="item-row" data-category="{a["category"]}" data-topic="{topic_raw}" data-date="{date_str}" data-iso="{a["published_at"]}" data-score="{a["score"]}" data-hotness="{hotness}">
             <td class="rank">{i}</td>
             <td class="main">
                 <div class="title-block">
@@ -259,10 +295,11 @@ def build_html(articles):
                     <span class="source-cat" style="color:{color}">{a["category"]}</span>
                     <span class="source">{a["source_name"]}</span>
                     <span class="dot">·</span>
-                    <span class="time">{time_ago(a["published_at"])}</span>
+                    <span class="time" data-iso="{a["published_at"]}">{time_ago(a["published_at"])}</span>
                     <span class="dot">·</span>
                     <span class="score">相关度 {a["score"]}%</span>
                     {stars_html}
+                    <span class="pub-date" data-iso="{a["published_at"]}">{date_str}</span>
                 </div>
             </td>
         </tr>

@@ -304,6 +304,12 @@
     .score { color: #b45309; font-weight: bold; margin-right: 4px; }
     .hotness-label { color: #b45309; font-weight: bold; margin-right: 3px; }
     .stars { color: #f59e0b; font-size: 12px; letter-spacing: 1px; margin-right: 4px; }
+    .pub-date {
+      margin-left: auto;
+      color: #aaa;
+      font-size: 11px;
+      white-space: nowrap;
+    }
     .spacer td { height: 24px; }
 
     .show-original-btn {
@@ -434,12 +440,12 @@
     <!-- 日期 -->
     <div class="filter-row">
       <span class="filter-label">日期：</span>
-      <button class="filter-btn range-btn active" data-date="all" onclick="filterDate(this)">全部</button>
-      <button class="filter-btn range-btn" data-date="0"  onclick="filterDate(this)">今天</button>
-      <button class="filter-btn range-btn" data-date="1"  onclick="filterDate(this)">昨天</button>
-      <button class="filter-btn range-btn" data-date="3"  onclick="filterDate(this)">近3天</button>
-      <button class="filter-btn range-btn" data-date="7"  onclick="filterDate(this)">近7天</button>
-      <button class="filter-btn range-btn" data-date="30" onclick="filterDate(this)">近30天</button>
+      <button class="filter-btn range-btn active" data-date="all" onclick="filterDate(this)">全部 <span class="btn-count">0</span></button>
+      <button class="filter-btn range-btn" data-date="0"  onclick="filterDate(this)">今天 <span class="btn-count">0</span></button>
+      <button class="filter-btn range-btn" data-date="1"  onclick="filterDate(this)">昨天 <span class="btn-count">0</span></button>
+      <button class="filter-btn range-btn" data-date="3"  onclick="filterDate(this)">近3天 <span class="btn-count">0</span></button>
+      <button class="filter-btn range-btn" data-date="7"  onclick="filterDate(this)">近7天 <span class="btn-count">0</span></button>
+      <button class="filter-btn range-btn" data-date="30" onclick="filterDate(this)">近30天 <span class="btn-count">0</span></button>
       <select id="date-select" onchange="filterExactDate(this)">
         {{DATE_OPTIONS}}
       </select>
@@ -522,8 +528,28 @@
   function getLocalDateStr(daysAgo) {
     const d = new Date();
     d.setDate(d.getDate() - daysAgo);
-    return d.toISOString().slice(0, 10);
+    // 用本地时区年-月-日（不要用 toISOString 那是 UTC）
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
   }
+
+  // 把 published_at 转为本地时区的 YYYY-MM-DD
+  function isoToLocalDate(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    if (isNaN(d)) return '';
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+
+  // 预先把每行的本地日期算好，存到 row.dataset.localDate
+  document.querySelectorAll('.item-row[data-iso]').forEach(r => {
+    r.dataset.localDate = isoToLocalDate(r.dataset.iso) || r.dataset.date;
+  });
 
   function getVisibleRows() {
     return allRows.filter(row => {
@@ -533,10 +559,11 @@
       const h         = parseInt(row.dataset.hotness || 0);
       const hotnessOk = h >= activeHotness && h <= activeHotnessMax;
       let dateOk = true;
+      const rowDate = row.dataset.localDate || row.dataset.date;
       if (activeExact) {
-        dateOk = row.dataset.date === activeExact;
+        dateOk = rowDate === activeExact;
       } else if (activeDays !== 'all') {
-        dateOk = row.dataset.date >= getLocalDateStr(parseInt(activeDays));
+        dateOk = rowDate >= getLocalDateStr(parseInt(activeDays));
       }
       return catOk && topicOk && scoreOk && hotnessOk && dateOk;
     });
@@ -558,7 +585,96 @@
     });
   }
 
+  function matchesBase(row) {
+    // 应用日期、相关度、热度（不应用来源/话题）
+    const scoreOk = parseInt(row.dataset.score || 0) >= activeScore;
+    const h = parseInt(row.dataset.hotness || 0);
+    const hotnessOk = h >= activeHotness && h <= activeHotnessMax;
+    let dateOk = true;
+    const rowDate = row.dataset.localDate || row.dataset.date;
+    if (activeExact) dateOk = rowDate === activeExact;
+    else if (activeDays !== 'all') dateOk = rowDate >= getLocalDateStr(parseInt(activeDays));
+    return scoreOk && hotnessOk && dateOk;
+  }
+
+  function updateFacetCounts() {
+    // 来源 count：忽略当前来源选择，应用其他筛选
+    const catCounts = {};
+    let catAllTotal = 0;
+    allRows.forEach(row => {
+      if (!matchesBase(row)) return;
+      if (activeTopic !== 'all') {
+        const topics = (row.dataset.topic || '').split(',').map(t => t.trim());
+        if (!topics.includes(activeTopic)) return;
+      }
+      const c = row.dataset.category;
+      catCounts[c] = (catCounts[c] || 0) + 1;
+      catAllTotal++;
+    });
+    document.querySelectorAll('#filter-bar [data-cat]').forEach(btn => {
+      const c = btn.dataset.cat;
+      const countEl = btn.querySelector('.btn-count');
+      const n = c === 'all' ? catAllTotal : (catCounts[c] || 0);
+      if (countEl) countEl.textContent = n;
+      if (c !== 'all') {
+        if (n === 0) btn.classList.add('btn-empty');
+        else btn.classList.remove('btn-empty');
+      }
+    });
+
+    // 日期 count：忽略当前日期选择，应用其他筛选
+    const dateBase = allRows.filter(row => {
+      const scoreOk = parseInt(row.dataset.score || 0) >= activeScore;
+      const h = parseInt(row.dataset.hotness || 0);
+      const hotnessOk = h >= activeHotness && h <= activeHotnessMax;
+      if (!scoreOk || !hotnessOk) return false;
+      if (activeCat !== 'all' && row.dataset.category !== activeCat) return false;
+      if (activeTopic !== 'all') {
+        const topics = (row.dataset.topic || '').split(',').map(t => t.trim());
+        if (!topics.includes(activeTopic)) return false;
+      }
+      return true;
+    });
+    document.querySelectorAll('.range-btn').forEach(btn => {
+      const d = btn.dataset.date;
+      const countEl = btn.querySelector('.btn-count');
+      if (!countEl) return;
+      let n;
+      if (d === 'all') n = dateBase.length;
+      else {
+        const cutoff = getLocalDateStr(parseInt(d));
+        n = dateBase.filter(row => (row.dataset.localDate || row.dataset.date) >= cutoff).length;
+      }
+      countEl.textContent = n;
+      if (d !== 'all') {
+        if (n === 0) btn.classList.add('btn-empty');
+        else btn.classList.remove('btn-empty');
+      }
+    });
+
+    // 话题 count：忽略当前话题选择，应用其他筛选
+    const topicCounts = {};
+    let topicAllTotal = 0;
+    allRows.forEach(row => {
+      if (!matchesBase(row)) return;
+      if (activeCat !== 'all' && row.dataset.category !== activeCat) return;
+      const topics = (row.dataset.topic || '').split(',').map(t => t.trim()).filter(Boolean);
+      if (topics.length) topicAllTotal++;
+      topics.forEach(t => { topicCounts[t] = (topicCounts[t] || 0) + 1; });
+    });
+    document.querySelectorAll('#filter-bar [data-topic]').forEach(btn => {
+      const t = btn.dataset.topic;
+      const countEl = btn.querySelector('.btn-count');
+      if (t === 'all') return;
+      const n = topicCounts[t] || 0;
+      if (countEl) countEl.textContent = n;
+      if (n === 0) btn.classList.add('btn-empty');
+      else btn.classList.remove('btn-empty');
+    });
+  }
+
   function render() {
+    updateFacetCounts();
     const visible  = sortedRows(getVisibleRows());
     const total    = visible.length;
     const pages    = Math.max(1, Math.ceil(total / PAGE_SIZE));
@@ -670,6 +786,7 @@
   }
 
   function filterDate(btn) {
+    if (btn.classList.contains('btn-empty')) return;
     document.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     activeDays  = btn.dataset.date;
@@ -716,6 +833,30 @@
     if (e.target === document.getElementById('modal-overlay')) closeModal();
   }
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+  // 实时更新"X小时前"和发布日期显示（基于 data-iso 时间戳，使用本地时区）
+  (function updateTimes() {
+    const now = Date.now();
+    document.querySelectorAll('.time[data-iso]').forEach(el => {
+      const t = new Date(el.dataset.iso).getTime();
+      if (isNaN(t)) return;
+      const diff = Math.floor((now - t) / 1000);
+      let text;
+      if (diff < 60) text = '刚刚';
+      else if (diff < 3600) text = `${Math.floor(diff/60)} 分钟前`;
+      else if (diff < 86400) text = `${Math.floor(diff/3600)} 小时前`;
+      else text = `${Math.floor(diff/86400)} 天前`;
+      el.textContent = text;
+    });
+    document.querySelectorAll('.pub-date[data-iso]').forEach(el => {
+      const d = new Date(el.dataset.iso);
+      if (isNaN(d)) return;
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      el.textContent = `${y}-${m}-${day}`;
+    });
+  })();
 
   // 累计浏览次数（counterapi.dev，免费免账号）
   fetch('https://api.counterapi.dev/v1/afeiadian-ai-news-bot/views/up')
