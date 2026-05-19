@@ -97,11 +97,13 @@ GitHub Pages           →  静态 HTML 网页托管
 
 ### X 平台追踪账号
 
+选取原则：AI 行业实际有影响力的人物 + 公司官方账号。所有 handle 均在 X GraphQL API 上验证可访问。
+
 | 类别 | 账号 |
 |------|------|
 | AI 公司创始人/CEO | @karpathy、@sama、@darioamodei、@demishassabis、@elonmusk、@gdb、@arthurmensch、@ilyasut、@miramurati、@kevinweil |
-| 顶级研究者 | @ylecun、@fchollet、@drfeifei、@AndrewYNg、@JeffDean、@Yoshua_Bengio、@tri_dao、@drjimfan、@giffmana、@denny_zhou、@AmandaAskell、@soumithchintala、@rasbt、@natolambert |
-| 芯片/系统专家 | @dylan522p、@clattner_llvm、@JimKeller、@ggerganov |
+| 顶级研究者/学者 | @ylecun、@fchollet、@drfeifei、@AndrewYNg、@JeffDean、@Yoshua_Bengio、@tri_dao、@drjimfan、@giffmana、@denny_zhou、@AmandaAskell、@soumithchintala、@rasbt、@natolambert |
+| 芯片/系统/工程 | @dylan522p、@clattner_llvm、@JimKeller、@ggerganov |
 | 官方账号 | @AnthropicAI、@OpenAI、@GoogleDeepMind、@huggingface、@nvidia、@xai |
 | 论文推荐 | @_akhaliq |
 

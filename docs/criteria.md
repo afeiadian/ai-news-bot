@@ -157,6 +157,22 @@
 
 ---
 
+### 4.4 X 账号选取与新增
+
+X 平台共追踪 **35 个账号**，涵盖：
+- **AI 公司 CEO/创始人**（10 人）：OpenAI、Anthropic、Google DeepMind、xAI、Mistral、SSI、Thinking Machines 等掌门
+- **顶级研究者/学者**（14 人）：图灵奖得主（LeCun、Bengio）、Google AI 首席科学家（Jeff Dean）、Stanford HAI 共同负责人（Fei-Fei Li）、DeepLearning.AI 创始人（Andrew Ng）等
+- **芯片/系统/工程专家**（4 人）：SemiAnalysis 主笔、MLIR/Mojo 作者、Tenstorrent CEO、llama.cpp 作者
+- **官方账号**（6 个）：六大主流 AI 公司
+- **论文推荐**（1 个）：@_akhaliq
+
+**新增账号流程**：
+1. 在 `config/sources.yaml` → `twitter_accounts` 添加 `- handle: xxx` 条目
+2. 用 `python3 -c "from fetch_twitter import _get_user_id; print(_get_user_id('xxx'))"` 验证 handle 有效
+3. 下次 Actions 自动开始抓取
+
+---
+
 ## 五、来源分类（7 个类别）
 
 | 来源分类 | 颜色 | 当前订阅 |
