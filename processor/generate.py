@@ -245,7 +245,7 @@ def build_html(articles):
         )
 
         items_html += f'''
-        <tr class="item-row" data-category="{a["category"]}" data-topic="{topic_raw}" data-date="{date_str}" data-score="{a["score"]}" data-hotness="{hotness}">
+        <tr class="item-row" data-category="{a["category"]}" data-topic="{topic_raw}" data-date="{date_str}" data-iso="{a["published_at"]}" data-score="{a["score"]}" data-hotness="{hotness}">
             <td class="rank">{i}</td>
             <td class="main">
                 <div class="title-block">
@@ -259,7 +259,7 @@ def build_html(articles):
                     <span class="source-cat" style="color:{color}">{a["category"]}</span>
                     <span class="source">{a["source_name"]}</span>
                     <span class="dot">·</span>
-                    <span class="time">{time_ago(a["published_at"])}</span>
+                    <span class="time" data-iso="{a["published_at"]}">{time_ago(a["published_at"])}</span>
                     <span class="dot">·</span>
                     <span class="score">相关度 {a["score"]}%</span>
                     {stars_html}

@@ -522,8 +522,28 @@
   function getLocalDateStr(daysAgo) {
     const d = new Date();
     d.setDate(d.getDate() - daysAgo);
-    return d.toISOString().slice(0, 10);
+    // 用本地时区年-月-日（不要用 toISOString 那是 UTC）
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
   }
+
+  // 把 published_at 转为本地时区的 YYYY-MM-DD
+  function isoToLocalDate(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    if (isNaN(d)) return '';
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+
+  // 预先把每行的本地日期算好，存到 row.dataset.localDate
+  document.querySelectorAll('.item-row[data-iso]').forEach(r => {
+    r.dataset.localDate = isoToLocalDate(r.dataset.iso) || r.dataset.date;
+  });
 
   function getVisibleRows() {
     return allRows.filter(row => {
@@ -533,10 +553,11 @@
       const h         = parseInt(row.dataset.hotness || 0);
       const hotnessOk = h >= activeHotness && h <= activeHotnessMax;
       let dateOk = true;
+      const rowDate = row.dataset.localDate || row.dataset.date;
       if (activeExact) {
-        dateOk = row.dataset.date === activeExact;
+        dateOk = rowDate === activeExact;
       } else if (activeDays !== 'all') {
-        dateOk = row.dataset.date >= getLocalDateStr(parseInt(activeDays));
+        dateOk = rowDate >= getLocalDateStr(parseInt(activeDays));
       }
       return catOk && topicOk && scoreOk && hotnessOk && dateOk;
     });
@@ -716,6 +737,22 @@
     if (e.target === document.getElementById('modal-overlay')) closeModal();
   }
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+  // 实时更新"X小时前"显示（基于 data-iso 时间戳）
+  (function updateTimeAgo() {
+    const now = Date.now();
+    document.querySelectorAll('.time[data-iso]').forEach(el => {
+      const t = new Date(el.dataset.iso).getTime();
+      if (isNaN(t)) return;
+      const diff = Math.floor((now - t) / 1000);
+      let text;
+      if (diff < 60) text = '刚刚';
+      else if (diff < 3600) text = `${Math.floor(diff/60)} 分钟前`;
+      else if (diff < 86400) text = `${Math.floor(diff/3600)} 小时前`;
+      else text = `${Math.floor(diff/86400)} 天前`;
+      el.textContent = text;
+    });
+  })();
 
   // 累计浏览次数（counterapi.dev，免费免账号）
   fetch('https://api.counterapi.dev/v1/afeiadian-ai-news-bot/views/up')
