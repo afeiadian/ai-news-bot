@@ -2,7 +2,7 @@ import html as _html
 import os
 import sys
 import yaml
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from storage import get_conn
 
 SCORING_PATH = os.path.join(os.path.dirname(__file__), '..', 'config', 'scoring.yaml')
@@ -266,7 +266,25 @@ def build_html(articles):
             topic_html += f'<span class="tag topic-tag" style="background:{tc}">{t}</span>'
 
         hotness = a.get('hotness') or 0
-        stars_html = f'<span class="hotness-label">热度</span><span class="stars">{"★" * hotness}{"☆" * (5 - hotness)}</span>' if hotness else ''
+        # SVG 实心 / 空心 两种星，避免 emoji 字体干扰
+        STAR_PATH = ('M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61'
+                     'L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z')
+        STAR_FILL = (f'<svg class="star-ico" viewBox="0 0 24 24" width="12" height="12" '
+                     f'fill="currentColor" aria-hidden="true"><path d="{STAR_PATH}"/></svg>')
+        STAR_LINE = (f'<svg class="star-ico" viewBox="0 0 24 24" width="12" height="12" '
+                     f'fill="none" stroke="currentColor" stroke-width="1.8" '
+                     f'stroke-linejoin="round" aria-hidden="true">'
+                     f'<path d="{STAR_PATH}"/></svg>')
+        filled = STAR_FILL * hotness
+        empty  = STAR_LINE * (5 - hotness)
+        stars_html = (
+            f'<span class="hotness-label">热度</span>'
+            f'<span class="stars">'
+            f'<span class="stars-on">{filled}</span>'
+            f'<span class="stars-off">{empty}</span>'
+            f'</span>'
+            if hotness else ''
+        )
 
         summary_html = ''
         if a.get('summary'):
@@ -334,7 +352,25 @@ def build_html(articles):
         count = date_counts[d]
         date_options += f'<option value="{d}">{label}（{count}篇）</option>\n'
 
-    updated = datetime.now().strftime('%Y-%m-%d %H:%M UTC')
+    # 最新数据时间：取所有文章中最近的 published_at（UTC），转成北京时间
+    BJ = timezone(timedelta(hours=8))
+    latest_dt = None
+    for a in articles:
+        pub = a.get('published_at')
+        if not pub:
+            continue
+        try:
+            d = datetime.fromisoformat(str(pub).replace('Z', '+00:00'))
+            if d.tzinfo is None:
+                d = d.replace(tzinfo=timezone.utc)
+            if latest_dt is None or d > latest_dt:
+                latest_dt = d
+        except Exception:
+            pass
+    if latest_dt is not None:
+        updated = latest_dt.astimezone(BJ).strftime('%Y-%m-%d %H:%M')
+    else:
+        updated = datetime.now(BJ).strftime('%Y-%m-%d %H:%M')
     html = template.replace('{{ITEMS}}', items_html)
     html = html.replace('{{COUNT}}', str(len(articles)))
     html = html.replace('{{UPDATED}}', updated)
