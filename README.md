@@ -2,7 +2,7 @@
 
 自动聚合 AI 技术领域最新资讯的每日简报网站，类 Hacker News 风格，支持多维度筛选与原文展开。
 
-**在线访问**：https://afeiadian.github.io/ai-news-bot/
+**在线访问**：https://afeiadian.github.io/ai-news-bot/ · **更新日志**：[CHANGELOG.md](./CHANGELOG.md)
 
 ## 关注领域
 
