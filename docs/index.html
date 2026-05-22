@@ -896,44 +896,73 @@
 </div>
 <div class="modal-section">
 <h3>相关度评分细则（DeepSeek 评分主体)</h3>
-<div class="modal-note">【收录范围】只收录以下方向的内容，其他一律给低分（&lt;40）过滤：
-- AI 芯片与硬件：GPU/NPU/TPU设计、AI数据中心、芯片互联、芯片产品发布
-- AI 芯片软件栈：CUDA/ROCm/XLA、编译器、算子库、Kernel优化、芯片软件适配
-- 大语言模型技术：LLM架构、训练、对齐、推理、量化、多模态、文生视频
-- AI 基础设施：分布式训练系统、推理serving框架、AI集群网络
-- AI 产品与行业：主流AI公司产品发布、重要模型上线、行业格局变化、权威技术预测
-凡是与上述方向无关的内容（无论来源多权威），直接给分 ≤ 30。
+<div class="modal-note">【核心收录主线 — AI 芯片硬件与软件栈强相关】
 
-【明确排除，直接给分≤30】
-- 非AI领域的科技新闻（手机、电动车、区块链、量子计算等）
-- 纯商业/财经/政治新闻（融资除非涉及AI核心公司且金额重大）
-- 将AI作为噱头的泛应用报道（AI写作工具、AI客服等边缘应用）
-- 传统CV/NLP任务（目标检测、医学影像、机器翻译小模型等与大模型无关）
-- X平台上的个人生活、时事评论、非AI话题发言（即使来自知名人物）
+本资讯主要服务于 AI 芯片硬件与软件栈开发者，
+最高优先级是判断文章对该群体的工程价值。
+凡满足以下四类任一条件，视为强相关（评分区间 80–95）；多类同时满足取上限。
 
-【来源权威性加分】在收录范围内，以下来源额外加分（+10~+20）：
-- 顶级AI公司官方博客：OpenAI、Anthropic、Google Research、DeepMind、NVIDIA、Meta AI
-- 行业领袖X发文（内容涉及AI技术/产品/趋势）：Karpathy、LeCun、Sam Altman、Dario Amodei、Demis Hassabis等
-- 顶级机构论文：Google/Meta/Microsoft/OpenAI/Anthropic/NVIDIA及MIT/Stanford/CMU/Berkeley等
+① AI 芯片硬件特性 → 功耗 / 性能 / 延迟优化
+   - 新硬件架构、内存层级、互联拓扑（NVLink / InfiniBand / UB / PCIe）、新型计算单元
+   - 实测能效比、算力利用率（MFU/HFU）、显存带宽与延迟瓶颈分析
+   - 数据中心 / 推理集群级硬件优化
+   - GPU / NPU / TPU / ASIC 新品发布、实测性能、对比评测
+   - 国产 / 国际 AI 芯片对比、行业格局变化
 
-【内容质量加分】
-- SOTA技术突破（有具体性能数据）：+15
-- 权威人物对技术趋势的明确预测或深度评价：+10
-- 重要新模型/新框架发布（主流公司）：+10
-- 解决实际工程痛点的新方法：+10
+② 算法 / 算子性能优化 → 可下沉到软件栈直接带来收益
+   - 新算子、kernel 优化、内存访问模式、流水线编排
+   - 并行策略（TP / PP / EP / SP / CP / Ulysses）的具体实现与实测加速
+   - 量化（GPTQ / AWQ / FP8 / FP6 / INT4）、稀疏化在具体硬件上的加速数据
+   - 推理优化（continuous batching、PagedAttention、KV cache 压缩、speculative decoding）
+   - 训练优化（gradient accumulation、activation checkpoint、ZeRO、混合精度）
 
-【arXiv严格筛选】须满足至少一项才能≥65分：
-1. 明确SOTA声称且有具体数据；2. 顶级机构出品；3. 直接解决推理/训练/芯片工程痛点
-cs.CL过滤：纯语言学/小型垂直NLP模型 → ≤40分
-cs.CV过滤：传统图像分类/目标检测/医学影像 → ≤35分；文生视频/多模态VLM → 正常评分
+③ 热门软件栈 / 工具 / 组件 / 新特性 → 需要 AI 芯片适配以满足兼容性
+   - 推理框架（vLLM、SGLang、TensorRT-LLM、llama.cpp、MLC-LLM）新版本 / 新特性
+   - 训练框架（Megatron-LM、Megatron-Core、DeepSpeed、FSDP、TorchTitan、ColossalAI）更新
+   - 编译器栈（Triton、XLA、TVM、MLIR、Mojo、Hidet）新特性
+   - 主流模型新发布且对推理栈有新需求（新 attention 变体、新量化格式、新数据类型）
+   - 国产芯片需要适配的主流软件特性、生态进展
 
-【X推文特别说明】X 平台追踪的都是行业领袖，且推文本身就短，对 AI 相关性应宽容：
-原则：宁可错收、不要漏。只要内容跟 AI 沾边（哪怕只提到一次 AI 模型/产品/公司名），就给 60+ 分。
-- 涉及具体 AI 技术/产品讨论（含 SDK、工具、Codex、Grok、Gemini 等具体名称）→ 75-90 分
-- 提到 AI 公司/模型/工具名称的任何内容（哪怕只是名字+一句话）→ 60-75 分
-- 谈到 AI 行业、趋势、应用场景的简短观点 → 60-70 分
-- 完全无关 AI 的个人生活、政治、火箭、汽车、单纯感叹词 → ≤30 分
-特别说明：发文者全是 AI 领袖，即使只是说&quot;我刚发了 X 新模型&quot;也具有信息价值；
+④ SOTA 算法 / 算子 / 软件库 → 对芯片适配优化有参考价值
+   - SOTA attention 实现（FlashAttention 系列、Ring / Tree / Star Attention、Native Sparse Attention）
+   - 高性能算子库（FlashInfer、CUTLASS、xformers、cuDNN、ThunderKittens 等的重要更新）
+   - 主流框架的 reference 高性能内核
+   - SOTA 量化 / 稀疏化方法及其 reference 实现
+
+【中等相关 — 65–80 分】
+- 大模型新发布、能力评测、产品动态（缺乏芯片 / 软件栈层面的工程深度）
+- AI 公司动态、融资、组织调整（限重大事件）
+- 一般性研究综述、宏观趋势预测
+
+【弱相关 / 周边 — 50–65 分】
+- 应用层产品演示、行业用例（无底层技术细节）
+- 与底层硬件 / 软件栈无直接关联的 AI 研究
+
+【明确排除，直接给分 ≤ 30】
+- 非 AI 领域科技新闻（手机、电动车、区块链、量子计算等）
+- 纯商业 / 财经 / 政治新闻（融资除非涉及 AI 核心公司且金额重大）
+- AI 作为噱头的泛应用报道（AI 写作工具、AI 客服等边缘应用）
+- 传统 CV / NLP 小模型任务（与大模型 / 芯片无关）
+- X 平台上的个人生活、时事评论、非 AI 话题发言（即使来自知名人物）
+
+【来源权威性辅助】在内容符合主线时叠加（+5~+15）：
+- 顶级 AI 公司官方博客：OpenAI、Anthropic、Google Research、DeepMind、NVIDIA、Meta AI
+- 行业领袖 X 发文（内容涉及 AI 技术 / 产品 / 趋势）：Karpathy、LeCun、Sam Altman、Dario Amodei、Demis Hassabis 等
+- 顶级机构论文：Google / Meta / Microsoft / OpenAI / Anthropic / NVIDIA 及 MIT / Stanford / CMU / Berkeley
+
+【arXiv 严格筛选】须满足任一项才能 ≥ 70 分：
+1. 直接服务于推理 / 训练 / 芯片工程优化（对应主线 ②③④）
+2. 顶级机构 + SOTA 声称且有具体性能数据
+3. 新硬件特性下的算法 / 系统级创新
+cs.CL 过滤：纯语言学 / 小型垂直 NLP 模型 → ≤ 40 分
+cs.CV 过滤：传统图像分类 / 目标检测 / 医学影像 → ≤ 35 分；文生视频 / 多模态 VLM → 按主线评分
+
+【X 推文特别说明】X 平台追踪的是行业领袖，推文短但信息价值高，对 AI 相关性应宽容：
+原则：宁可错收、不要漏。涉及 AI 芯片 / 软件栈 / 模型的简短观点都给 60+ 分。
+- 涉及主线 ①②③④ 的具体技术 / 产品讨论 → 75–90 分
+- 仅提到 AI 公司 / 模型 / 工具名称（哪怕只是名字 + 一句话）→ 60–75 分
+- 谈到 AI 行业、趋势、应用场景的简短观点 → 60–70 分
+- 完全无关 AI 的个人生活、政治、火箭、汽车、感叹词 → ≤ 30 分
 对 AI 相关产品名称（Codex、Grok、Claude、ChatGPT、Gemini、Llama 等）的任何提及一律视为 AI 内容。</div>
 </div>
 <div class="modal-section">
@@ -2511,7 +2540,7 @@ OpenAI and Anthropic had spent most of 2025 running Reinforcement Learning from 
                     <span class="source-cat" style="color:#ea580c">Hacker News</span>
                     <span class="source">Hacker News</span>
                     <span class="dot">·</span>
-                    <span class="time" data-iso="2026-05-19T07:07:42.844214Z">2 天前</span>
+                    <span class="time" data-iso="2026-05-19T07:07:42.844214Z">3 天前</span>
                     <span class="dot">·</span>
                     <span class="score">相关度 90%</span>
                     <span class="hotness-label">热度</span><span class="stars"><span class="stars-on"><svg class="star-ico" viewBox="0 0 24 24" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg><svg class="star-ico" viewBox="0 0 24 24" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg><svg class="star-ico" viewBox="0 0 24 24" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg><svg class="star-ico" viewBox="0 0 24 24" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg><svg class="star-ico" viewBox="0 0 24 24" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></span><span class="stars-off"></span></span>
