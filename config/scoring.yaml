@@ -1,8 +1,23 @@
 # 相关度评分配置
 # 修改此文件即可调整评分标准，无需改动代码
 
-# 收录阈值：score >= 此值的文章才会被收录
+# 全局参考阈值：DeepSeek 评分阶段（processor/process.py）的"相关"基准线
+# 网页生成阶段的真实筛选规则见下方 category_filters
 min_score: 70
+
+# 各来源类别独立筛选
+# 网页生成时不再将所有来源混合后用统一阈值过滤，
+# 改为每个 category 分别按 score 降序排序后，
+# 套用各自的 min_score (录用分数线) 和 max_articles (展示上限)。
+# 配置中未列出的来源类别会被排除（例如已下线的历史来源 Reddit）。
+category_filters:
+  arXiv:        { min_score: 70, max_articles: 30 }
+  X:            { min_score: 50, max_articles: 60 }
+  Hacker News:  { min_score: 50, max_articles: 30 }
+  AI Lab:       { min_score: 50, max_articles: 30 }
+  AI Chip:      { min_score: 50, max_articles: 30 }
+  AI Tools:     { min_score: 50, max_articles: 30 }
+  Newsletter:   { min_score: 50, max_articles: 30 }
 
 # 评分原则：相关度 x 质量权重
 # 高分（80+）：技术强相关 + 来源权威/创新性高/可能被行业广泛采纳

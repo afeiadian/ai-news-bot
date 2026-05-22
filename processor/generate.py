@@ -8,9 +8,15 @@ from storage import get_conn
 SCORING_PATH = os.path.join(os.path.dirname(__file__), '..', 'config', 'scoring.yaml')
 SOURCES_PATH = os.path.join(os.path.dirname(__file__), '..', 'config', 'sources.yaml')
 
-def load_min_score():
+def load_category_filters():
+    """读取 config/scoring.yaml 里 category_filters 配置。
+
+    返回 dict:  category -> {'min_score': int, 'max_articles': int}
+    配置中未列出的 category 在 get_articles 阶段会被丢弃。
+    """
     with open(SCORING_PATH, encoding='utf-8') as f:
-        return yaml.safe_load(f).get('min_score', 65)
+        config = yaml.safe_load(f) or {}
+    return config.get('category_filters', {}) or {}
 
 
 def build_sources_modal():
@@ -114,14 +120,36 @@ def build_sources_modal():
                     f'<td style="font-size:12px">{method}</td></tr>')
     html.append('</table></div>')
 
-    # === 评分规则 ===
-    min_score = scoring.get('min_score', 70)
+    # === 各来源独立筛选 ===
+    cat_filters = scoring.get('category_filters') or {}
     quality_note = (scoring.get('quality_note') or '').strip()
     html.append('<div class="modal-section">')
-    html.append(f'<h3>相关度评分规则（默认阈值 {min_score} 分，X 平台单独阈值 60 分）</h3>')
-    if quality_note:
-        html.append(f'<div class="modal-note">{_html.escape(quality_note)}</div>')
+    html.append('<h3>各来源独立筛选规则</h3>')
+    if cat_filters:
+        html.append('<table class="modal-table"><tr><th>来源</th><th>录用分数线</th><th>展示上限</th></tr>')
+        for cat in ALL_CATS:
+            cfg = cat_filters.get(cat)
+            if not cfg:
+                continue
+            ms = cfg.get('min_score', 0)
+            mn = cfg.get('max_articles', 0)
+            html.append(
+                f'<tr><td>{cat}</td>'
+                f'<td style="text-align:center">≥ {ms} 分</td>'
+                f'<td style="text-align:center">{mn} 条</td></tr>'
+            )
+        html.append('</table>')
+        html.append('<div class="modal-note" style="margin-top:10px">'
+                    '· 每个来源按相关度得分降序独立排序,套用各自阈值与上限后取前 N 条\n'
+                    '· 来源之间不再混合排序,避免单一高产来源(如 arXiv)挤占其他来源</div>')
     html.append('</div>')
+
+    # === 相关度评分细则 ===
+    if quality_note:
+        html.append('<div class="modal-section">')
+        html.append('<h3>相关度评分细则（DeepSeek 评分主体)</h3>')
+        html.append(f'<div class="modal-note">{_html.escape(quality_note)}</div>')
+        html.append('</div>')
 
     # === 热度评分 ===
     html.append('<div class="modal-section">')
@@ -184,21 +212,49 @@ def get_date(iso_str):
         return iso_str[:10]
 
 
-def get_articles(limit=500, min_score=None):
-    if min_score is None:
-        min_score = load_min_score()
-    # X 推文较短信息密度低，单独放宽到 60 分
-    x_threshold = 60
+def get_articles(limit=500):
+    """各来源类别独立筛选。
+
+    流程:
+    1. 读取所有文章,按 (category, score DESC, published_at DESC) 排序
+    2. 按 category 分组
+    3. 对每个 category,用其 min_score 过滤,再截取前 max_articles 条
+    4. 未在 category_filters 配置中的来源类别整组丢弃
+    5. 合并后按热度 DESC、时间 DESC 排序,作为最终输出
+    """
+    filters = load_category_filters()
     conn = get_conn()
     rows = conn.execute('''
-        SELECT title, title_zh, url, source_name, category, topic, published_at, summary, score, hotness, content
+        SELECT title, title_zh, url, source_name, category, topic,
+               published_at, summary, score, hotness, content
         FROM articles
-        WHERE (category != 'X' AND score >= ?) OR (category = 'X' AND score >= ?)
-        ORDER BY hotness DESC, published_at DESC
-        LIMIT ?
-    ''', (min_score, x_threshold, limit)).fetchall()
+        ORDER BY category, score DESC, published_at DESC
+    ''').fetchall()
     conn.close()
-    return [dict(r) for r in rows]
+
+    by_cat = {}
+    for r in rows:
+        d = dict(r)
+        by_cat.setdefault(d['category'], []).append(d)
+
+    selected = []
+    for cat, articles in by_cat.items():
+        cfg = filters.get(cat)
+        if not cfg:
+            continue
+        min_s = int(cfg.get('min_score', 0) or 0)
+        max_n = int(cfg.get('max_articles', 0) or 0)
+        if max_n <= 0:
+            continue
+        kept = [a for a in articles if (a.get('score') or 0) >= min_s][:max_n]
+        selected.extend(kept)
+
+    selected.sort(key=lambda a: (
+        a.get('hotness') or 0,
+        a.get('published_at') or ''
+    ), reverse=True)
+
+    return selected[:limit] if limit else selected
 
 
 def category_color(category):
