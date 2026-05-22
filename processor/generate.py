@@ -126,7 +126,7 @@ def build_sources_modal():
     html.append('<div class="modal-section">')
     html.append('<h3>各来源独立筛选规则</h3>')
     if cat_filters:
-        html.append('<table class="modal-table"><tr><th>来源</th><th>录用分数线</th><th>展示上限</th></tr>')
+        html.append('<table class="modal-table"><tr><th>来源</th><th>录用分数线</th><th>每日上限</th></tr>')
         for cat in ALL_CATS:
             cfg = cat_filters.get(cat)
             if not cfg:
@@ -136,11 +136,12 @@ def build_sources_modal():
             html.append(
                 f'<tr><td>{cat}</td>'
                 f'<td style="text-align:center">≥ {ms} 分</td>'
-                f'<td style="text-align:center">{mn} 条</td></tr>'
+                f'<td style="text-align:center">{mn} 条 / 日</td></tr>'
             )
         html.append('</table>')
         html.append('<div class="modal-note" style="margin-top:10px">'
-                    '· 每个来源按相关度得分降序独立排序,套用各自阈值与上限后取前 N 条\n'
+                    '· 每个来源按相关度得分降序,在每个发布日期内独立排序,各取前 N 条\n'
+                    '· 历史范围由 30 天数据保留期统一控制,不另设全局总数上限\n'
                     '· 来源之间不再混合排序,避免单一高产来源(如 arXiv)挤占其他来源</div>')
     html.append('</div>')
 
@@ -212,15 +213,33 @@ def get_date(iso_str):
         return iso_str[:10]
 
 
-def get_articles(limit=500):
-    """各来源类别独立筛选。
+_BJ_TZ = timezone(timedelta(hours=8))
+
+
+def _bj_day(iso_str):
+    """把 ISO 时间戳(UTC 或带时区)转成北京时区的 YYYY-MM-DD 字符串。"""
+    if not iso_str:
+        return ''
+    try:
+        d = datetime.fromisoformat(str(iso_str).replace('Z', '+00:00'))
+        if d.tzinfo is None:
+            d = d.replace(tzinfo=timezone.utc)
+        return d.astimezone(_BJ_TZ).strftime('%Y-%m-%d')
+    except Exception:
+        return str(iso_str)[:10]
+
+
+def get_articles(limit=None):
+    """各来源类别按"每日数量上限"独立筛选。
 
     流程:
-    1. 读取所有文章,按 (category, score DESC, published_at DESC) 排序
-    2. 按 category 分组
-    3. 对每个 category,用其 min_score 过滤,再截取前 max_articles 条
-    4. 未在 category_filters 配置中的来源类别整组丢弃
-    5. 合并后按热度 DESC、时间 DESC 排序,作为最终输出
+    1. 读取所有文章(30 天数据保留范围内)
+    2. 按 (category, 北京时区发布日期) 分组
+    3. 对每个 (category, 日期) 组合,先按 min_score 过滤,
+       再按 score 降序取前 max_articles 条(=该来源该日的上限)
+    4. 未在 category_filters 中配置的来源整组丢弃
+    5. 合并所有保留项,按热度 DESC、时间 DESC 排序
+    6. 历史范围由 30 天数据保留期统一控制,不另设全局总数上限
     """
     filters = load_category_filters()
     conn = get_conn()
@@ -228,17 +247,19 @@ def get_articles(limit=500):
         SELECT title, title_zh, url, source_name, category, topic,
                published_at, summary, score, hotness, content
         FROM articles
-        ORDER BY category, score DESC, published_at DESC
+        ORDER BY category, published_at DESC, score DESC
     ''').fetchall()
     conn.close()
 
-    by_cat = {}
+    # (category, 北京日期) -> [articles]
+    by_cat_day = {}
     for r in rows:
         d = dict(r)
-        by_cat.setdefault(d['category'], []).append(d)
+        key = (d['category'], _bj_day(d.get('published_at')))
+        by_cat_day.setdefault(key, []).append(d)
 
     selected = []
-    for cat, articles in by_cat.items():
+    for (cat, _day), articles in by_cat_day.items():
         cfg = filters.get(cat)
         if not cfg:
             continue
@@ -246,7 +267,11 @@ def get_articles(limit=500):
         max_n = int(cfg.get('max_articles', 0) or 0)
         if max_n <= 0:
             continue
-        kept = [a for a in articles if (a.get('score') or 0) >= min_s][:max_n]
+        kept = sorted(
+            (a for a in articles if (a.get('score') or 0) >= min_s),
+            key=lambda a: (a.get('score') or 0, a.get('published_at') or ''),
+            reverse=True,
+        )[:max_n]
         selected.extend(kept)
 
     selected.sort(key=lambda a: (

@@ -5,10 +5,11 @@
 # 网页生成阶段的真实筛选规则见下方 category_filters
 min_score: 70
 
-# 各来源类别独立筛选
+# 各来源类别独立筛选(按"每日"维度)
 # 网页生成时不再将所有来源混合后用统一阈值过滤，
-# 改为每个 category 分别按 score 降序排序后，
-# 套用各自的 min_score (录用分数线) 和 max_articles (展示上限)。
+# 改为每个 category × 每个发布日期 分别按 score 降序排序后，
+# 套用各自的 min_score (录用分数线) 和 max_articles (该来源每日上限)。
+# 历史范围由 30 天数据保留期统一控制,不另设全局总数上限。
 # 配置中未列出的来源类别会被排除（例如已下线的历史来源 Reddit）。
 category_filters:
   arXiv:        { min_score: 70, max_articles: 30 }
