@@ -870,28 +870,26 @@
   const spacerOf = new Map();
   allRows.forEach(row => spacerOf.set(row, row.nextElementSibling));
 
-  function getLocalDateStr(daysAgo) {
-    const d = new Date();
-    d.setDate(d.getDate() - daysAgo);
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${y}-${m}-${day}`;
-  }
-
-  function isoToLocalDate(iso) {
+  // 站点统一按北京时区计日,避免 UTC / 浏览器本地时区 / 北京 三套日期口径不一致
+  function isoToBjDate(iso) {
     if (!iso) return '';
-    const d = new Date(iso);
-    if (isNaN(d)) return '';
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
+    const t = new Date(iso).getTime();
+    if (isNaN(t)) return '';
+    const d = new Date(t + 8 * 3600 * 1000);
+    const y = d.getUTCFullYear();
+    const m = String(d.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(d.getUTCDate()).padStart(2, '0');
     return `${y}-${m}-${day}`;
   }
 
-  document.querySelectorAll('.item-row[data-iso]').forEach(r => {
-    r.dataset.localDate = isoToLocalDate(r.dataset.iso) || r.dataset.date;
-  });
+  function getBjDateStr(daysAgo) {
+    const t = Date.now() + 8 * 3600 * 1000 - daysAgo * 86400 * 1000;
+    const d = new Date(t);
+    const y = d.getUTCFullYear();
+    const m = String(d.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(d.getUTCDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
 
   function getVisibleRows() {
     return allRows.filter(row => {
@@ -901,11 +899,11 @@
       const h         = parseInt(row.dataset.hotness || 0);
       const hotnessOk = h >= activeHotness && h <= activeHotnessMax;
       let dateOk = true;
-      const rowDate = row.dataset.localDate || row.dataset.date;
+      const rowDate = row.dataset.date;
       if (activeExact) {
         dateOk = rowDate === activeExact;
       } else if (activeDays !== 'all') {
-        dateOk = rowDate >= getLocalDateStr(parseInt(activeDays));
+        dateOk = rowDate >= getBjDateStr(parseInt(activeDays));
       }
       return catOk && topicOk && scoreOk && hotnessOk && dateOk;
     });
@@ -931,9 +929,9 @@
     const h = parseInt(row.dataset.hotness || 0);
     const hotnessOk = h >= activeHotness && h <= activeHotnessMax;
     let dateOk = true;
-    const rowDate = row.dataset.localDate || row.dataset.date;
+    const rowDate = row.dataset.date;
     if (activeExact) dateOk = rowDate === activeExact;
-    else if (activeDays !== 'all') dateOk = rowDate >= getLocalDateStr(parseInt(activeDays));
+    else if (activeDays !== 'all') dateOk = rowDate >= getBjDateStr(parseInt(activeDays));
     return scoreOk && hotnessOk && dateOk;
   }
 
@@ -980,8 +978,8 @@
       let n;
       if (d === 'all') n = dateBase.length;
       else {
-        const cutoff = getLocalDateStr(parseInt(d));
-        n = dateBase.filter(row => (row.dataset.localDate || row.dataset.date) >= cutoff).length;
+        const cutoff = getBjDateStr(parseInt(d));
+        n = dateBase.filter(row => row.dataset.date >= cutoff).length;
       }
       countEl.textContent = n;
       if (d !== 'all') {
@@ -1180,12 +1178,8 @@
       el.textContent = text;
     });
     document.querySelectorAll('.pub-date[data-iso]').forEach(el => {
-      const d = new Date(el.dataset.iso);
-      if (isNaN(d)) return;
-      const y = d.getFullYear();
-      const m = String(d.getMonth() + 1).padStart(2, '0');
-      const day = String(d.getDate()).padStart(2, '0');
-      el.textContent = `${y}-${m}-${day}`;
+      const s = isoToBjDate(el.dataset.iso);
+      if (s) el.textContent = s;
     });
   })();
 

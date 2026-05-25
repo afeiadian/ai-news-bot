@@ -1,5 +1,6 @@
 import html as _html
 import os
+import re
 import sys
 import yaml
 from datetime import datetime, timezone, timedelta
@@ -204,15 +205,6 @@ def time_ago(iso_str):
         return iso_str[:10]
 
 
-def get_date(iso_str):
-    if not iso_str:
-        return ''
-    try:
-        return datetime.fromisoformat(iso_str.replace('Z', '+00:00')).strftime('%Y-%m-%d')
-    except Exception:
-        return iso_str[:10]
-
-
 _BJ_TZ = timezone(timedelta(hours=8))
 
 
@@ -221,12 +213,20 @@ def _bj_day(iso_str):
     if not iso_str:
         return ''
     try:
-        d = datetime.fromisoformat(str(iso_str).replace('Z', '+00:00'))
+        # Python 3.9 的 fromisoformat 只接受 0/3/6 位小数秒,实际数据里出现过 5 位 (2026-05-18T19:07:42.97797Z),
+        # 跨日界点会因解析失败回退到 UTC 前缀,误归到上一天 → 直接抹掉分数秒,日历换算用不到。
+        s = re.sub(r'\.\d+', '', str(iso_str)).replace('Z', '+00:00')
+        d = datetime.fromisoformat(s)
         if d.tzinfo is None:
             d = d.replace(tzinfo=timezone.utc)
         return d.astimezone(_BJ_TZ).strftime('%Y-%m-%d')
     except Exception:
         return str(iso_str)[:10]
+
+
+def get_date(iso_str):
+    """页面展示用日期统一走北京时区,跟 _bj_day 一致,避免与 JS 端 / 筛选逻辑错位。"""
+    return _bj_day(iso_str)
 
 
 def get_articles(limit=None):
