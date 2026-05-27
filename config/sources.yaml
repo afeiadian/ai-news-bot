@@ -126,8 +126,13 @@ arxiv_sources:
 
 # Hacker News（通过 RSSHub）
 hackernews_sources:
-  - name: "HN Top Links"
+  # HN 官方 API 三大端点中的 best + top
+  # 路径命名差异: HN 网站 /news 对应官方 API 的 topstories(首页)
+  - name: "HN Best Stories"
     url: "https://rsshub-production-5b5c.up.railway.app/hackernews/best"
+    status: verified
+  - name: "HN Top Stories"
+    url: "https://rsshub-production-5b5c.up.railway.app/hackernews/news"
     status: verified
 
 
