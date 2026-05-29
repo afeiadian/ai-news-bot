@@ -35,15 +35,36 @@ def clean_source_name(name: str) -> str:
     return name
 
 
+def _miniflux_list(path):
+    """GET 一个预期返回 list 的 Miniflux 端点。
+
+    Miniflux/RSSHub 托管在 Railway，服务下线时会返回错误 dict
+    (如 {"status":"error","code":404,"message":"Application not found"})，
+    旧代码直接 {x['id'] for x in resp.json()} 会因为遍历 dict 得到字符串键
+    而抛 TypeError，进而让整个 run.py 崩溃、连独立的 X 抓取都跑不到。
+    这里统一兜底：拿不到 list 就打印原因并返回 None，由上层降级处理。
+    """
+    try:
+        resp = requests.get(f'{MINIFLUX_URL}{path}', headers=HEADERS, timeout=30)
+        data = resp.json()
+    except (requests.RequestException, ValueError) as e:
+        print(f'⚠️  Miniflux {path} 请求失败：{e}')
+        return None
+    if not isinstance(data, list):
+        print(f'⚠️  Miniflux {path} 异常响应：HTTP {resp.status_code} {str(data)[:120]}')
+        return None
+    return data
+
+
 def get_feeds():
-    resp = requests.get(f'{MINIFLUX_URL}/v1/feeds', headers=HEADERS)
-    return {f['id']: f for f in resp.json()}
+    data = _miniflux_list('/v1/feeds')
+    return {f['id']: f for f in data} if data else {}
 
 
 def _get_categories():
     """返回 {category_name: category_id}"""
-    resp = requests.get(f'{MINIFLUX_URL}/v1/categories', headers=HEADERS)
-    return {c['title']: c['id'] for c in resp.json()}
+    data = _miniflux_list('/v1/categories')
+    return {c['title']: c['id'] for c in data} if data else {}
 
 
 def fetch_unread_entries(limit=200, days_back=1):

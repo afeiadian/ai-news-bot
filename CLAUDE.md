@@ -87,6 +87,8 @@ arXiv API ──┘                     │
 - **`{{UPDATED}}` 是数据时间不是脚本时间**: 取所有文章 `published_at` 的最大值,转北京时区
 - **热度筛选 N★ 是精确匹配**: 不是"N 或以上",见 commit `5b84f09`
 - **arXiv 海量论文会挤掉小源**: `processor/fetch.py:fetch_unread_entries` 按分类配额抓取(优先级 1 给 lab/tools/chip/newsletter/HN,剩余给 arXiv),不要改回时间倒序
+- **整天空白多因 Railway 后端挂掉**: 所有 RSS(arXiv/Lab/Chip/Tools/Newsletter/HN)都经 Miniflux,HN 还经 RSSHub,二者都托管在 Railway。Railway 服务下线时返回 `404 Application not found`,排查先 `curl $MINIFLUX_URL/healthcheck`。X 走 `fetch_twitter.py` 直连 x.com,与后端无关。`get_feeds()`/`_get_categories()` 已做兜底(后端挂时返回空、不再崩 `run.py`),所以后端故障会降级成"仅 X"而非整天空白。**Railway 换 URL 后**:要同步改 GitHub Secret `MINIFLUX_URL`/`RSSHUB_URL` + `config/sources.yaml` 里硬编码的 rsshub URL(第 4/14/132/135 行)+ 重跑 `setup_feeds.py`
+- **GitHub 账号被封也会 push 失败**: Actions 全跑完但最后 `git push` 报 `403 account suspended`(先例 5-26),数据没推上去 → 页面停在旧版。和后端故障是两回事,看 Actions 日志末尾区分
 
 ## 协作风格偏好
 
