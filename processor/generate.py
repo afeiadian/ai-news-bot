@@ -5,6 +5,7 @@ import sys
 import yaml
 from datetime import datetime, timezone, timedelta
 from storage import get_conn
+from run_log import load_recent
 
 SCORING_PATH = os.path.join(os.path.dirname(__file__), '..', 'config', 'scoring.yaml')
 SOURCES_PATH = os.path.join(os.path.dirname(__file__), '..', 'config', 'sources.yaml')
@@ -310,6 +311,104 @@ def topic_color(topic):
     return colors.get(topic, '#9ca3af')
 
 
+def _backend_badge(b):
+    """渲染后端状态徽标：✅/❌ + detail。"""
+    if not b:
+        return '<span style="color:#9ca3af">—</span>'
+    ok = b.get('ok')
+    sym = '✅' if ok else '❌'
+    color = '#059669' if ok else '#dc2626'
+    detail = b.get('detail', '')
+    out = f'<span style="color:{color};font-weight:600">{sym}</span>'
+    if detail:
+        out += f' <span style="color:#888;font-size:11px">{_html.escape(detail)}</span>'
+    return out
+
+
+def _src_view(s):
+    """把一个来源统计转成展示用 (状态文案, 颜色, 抓取, 新增, 收录, 卡在)。"""
+    if s.get('status') == 'fail':
+        return ('失败', '#dc2626', '—', '—', '—', s.get('step', '') or '—',
+                s.get('note', ''))
+    fetched, new, kept = s.get('fetched', 0), s.get('new', 0), s.get('kept', 0)
+    pf = s.get('proc_fail', 0)
+    step = 'AI 处理' if pf else '完成'
+    note = f'{pf} 条处理失败' if pf else ''
+    if fetched == 0 and new == 0:
+        return ('无新增', '#9ca3af', '0', '0', '0', '—', '')
+    return ('成功', '#059669', str(fetched), str(new), str(kept), step, note)
+
+
+def build_run_log_modal(logs):
+    if not logs:
+        return ('<div class="modal-section"><h3>抓取日志</h3>'
+                '<div class="modal-note">暂无抓取日志，下次定时任务运行后生成。</div></div>')
+
+    html = []
+    latest = logs[0]
+
+    # ===== 最新一次：完整明细 =====
+    bk = latest.get('backends', {})
+    html.append('<div class="modal-section">')
+    html.append(f'<h3>最新一次抓取 · {_html.escape(latest.get("run_at_bj", ""))}</h3>')
+    backend_line = (
+        f'耗时 {latest.get("duration_sec", 0)}s'
+        f'　｜　Miniflux(RSS) {_backend_badge(bk.get("Miniflux (RSS)"))}'
+        f'　｜　X/Twitter {_backend_badge(bk.get("X / Twitter"))}'
+    )
+    if latest.get('fatal'):
+        backend_line += (f'<br><span style="color:#dc2626;font-weight:600">'
+                         f'⚠ 运行中断：{_html.escape(latest["fatal"])}</span>')
+    html.append(f'<div class="modal-note">{backend_line}</div>')
+
+    html.append('<table class="modal-table"><tr>'
+                '<th>来源</th><th>状态</th><th>抓取</th><th>新增</th>'
+                '<th>收录</th><th>卡在 / 备注</th></tr>')
+    for s in latest.get('sources', []):
+        label, color, fetched, new, kept, step, note = _src_view(s)
+        cat = s.get('name', '')
+        tag_color = category_color(cat)
+        step_cell = step if step != '完成' else '<span style="color:#9ca3af">完成</span>'
+        if note:
+            step_cell += f' <span style="color:#888;font-size:11px">{_html.escape(note)}</span>'
+        html.append(
+            f'<tr><td><span class="modal-tag" style="background:{tag_color}">{_html.escape(cat)}</span></td>'
+            f'<td style="color:{color};font-weight:600;white-space:nowrap">{label}</td>'
+            f'<td style="text-align:center">{fetched}</td>'
+            f'<td style="text-align:center">{new}</td>'
+            f'<td style="text-align:center;font-weight:600">{kept}</td>'
+            f'<td>{step_cell}</td></tr>'
+        )
+    html.append('</table>')
+    html.append('<div class="modal-note" style="margin-top:10px;font-size:11.5px">'
+                '抓取=源头原始条数　新增=去重后新处理　收录=通过相关度阈值\n'
+                'X 直连 x.com，与 RSS 后端(Miniflux/RSSHub on Railway)相互独立</div>')
+    html.append('</div>')
+
+    # ===== 往前几次：紧凑列表 =====
+    if len(logs) > 1:
+        html.append('<div class="modal-section">')
+        html.append(f'<h3>往前 {len(logs) - 1} 次</h3>')
+        for run in logs[1:]:
+            bk = run.get('backends', {})
+            head = (f'<strong>{_html.escape(run.get("run_at_bj", ""))}</strong> '
+                    f'<span style="color:#888;font-size:11px">耗时 {run.get("duration_sec",0)}s</span>'
+                    f'　Miniflux {_backend_badge(bk.get("Miniflux (RSS)"))}'
+                    f'　X {_backend_badge(bk.get("X / Twitter"))}')
+            chips = []
+            for s in run.get('sources', []):
+                label, color, fetched, new, kept, step, note = _src_view(s)
+                sym = '❌' if label == '失败' else ('○' if label == '无新增' else '✅')
+                suffix = f' {kept}' if label == '成功' else ''
+                chips.append(f'<span style="color:{color};white-space:nowrap">'
+                             f'{sym}{_html.escape(s.get("name",""))}{suffix}</span>')
+            body = '　'.join(chips) if chips else '<span style="color:#9ca3af">无记录</span>'
+            html.append(f'<div class="modal-note" style="margin-bottom:8px">{head}<br>{body}</div>')
+        html.append('</div>')
+
+    return '\n'.join(html)
+
+
 def build_html(articles):
     with open(TEMPLATE_PATH, encoding='utf-8') as f:
         template = f.read()
@@ -459,6 +558,7 @@ def build_html(articles):
     html = html.replace('{{TOPIC_BUTTONS}}', topic_buttons)
     html = html.replace('{{DATE_OPTIONS}}', date_options)
     html = html.replace('{{SOURCES_CONTENT}}', build_sources_modal())
+    html = html.replace('{{RUN_LOG}}', build_run_log_modal(load_recent(7)))
     return html
 
 

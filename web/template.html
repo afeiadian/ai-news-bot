@@ -138,7 +138,7 @@
       font-weight: 600;
       font-variant-numeric: tabular-nums;
     }
-    #sources-btn {
+    #sources-btn, #log-btn {
       background: var(--surface);
       border: 1px solid var(--border);
       color: var(--text-2);
@@ -161,7 +161,15 @@
       background-size: contain;
       background-repeat: no-repeat;
     }
-    #sources-btn:hover {
+    #log-btn::before {
+      content: '';
+      width: 12px;
+      height: 12px;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M8 6h13'/><path d='M8 12h13'/><path d='M8 18h13'/><path d='M3 6h.01'/><path d='M3 12h.01'/><path d='M3 18h.01'/></svg>");
+      background-size: contain;
+      background-repeat: no-repeat;
+    }
+    #sources-btn:hover, #log-btn:hover {
       border-color: var(--text-1);
       color: var(--text-1);
       background: var(--bg-soft);
@@ -764,6 +772,7 @@
     </a>
     <span class="header-spacer"></span>
     <span id="visit-count"><span>累计浏览</span> <strong id="visit-num">···</strong></span>
+    <button id="log-btn" onclick="openLog()">抓取日志</button>
     <button id="sources-btn" onclick="openModal()">数据来源与筛选</button>
   </div>
 </div>
@@ -772,11 +781,12 @@
 <div id="modal-overlay" onclick="handleOverlayClick(event)">
   <div id="modal-box">
     <div id="modal-header">
-      <h2>数据来源 &amp; 评分标准</h2>
+      <h2 id="modal-title">数据来源 &amp; 评分标准</h2>
       <button id="modal-close" onclick="closeModal()">✕</button>
     </div>
     <div id="modal-body">
-      {{SOURCES_CONTENT}}
+      <div id="panel-sources">{{SOURCES_CONTENT}}</div>
+      <div id="panel-log" style="display:none">{{RUN_LOG}}</div>
     </div>
   </div>
 </div>
@@ -1151,7 +1161,19 @@
     currentPage = 1; render();
   }
 
+  function showPanel(which) {
+    document.getElementById('panel-sources').style.display = which === 'sources' ? '' : 'none';
+    document.getElementById('panel-log').style.display = which === 'log' ? '' : 'none';
+    document.getElementById('modal-title').textContent =
+      which === 'log' ? '抓取日志' : '数据来源 & 评分标准';
+  }
   function openModal() {
+    showPanel('sources');
+    document.getElementById('modal-overlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function openLog() {
+    showPanel('log');
     document.getElementById('modal-overlay').classList.add('open');
     document.body.style.overflow = 'hidden';
   }
